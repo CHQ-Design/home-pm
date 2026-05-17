@@ -65,7 +65,7 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
     <form ref={formRef} onSubmit={handleSubmit} className="mb-8 space-y-2">
       {projectId && <input type="hidden" name="projectId" value={projectId} />}
       <div className="flex gap-2 relative">
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <input
             name="title"
             value={titleValue}
