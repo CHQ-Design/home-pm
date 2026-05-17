@@ -1,9 +1,12 @@
 "use client"
 
 import { useRef, useState } from "react"
+import type { Person } from "@prisma/client"
 import { addTask } from "./actions"
 
-export default function AddTaskForm() {
+type Props = { people: Person[] }
+
+export default function AddTaskForm({ people }: Props) {
   const [showMore, setShowMore] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -49,7 +52,7 @@ export default function AddTaskForm() {
             rows={2}
             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400 resize-none"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <input
               type="date"
               name="dueDate"
@@ -64,6 +67,18 @@ export default function AddTaskForm() {
               <option value="medium">Medium priority</option>
               <option value="low">Low priority</option>
             </select>
+            {people.length > 0 && (
+              <select
+                name="assigneeId"
+                defaultValue=""
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+              >
+                <option value="">Unassigned</option>
+                {people.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
       )}

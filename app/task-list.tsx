@@ -1,17 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import type { Task } from "@prisma/client"
+import type { Person, Prisma } from "@prisma/client"
 import TaskItem from "./task-item"
 
-// Dates are stored as midnight UTC (e.g. "2026-05-16T00:00:00Z").
-// Compare as YYYY-MM-DD strings to avoid timezone drift.
+type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
+
 function utcDateStr(date: Date) {
   return new Date(date).toISOString().slice(0, 10)
 }
 
 function localTodayStr() {
-  // "en-CA" locale formats as YYYY-MM-DD
   return new Date().toLocaleDateString("en-CA")
 }
 
@@ -20,15 +19,19 @@ function groupTasks(tasks: Task[]) {
   const open = tasks.filter(t => !t.completed)
 
   return {
-    overdue: open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today),
-    today:   open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today),
+    overdue:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today),
+    today:    open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today),
     upcoming: open.filter(t => t.dueDate && utcDateStr(t.dueDate) > today),
-    noDate: open.filter(t => !t.dueDate),
+    noDate:   open.filter(t => !t.dueDate),
     completed: tasks.filter(t => t.completed),
   }
 }
 
-function Section({ title, tasks, titleClass }: { title: string; tasks: Task[]; titleClass: string }) {
+function Section({
+  title, tasks, titleClass, people,
+}: {
+  title: string; tasks: Task[]; titleClass: string; people: Person[]
+}) {
   if (tasks.length === 0) return null
   return (
     <section className="mb-4">
@@ -37,21 +40,57 @@ function Section({ title, tasks, titleClass }: { title: string; tasks: Task[]; t
       </h2>
       <ul className="divide-y divide-slate-100">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} />
+          <TaskItem key={task.id} task={task} people={people} />
         ))}
       </ul>
     </section>
   )
 }
 
-export default function TaskList({ tasks }: { tasks: Task[] }) {
+type Props = { tasks: Task[]; people: Person[] }
+
+export default function TaskList({ tasks, people }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
-  const groups = groupTasks(tasks)
+  const [filterPersonId, setFilterPersonId] = useState<number | null>(null)
+
+  const filtered = filterPersonId === null
+    ? tasks
+    : tasks.filter(t => t.assigneeId === filterPersonId)
+
+  const groups = groupTasks(filtered)
   const openCount =
     groups.overdue.length + groups.today.length + groups.upcoming.length + groups.noDate.length
 
   return (
     <div>
+      {people.length > 0 && (
+        <div className="flex gap-2 mb-5 flex-wrap">
+          <button
+            onClick={() => setFilterPersonId(null)}
+            className={`text-xs px-3 py-1 rounded-full transition-colors ${
+              filterPersonId === null
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            All
+          </button>
+          {people.map(p => (
+            <button
+              key={p.id}
+              onClick={() => setFilterPersonId(p.id)}
+              className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                filterPersonId === p.id
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {openCount === 0 && groups.completed.length === 0 && (
         <p className="text-slate-400 text-sm py-4">No tasks yet. Add one above.</p>
       )}
@@ -59,10 +98,10 @@ export default function TaskList({ tasks }: { tasks: Task[] }) {
         <p className="text-slate-400 text-sm py-2">All done!</p>
       )}
 
-      <Section title="Overdue" tasks={groups.overdue} titleClass="text-red-500" />
-      <Section title="Today" tasks={groups.today} titleClass="text-blue-500" />
-      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-slate-500" />
-      <Section title="No date" tasks={groups.noDate} titleClass="text-slate-400" />
+      <Section title="Overdue"  tasks={groups.overdue}  titleClass="text-red-500"   people={people} />
+      <Section title="Today"    tasks={groups.today}    titleClass="text-blue-500"  people={people} />
+      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-slate-500" people={people} />
+      <Section title="No date"  tasks={groups.noDate}   titleClass="text-slate-400" people={people} />
 
       {groups.completed.length > 0 && (
         <div className="mt-6 border-t border-slate-100 pt-4">
@@ -75,7 +114,7 @@ export default function TaskList({ tasks }: { tasks: Task[] }) {
           {showCompleted && (
             <ul className="mt-2 divide-y divide-slate-100 opacity-60">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} />
+                <TaskItem key={task.id} task={task} people={people} />
               ))}
             </ul>
           )}

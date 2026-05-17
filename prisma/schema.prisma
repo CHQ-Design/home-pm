@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Person {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  tasks     Task[]
+}
+
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
@@ -14,6 +21,9 @@ model Task {
   dueDate     DateTime?
   priority    String    @default("medium")
   completed   Boolean   @default(false)
+  reminderSet Boolean   @default(false)
   createdAt   DateTime  @default(now())
   completedAt DateTime?
+  assigneeId  Int?
+  assignee    Person?   @relation(fields: [assigneeId], references: [id])
 }
