@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import type { Person, Prisma } from "@prisma/client"
-import { toggleTask, deleteTask, updateTask, toggleReminder } from "./actions"
+import { toggleTask, toggleReminder, updateTask } from "./actions"
+import TaskEditModal from "./task-edit-modal"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
 
@@ -20,34 +21,15 @@ function formatDate(date: Date) {
   })
 }
 
-type EditMode = "none" | "inline" | "expanded"
-
 export default function TaskItem({ task, people }: { task: Task; people: Person[] }) {
-  const [editMode, setEditMode] = useState<EditMode>("none")
+  const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")
-  const [form, setForm] = useState({
-    title: "",
-    notes: "",
-    dueDate: "",
-    priority: "",
-    assigneeId: "",
-  })
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   function openInline() {
     if (task.completed) return
     setInlineTitle(task.title)
-    setEditMode("inline")
-  }
-
-  function openExpanded() {
-    setForm({
-      title: task.title,
-      notes: task.notes ?? "",
-      dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : "",
-      priority: task.priority,
-      assigneeId: task.assigneeId ? String(task.assigneeId) : "",
-    })
-    setEditMode(m => (m === "expanded" ? "none" : "expanded"))
+    setIsInlineEditing(true)
   }
 
   async function saveInline() {
@@ -55,18 +37,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
     if (trimmed && trimmed !== task.title) {
       await updateTask(task.id, { title: trimmed })
     }
-    setEditMode("none")
-  }
-
-  async function saveExpanded() {
-    await updateTask(task.id, {
-      title: form.title.trim() || task.title,
-      notes: form.notes.trim() || null,
-      dueDate: form.dueDate ? new Date(form.dueDate) : null,
-      priority: form.priority,
-      assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
-    })
-    setEditMode("none")
+    setIsInlineEditing(false)
   }
 
   return (
@@ -79,14 +50,14 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
           className="h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 cursor-pointer"
         />
 
-        {editMode === "inline" ? (
+        {isInlineEditing ? (
           <input
             value={inlineTitle}
             onChange={e => setInlineTitle(e.target.value)}
             onBlur={saveInline}
             onKeyDown={e => {
               if (e.key === "Enter") saveInline()
-              if (e.key === "Escape") setEditMode("none")
+              if (e.key === "Escape") setIsInlineEditing(false)
             }}
             className="flex-1 text-sm border-b border-blue-400 outline-none bg-transparent py-0.5"
             autoFocus
@@ -104,13 +75,13 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
           </span>
         )}
 
-        {task.assignee && editMode !== "inline" && (
+        {task.assignee && !isInlineEditing && (
           <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 shrink-0">
             {task.assignee.name}
           </span>
         )}
 
-        {task.dueDate && editMode !== "inline" && (
+        {task.dueDate && !isInlineEditing && (
           <span className="text-xs text-slate-400 shrink-0">{formatDate(task.dueDate)}</span>
         )}
 
@@ -126,103 +97,29 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
           onClick={() => toggleReminder(task.id)}
           className={`text-sm leading-none shrink-0 transition-opacity ${
             task.reminderSet
-              ? "text-amber-500"
-              : "text-slate-300 opacity-0 group-hover:opacity-100"
+              ? "opacity-100 text-amber-500"
+              : "opacity-0 group-hover:opacity-40 hover:!opacity-100"
           }`}
           title={task.reminderSet ? "Remove reminder" : "Set reminder"}
         >
           🔔
         </button>
 
-        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-          <button
-            onClick={openExpanded}
-            className="text-slate-400 hover:text-slate-700 text-sm leading-none"
-            title="Edit all fields"
-          >
-            ✎
-          </button>
-          <button
-            onClick={() => deleteTask(task.id)}
-            className="text-slate-400 hover:text-red-500 text-sm leading-none"
-            title="Delete"
-          >
-            ✕
-          </button>
-        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="text-slate-400 text-sm leading-none shrink-0 opacity-30 group-hover:opacity-100 transition-opacity hover:text-slate-200"
+          title="Edit task"
+        >
+          ✎
+        </button>
       </div>
 
-      {editMode === "expanded" && (
-        <div className="ml-7 mt-2 mb-1 p-4 bg-white rounded-lg border border-slate-300 shadow-sm space-y-3">
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-slate-500">Title</label>
-            <input
-              value={form.title}
-              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-              className="w-full text-sm border border-slate-300 rounded-md px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-slate-500">Notes</label>
-            <textarea
-              value={form.notes}
-              onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-              placeholder="Optional"
-              rows={2}
-              className="w-full text-sm border border-slate-300 rounded-md px-3 py-2 text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-slate-500">Due date</label>
-              <input
-                type="date"
-                value={form.dueDate}
-                onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))}
-                className="w-full text-sm border border-slate-300 rounded-md px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-slate-500">Priority</label>
-              <select
-                value={form.priority}
-                onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
-                className="w-full text-sm border border-slate-300 rounded-md px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-slate-500">Assignee</label>
-              <select
-                value={form.assigneeId}
-                onChange={e => setForm(f => ({ ...f, assigneeId: e.target.value }))}
-                className="w-full text-sm border border-slate-300 rounded-md px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Unassigned</option>
-                {people.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={saveExpanded}
-              className="text-sm px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Save
-            </button>
-            <button
-              onClick={() => setEditMode("none")}
-              className="text-sm px-4 py-1.5 text-slate-500 hover:text-slate-700"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+      {isModalOpen && (
+        <TaskEditModal
+          task={task}
+          people={people}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </li>
   )
