@@ -8,7 +8,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? ""
 export type Role = "admin" | "member"
 
 export function getRole(email: string | null | undefined): Role {
-  return email === ADMIN_EMAIL ? "admin" : "member"
+  return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "admin" : "member"
 }
 
 export const authOptions: NextAuthOptions = {
