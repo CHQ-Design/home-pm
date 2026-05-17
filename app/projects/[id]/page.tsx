@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import AddTaskForm from "@/app/add-task-form"
 import TaskList from "@/app/task-list"
-import ProjectStatusSelect from "./project-status-select"
+import ProjectHeader from "./project-header"
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -33,31 +33,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         ← Projects
       </Link>
 
-      <div className="mb-6">
-        <div className="flex items-start justify-between gap-3">
-          <h1 className="font-serif text-2xl font-bold text-[#3A3228]">{project.name}</h1>
-          <ProjectStatusSelect projectId={project.id} status={project.status} />
-        </div>
-
-        {project.description && (
-          <p className="text-sm text-[#8C7D6A] mt-1">{project.description}</p>
-        )}
-
-        {total > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-xs text-[#A09080] mb-1">
-              <span>{done} of {total} task{total !== 1 ? "s" : ""} done</span>
-              <span>{Math.round((done / total) * 100)}%</span>
-            </div>
-            <div className="h-1.5 rounded-full bg-[#E4DDD0] overflow-hidden">
-              <div
-                className="h-full rounded-full bg-accent transition-all"
-                style={{ width: `${(done / total) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      <ProjectHeader
+        projectId={project.id}
+        name={project.name}
+        description={project.description}
+        status={project.status}
+        progress={total > 0 ? { done, total } : null}
+      />
 
       <AddTaskForm people={people} projectId={project.id} />
       <TaskList tasks={project.tasks} people={people} projects={projects} />
