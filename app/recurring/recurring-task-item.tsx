@@ -140,12 +140,15 @@ export default function RecurringTaskItem({
             <option key={c.value} value={c.value}>{c.label}</option>
           ))}
         </select>
-        <input
-          type="date"
-          value={form.nextDue}
-          onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
-          className={inputClass}
-        />
+        <div className="flex gap-3 items-center">
+          <label className="text-xs text-[#8C7D6A] shrink-0">Next due</label>
+          <input
+            type="date"
+            value={form.nextDue}
+            onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
+            className={inputClass}
+          />
+        </div>
         {showNotes && (
           <textarea
             value={form.notes}
