@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma *)",
+      "Bash(sqlite3 *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(npm install *)",
+      "Bash(git -C /Users/craigregister/Projects/home-pm add app/api/calendar/route.ts)",
+      "Bash(git -C /Users/craigregister/Projects/home-pm commit -m ' *)",
+      "Bash(git -C /Users/craigregister/Projects/home-pm add app/task-list.tsx app/task-item.tsx app/add-task-form.tsx)",
+      "Bash(npx tsc *)",
+      "Bash(git *)"
+    ]
+  }
+}

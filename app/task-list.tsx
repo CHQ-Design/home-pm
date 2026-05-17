@@ -5,7 +5,7 @@ import type { Person, Prisma } from "@prisma/client"
 import { IconSun, IconWaveSine } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 
-type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
+type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
 function utcDateStr(date: Date) {
   return new Date(date).toISOString().slice(0, 10)

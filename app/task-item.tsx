@@ -7,7 +7,7 @@ import { IconBell, IconBellOff, IconFeather, IconFlame } from "@tabler/icons-rea
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 
-type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
+type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type Priority = "high" | "medium" | "low"
 
 const PRIORITY_STYLES: Record<Priority, string> = {
@@ -150,6 +150,12 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
                   : { width: "100%" }}
               />
             )}
+          </span>
+        )}
+
+        {task.project && !isInlineEditing && (
+          <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent shrink-0">
+            {task.project.name}
           </span>
         )}
 

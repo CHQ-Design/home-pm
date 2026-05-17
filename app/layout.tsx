@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import Nav from "./nav";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -33,7 +34,10 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="min-h-[100dvh] flex flex-col">{children}</body>
+      <body className="min-h-[100dvh] flex flex-col">
+        <Nav />
+        {children}
+      </body>
     </html>
   );
 }

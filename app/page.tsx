@@ -5,7 +5,7 @@ import PeopleManager from "./people-manager"
 
 export default async function Home() {
   const [tasks, people] = await Promise.all([
-    prisma.task.findMany({ include: { assignee: true }, orderBy: { createdAt: "asc" } }),
+    prisma.task.findMany({ include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({
       include: { _count: { select: { tasks: true } } },
       orderBy: { name: "asc" },

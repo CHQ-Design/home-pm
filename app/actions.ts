@@ -17,6 +17,7 @@ export async function addTask(formData: FormData) {
   const dueDateStr = formData.get("dueDate") as string
   const priority = parsePriority(formData.get("priority"))
   const assigneeIdStr = formData.get("assigneeId") as string
+  const projectIdStr = formData.get("projectId") as string
 
   await prisma.task.create({
     data: {
@@ -25,9 +26,10 @@ export async function addTask(formData: FormData) {
       dueDate: dueDateStr ? new Date(dueDateStr) : null,
       priority,
       assigneeId: assigneeIdStr ? Number(assigneeIdStr) : null,
+      projectId: projectIdStr ? Number(projectIdStr) : null,
     },
   })
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }
 
 export async function toggleTask(id: number) {
@@ -39,12 +41,12 @@ export async function toggleTask(id: number) {
       completedAt: !task.completed ? new Date() : null,
     },
   })
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }
 
 export async function deleteTask(id: number) {
   await prisma.task.delete({ where: { id } })
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }
 
 export async function updateTask(
@@ -62,20 +64,20 @@ export async function updateTask(
     data.priority = parsePriority(data.priority)
   }
   await prisma.task.update({ where: { id }, data })
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }
 
 export async function toggleReminder(id: number) {
   const task = await prisma.task.findUniqueOrThrow({ where: { id } })
   await prisma.task.update({ where: { id }, data: { reminderSet: !task.reminderSet } })
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }
 
 export async function addPerson(formData: FormData) {
   const name = (formData.get("name") as string).trim()
   if (!name) return
   await prisma.person.create({ data: { name } })
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }
 
 export async function deletePerson(id: number, reassignToId?: number) {
@@ -86,5 +88,5 @@ export async function deletePerson(id: number, reassignToId?: number) {
     }),
     prisma.person.delete({ where: { id } }),
   ])
-  revalidatePath("/")
+  revalidatePath("/", "layout")
 }

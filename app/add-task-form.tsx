@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import type { Person } from "@prisma/client"
 import { addTask } from "./actions"
 
-type Props = { people: Person[] }
+type Props = { people: Person[]; projectId?: number }
 
 const PLACEHOLDERS = [
   "Buy oat milk…",
@@ -17,7 +17,7 @@ const PLACEHOLDERS = [
 const inputClass =
   "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
-export default function AddTaskForm({ people }: Props) {
+export default function AddTaskForm({ people, projectId }: Props) {
   const [showMore, setShowMore] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [titleValue, setTitleValue] = useState("")
@@ -55,6 +55,7 @@ export default function AddTaskForm({ people }: Props) {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="mb-8 space-y-2">
+      {projectId && <input type="hidden" name="projectId" value={projectId} />}
       <div className="flex gap-2 relative">
         <div className="relative flex-1">
           <input
