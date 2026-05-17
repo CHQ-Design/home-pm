@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import PushManager from "./push-manager"
+import dynamic from "next/dynamic"
+
+const PushManager = dynamic(() => import("./push-manager"), { ssr: false })
 
 export default function Nav() {
   const pathname = usePathname()
