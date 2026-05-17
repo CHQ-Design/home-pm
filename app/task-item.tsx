@@ -16,6 +16,13 @@ const PRIORITY_STYLES: Record<Priority, string> = {
   low: "bg-[#EDE6D8] text-[#8C7D6A] border border-[#C8BFAD]",
 }
 
+const PERSON_COLORS: Record<number, { bg: string; text: string; border: string }> = {
+  1: { bg: "#EDE0D0", text: "#6B4C2A", border: "#C8A882" }, // Craig — camel
+  2: { bg: "#D8E6DC", text: "#3A5C44", border: "#91B89A" }, // Hudson — sage
+  3: { bg: "#EDE0E6", text: "#6B3A52", border: "#C8899A" }, // Quinn — dusty rose
+}
+const PERSON_COLOR_FALLBACK = { bg: "#EDE6D8", text: "#8C7D6A", border: "#C8BFAD" }
+
 const PARTICLE_ANGLES = [0, 60, 120, 180, 240, 300]
 
 function formatDate(date: Date) {
@@ -27,6 +34,9 @@ function formatDate(date: Date) {
 }
 
 export default function TaskItem({ task, people, projects }: { task: Task; people: Person[]; projects: Project[] }) {
+  const personColor = task.assigneeId != null
+    ? (PERSON_COLORS[task.assigneeId] ?? PERSON_COLOR_FALLBACK)
+    : null
   const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -70,7 +80,10 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
 
   return (
     <li className="group">
-      <div className="relative flex items-center gap-2 min-h-[44px] rounded-md active:bg-[rgba(200,146,42,0.07)]">
+      <div
+        className="relative flex items-center gap-2 min-h-[44px] rounded-md active:bg-[rgba(200,146,42,0.07)] border-l-[3px]"
+        style={{ borderLeftColor: personColor?.border ?? "transparent" }}
+      >
         {/* Custom checkbox with 44px touch target */}
         <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer relative">
           <input
@@ -124,7 +137,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
               if (e.key === "Enter") saveInline()
               if (e.key === "Escape") setIsInlineEditing(false)
             }}
-            className="flex-1 text-sm border-b border-accent outline-none bg-transparent py-0.5 text-[#3A3228]"
+            className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-[#3A3228]"
             autoFocus
           />
         ) : (
@@ -133,7 +146,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
             onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
             role="button"
             tabIndex={task.completed ? -1 : 0}
-            className={`relative flex-1 text-sm ${
+            className={`relative flex-1 text-base font-medium ${
               task.completed
                 ? "text-[#A09080]"
                 : "cursor-pointer text-[#3A3228] hover:text-[#8A6E4B] focus-visible:outline-none focus-visible:text-[#8A6E4B]"
@@ -160,7 +173,13 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
         )}
 
         {task.assignee && !isInlineEditing && (
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#EDE6D8] text-[#8C7D6A] shrink-0">
+          <span
+            className="text-xs px-1.5 py-0.5 rounded-full shrink-0 border"
+            style={personColor
+              ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
+              : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
+            }
+          >
             {task.assignee.name}
           </span>
         )}
@@ -199,7 +218,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
         <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
-          aria-label="Edit task"
+          aria-label="Edit thing"
         >
           ✎
         </button>

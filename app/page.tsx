@@ -25,7 +25,10 @@ export default async function Home() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
-      <h1 className="font-serif text-2xl font-bold mb-6">Tasks</h1>
+      <p className="font-serif text-sm text-[#B5A898] mb-1">
+        {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+      </p>
+      <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       <AddTaskForm people={people} projects={projects} />
       <TaskList tasks={tasks} people={people} projects={projects} />
       <RecurringSection tasks={recurringTasks} />

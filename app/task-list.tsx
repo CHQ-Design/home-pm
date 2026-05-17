@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
-import { IconSun, IconWaveSine } from "@tabler/icons-react"
+import { IconAlertTriangle, IconClock, IconLeaf, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -16,6 +16,13 @@ function localTodayStr() {
 }
 
 const PRIORITY_ORDER: Record<string, number> = { high: 1, medium: 2, low: 3 }
+
+const PERSON_COLORS: Record<number, { bg: string; text: string; border: string }> = {
+  1: { bg: "#EDE0D0", text: "#6B4C2A", border: "#C8A882" }, // Craig — camel
+  2: { bg: "#D8E6DC", text: "#3A5C44", border: "#91B89A" }, // Hudson — sage
+  3: { bg: "#EDE0E6", text: "#6B3A52", border: "#C8899A" }, // Quinn — dusty rose
+}
+const PERSON_COLOR_FALLBACK = { bg: "#EDE6D8", text: "#6B5E52", border: "#C8BFAD" }
 
 function byPriority(a: Task, b: Task) {
   const p = (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
@@ -44,8 +51,8 @@ function Section({
 }) {
   if (tasks.length === 0) return null
   return (
-    <section className="mb-4">
-      <h2 className={`flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wider mb-2 ${titleClass}`}>
+    <section className="mt-6 mb-4">
+      <h2 className={`flex items-center gap-1.5 font-serif text-lg mb-2 ${titleClass}`}>
         {icon}
         {title}
       </h2>
@@ -85,43 +92,49 @@ export default function TaskList({ tasks, people, projects }: Props) {
                 : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
             }`}
           >
-            All
+            Everyone
           </button>
-          {people.map(p => (
-            <button
-              key={p.id}
-              onClick={() => setFilterPersonId(p.id)}
-              aria-pressed={filterPersonId === p.id}
-              className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
-                filterPersonId === p.id
-                  ? "bg-accent text-white font-medium"
-                  : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
-              }`}
-            >
-              {p.name}
-            </button>
-          ))}
+          {people.map(p => {
+            const isActive = filterPersonId === p.id
+            const colors = PERSON_COLORS[p.id] ?? PERSON_COLOR_FALLBACK
+            return (
+              <button
+                key={p.id}
+                onClick={() => setFilterPersonId(p.id)}
+                aria-pressed={isActive}
+                className="text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation border font-medium"
+                style={isActive
+                  ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
+                  : { backgroundColor: "#EDE6D8", color: "#6B5E52", borderColor: "#C8BFAD" }
+                }
+              >
+                {p.name}
+              </button>
+            )
+          })}
         </div>
       )}
 
       {openCount === 0 && groups.completed.length === 0 && filterPersonId === null && (
-        <p className="text-[#A09080] text-sm py-4">No tasks yet. Add one above.</p>
+        <p className="text-[#A09080] text-sm py-4">No things yet. Add one above.</p>
       )}
       {openCount === 0 && groups.completed.length === 0 && filterPersonId !== null && (
         <p className="text-[#A09080] text-sm py-4">
-          No open tasks for {people.find(p => p.id === filterPersonId)?.name}.
+          No things for {people.find(p => p.id === filterPersonId)?.name}.
         </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
         <p className="text-[#A09080] text-sm py-2">All done!</p>
       )}
 
-      <Section title="Overdue"   tasks={groups.overdue}  titleClass="text-red-700"   people={people} projects={projects} />
-      <Section title="Today"     tasks={groups.today}    titleClass="text-accent"    people={people} projects={projects} />
+      <Section title="Overdue"   tasks={groups.overdue}  titleClass="text-red-700"   people={people} projects={projects}
+        icon={<IconAlertTriangle size={18} aria-hidden="true" />} />
+      <Section title="Today"     tasks={groups.today}    titleClass="text-accent"    people={people} projects={projects}
+        icon={<IconSun size={18} aria-hidden="true" />} />
       <Section title="Coming up" tasks={groups.upcoming} titleClass="text-[#8C7D6A]" people={people} projects={projects}
-        icon={<IconSun size={14} />} />
+        icon={<IconClock size={18} aria-hidden="true" />} />
       <Section title="No rush"   tasks={groups.noDate}   titleClass="text-[#A09080]" people={people} projects={projects}
-        icon={<IconWaveSine size={14} />} />
+        icon={<IconLeaf size={18} aria-hidden="true" />} />
 
       {groups.completed.length > 0 && (
         <div className="mt-8 border-t border-[#D4C9B5] pt-5">
@@ -130,7 +143,7 @@ export default function TaskList({ tasks, people, projects }: Props) {
             aria-expanded={showCompleted}
             className="text-sm text-[#8C7D6A] hover:text-[#3A3228]"
           >
-            {showCompleted ? "▾" : "▸"} {groups.completed.length} completed
+            {showCompleted ? "▾" : "▸"} {groups.completed.length} things done
           </button>
           {showCompleted && (
             <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">

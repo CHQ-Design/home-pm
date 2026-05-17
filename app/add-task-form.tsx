@@ -7,11 +7,11 @@ import { addTask } from "./actions"
 type Props = { people: Person[]; projects?: Project[]; projectId?: number }
 
 const PLACEHOLDERS = [
-  "Buy oat milk…",
-  "Call the dentist…",
-  "Return library books…",
-  "Schedule oil change…",
-  "Plan weekend trip…",
+  "Add a thing…",
+  "What's your thing for today?",
+  "Something for Hudson or Quinn?",
+  "What are you putting off?",
+  "What would make tomorrow easier?",
 ]
 
 const inputClass =

@@ -100,7 +100,7 @@ export default function ProjectHeader({
       {progress && progress.total > 0 && (
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs text-[#A09080] mb-1">
-            <span>{progress.done} of {progress.total} task{progress.total !== 1 ? "s" : ""} done</span>
+            <span>{progress.done} of {progress.total} thing{progress.total !== 1 ? "s" : ""} done</span>
             <span>{Math.round((progress.done / progress.total) * 100)}%</span>
           </div>
           <div className="h-1.5 rounded-full bg-[#E4DDD0] overflow-hidden">
