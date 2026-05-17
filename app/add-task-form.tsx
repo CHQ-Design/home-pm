@@ -6,8 +6,12 @@ import { addTask } from "./actions"
 
 type Props = { people: Person[] }
 
+const inputClass =
+  "bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-100 placeholder-stone-500 outline-none focus:border-accent"
+
 export default function AddTaskForm({ people }: Props) {
   const [showMore, setShowMore] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -15,8 +19,10 @@ export default function AddTaskForm({ people }: Props) {
     const formData = new FormData(e.currentTarget)
     const title = (formData.get("title") as string).trim()
     if (!title) return
+    setSubmitting(true)
     await addTask(formData)
     formRef.current?.reset()
+    setSubmitting(false)
   }
 
   return (
@@ -25,21 +31,23 @@ export default function AddTaskForm({ people }: Props) {
         <input
           name="title"
           placeholder="Add a task…"
-          className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+          className={`flex-1 ${inputClass}`}
           autoComplete="off"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+          disabled={submitting}
+          className="px-4 py-2 bg-accent text-stone-900 font-medium text-sm rounded-lg hover:bg-[#B07820] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Add
+          {submitting ? "Adding…" : "Add"}
         </button>
       </div>
 
       <button
         type="button"
         onClick={() => setShowMore(v => !v)}
-        className="text-xs text-slate-400 hover:text-slate-600"
+        aria-expanded={showMore}
+        className="text-xs text-stone-500 hover:text-stone-300"
       >
         {showMore ? "▾ fewer options" : "▸ more options"}
       </button>
@@ -50,18 +58,18 @@ export default function AddTaskForm({ people }: Props) {
             name="notes"
             placeholder="Notes (optional)"
             rows={2}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400 resize-none"
+            className={`w-full ${inputClass} resize-none`}
           />
           <div className="flex gap-2 flex-wrap">
             <input
               type="date"
               name="dueDate"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+              className={`${inputClass} [color-scheme:dark]`}
             />
             <select
               name="priority"
               defaultValue="medium"
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+              className={inputClass}
             >
               <option value="high">High priority</option>
               <option value="medium">Medium priority</option>
@@ -71,7 +79,7 @@ export default function AddTaskForm({ people }: Props) {
               <select
                 name="assigneeId"
                 defaultValue=""
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-400"
+                className={inputClass}
               >
                 <option value="">Unassigned</option>
                 {people.map(p => (

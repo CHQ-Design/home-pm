@@ -19,7 +19,8 @@ function groupTasks(tasks: Task[]) {
   const open = tasks.filter(t => !t.completed)
 
   return {
-    overdue:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today),
+    overdue:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today)
+                  .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()),
     today:    open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today),
     upcoming: open.filter(t => t.dueDate && utcDateStr(t.dueDate) > today),
     noDate:   open.filter(t => !t.dueDate),
@@ -38,7 +39,7 @@ function Section({
       <h2 className={`text-xs font-semibold uppercase tracking-wider mb-1 ${titleClass}`}>
         {title}
       </h2>
-      <ul className="divide-y divide-slate-100">
+      <ul className="divide-y divide-stone-800">
         {tasks.map(task => (
           <TaskItem key={task.id} task={task} people={people} />
         ))}
@@ -67,10 +68,11 @@ export default function TaskList({ tasks, people }: Props) {
         <div className="flex gap-2 mb-5 flex-wrap">
           <button
             onClick={() => setFilterPersonId(null)}
-            className={`text-xs px-3 py-1 rounded-full transition-colors ${
+            aria-pressed={filterPersonId === null}
+            className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
               filterPersonId === null
-                ? "bg-blue-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                ? "bg-accent text-stone-900 font-medium"
+                : "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-300"
             }`}
           >
             All
@@ -79,10 +81,11 @@ export default function TaskList({ tasks, people }: Props) {
             <button
               key={p.id}
               onClick={() => setFilterPersonId(p.id)}
-              className={`text-xs px-3 py-1 rounded-full transition-colors ${
+              aria-pressed={filterPersonId === p.id}
+              className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
                 filterPersonId === p.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "bg-accent text-stone-900 font-medium"
+                  : "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-300"
               }`}
             >
               {p.name}
@@ -91,28 +94,34 @@ export default function TaskList({ tasks, people }: Props) {
         </div>
       )}
 
-      {openCount === 0 && groups.completed.length === 0 && (
-        <p className="text-slate-400 text-sm py-4">No tasks yet. Add one above.</p>
+      {openCount === 0 && groups.completed.length === 0 && filterPersonId === null && (
+        <p className="text-stone-500 text-sm py-4">No tasks yet. Add one above.</p>
+      )}
+      {openCount === 0 && groups.completed.length === 0 && filterPersonId !== null && (
+        <p className="text-stone-500 text-sm py-4">
+          No open tasks for {people.find(p => p.id === filterPersonId)?.name}.
+        </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
-        <p className="text-slate-400 text-sm py-2">All done!</p>
+        <p className="text-stone-500 text-sm py-2">All done!</p>
       )}
 
-      <Section title="Overdue"  tasks={groups.overdue}  titleClass="text-red-500"   people={people} />
-      <Section title="Today"    tasks={groups.today}    titleClass="text-blue-500"  people={people} />
-      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-slate-500" people={people} />
-      <Section title="No date"  tasks={groups.noDate}   titleClass="text-slate-400" people={people} />
+      <Section title="Overdue"  tasks={groups.overdue}  titleClass="text-red-400"   people={people} />
+      <Section title="Today"    tasks={groups.today}    titleClass="text-accent"    people={people} />
+      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-stone-400" people={people} />
+      <Section title="No date"  tasks={groups.noDate}   titleClass="text-stone-600" people={people} />
 
       {groups.completed.length > 0 && (
-        <div className="mt-6 border-t border-slate-100 pt-4">
+        <div className="mt-6 border-t border-stone-800 pt-4">
           <button
             onClick={() => setShowCompleted(v => !v)}
-            className="text-sm text-slate-400 hover:text-slate-600"
+            aria-expanded={showCompleted}
+            className="text-sm text-stone-500 hover:text-stone-300"
           >
             {showCompleted ? "▾" : "▸"} {groups.completed.length} completed
           </button>
           {showCompleted && (
-            <ul className="mt-2 divide-y divide-slate-100 opacity-60">
+            <ul className="mt-2 divide-y divide-stone-800 opacity-60">
               {groups.completed.map(task => (
                 <TaskItem key={task.id} task={task} people={people} />
               ))}

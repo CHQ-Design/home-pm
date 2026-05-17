@@ -1,18 +1,18 @@
 "use client"
 
 import { useState } from "react"
+import { createPortal } from "react-dom"
 import type { Person, Prisma } from "@prisma/client"
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
-
 type Priority = "high" | "medium" | "low"
 
 const PRIORITY_STYLES: Record<Priority, string> = {
-  high: "bg-red-100 text-red-700",
-  medium: "bg-amber-100 text-amber-700",
-  low: "bg-slate-100 text-slate-500",
+  high: "bg-[#C8922A]/20 text-[#D4A035]",
+  medium: "",
+  low: "bg-stone-800 text-stone-500",
 }
 
 function formatDate(date: Date) {
@@ -35,7 +35,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
   }
 
   async function saveInline() {
-    setIsInlineEditing(false) // set first so onBlur after Enter is a no-op
+    setIsInlineEditing(false)
     const trimmed = inlineTitle.trim()
     if (trimmed && trimmed !== task.title) {
       await updateTask(task.id, { title: trimmed })
@@ -43,14 +43,19 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
   }
 
   return (
-    <li className="group py-2">
-      <div className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={() => toggleTask(task.id)}
-          className="h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 cursor-pointer"
-        />
+    <li className="group">
+      <div className="flex items-center gap-2 min-h-[44px]">
+        {/* 44px touch target wrapping the visual checkbox */}
+        <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer">
+          <input
+            type="checkbox"
+            checked={task.completed}
+            onChange={() => toggleTask(task.id)}
+            aria-label={task.title}
+            className="h-4 w-4 rounded border-stone-600 cursor-pointer"
+            style={{ accentColor: "#C8922A" }}
+          />
+        </label>
 
         {isInlineEditing ? (
           <input
@@ -61,16 +66,19 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
               if (e.key === "Enter") saveInline()
               if (e.key === "Escape") setIsInlineEditing(false)
             }}
-            className="flex-1 text-sm border-b border-blue-400 outline-none bg-transparent py-0.5"
+            className="flex-1 text-sm border-b border-accent outline-none bg-transparent py-0.5 text-stone-100"
             autoFocus
           />
         ) : (
           <span
             onClick={openInline}
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
+            role="button"
+            tabIndex={task.completed ? -1 : 0}
             className={`flex-1 text-sm ${
               task.completed
-                ? "line-through text-slate-400"
-                : "cursor-pointer hover:text-blue-600"
+                ? "line-through text-stone-600"
+                : "cursor-pointer text-stone-200 hover:text-accent focus-visible:outline-none focus-visible:text-accent"
             }`}
           >
             {task.title}
@@ -78,50 +86,55 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
         )}
 
         {task.assignee && !isInlineEditing && (
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-stone-800 text-stone-400 shrink-0">
             {task.assignee.name}
           </span>
         )}
 
         {task.dueDate && !isInlineEditing && (
-          <span className="text-xs text-slate-400 shrink-0">{formatDate(task.dueDate)}</span>
+          <span className="text-xs text-stone-500 shrink-0">{formatDate(task.dueDate)}</span>
         )}
 
-        <span
-          className={`text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
-            PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.medium
-          }`}
-        >
-          {task.priority}
-        </span>
+        {task.priority !== "medium" && !isInlineEditing && (
+          <span
+            className={`text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
+              PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
+            }`}
+          >
+            {task.priority}
+          </span>
+        )}
 
+        {/* Bell with 44px touch target */}
         <button
           onClick={() => toggleReminder(task.id)}
-          className={`text-sm leading-none shrink-0 transition-opacity ${
+          className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-opacity ${
             task.reminderSet
-              ? "opacity-100 text-amber-500"
-              : "opacity-0 group-hover:opacity-40 hover:!opacity-100"
+              ? "opacity-100 text-accent"
+              : "opacity-30 group-hover:opacity-60 hover:!opacity-100 text-stone-400"
           }`}
-          title={task.reminderSet ? "Remove reminder" : "Set reminder"}
+          aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
         >
           🔔
         </button>
 
+        {/* Edit with 44px touch target */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="text-slate-400 text-sm leading-none shrink-0 opacity-30 group-hover:opacity-100 transition-opacity hover:text-slate-200"
-          title="Edit task"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] text-stone-500 text-sm leading-none shrink-0 opacity-30 group-hover:opacity-100 transition-opacity hover:text-stone-300"
+          aria-label="Edit task"
         >
           ✎
         </button>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <TaskEditModal
           task={task}
           people={people}
           onClose={() => setIsModalOpen(false)}
-        />
+        />,
+        document.body
       )}
     </li>
   )

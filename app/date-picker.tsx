@@ -34,25 +34,25 @@ const calendarClassNames = {
   months: "",
   month: "space-y-2",
   month_caption: "flex justify-center items-center relative h-8",
-  caption_label: "text-sm font-medium text-white",
+  caption_label: "text-sm font-medium text-stone-200",
   nav: "absolute inset-x-0 top-0 flex justify-between",
   button_previous:
-    "h-8 w-8 flex items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors",
+    "h-8 w-8 flex items-center justify-center rounded-md text-stone-500 hover:bg-stone-700 hover:text-stone-200 transition-colors",
   button_next:
-    "h-8 w-8 flex items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors",
+    "h-8 w-8 flex items-center justify-center rounded-md text-stone-500 hover:bg-stone-700 hover:text-stone-200 transition-colors",
   month_grid: "w-full border-collapse",
   weekdays: "flex",
-  weekday: "text-zinc-500 text-xs font-normal w-9 h-8 flex items-center justify-center",
+  weekday: "text-stone-600 text-xs font-normal w-9 h-8 flex items-center justify-center",
   weeks: "space-y-1 mt-1",
   week: "flex",
   day: "w-9 h-9 p-0 text-center",
   day_button:
-    "w-9 h-9 rounded-md text-sm text-zinc-200 hover:bg-zinc-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+    "w-9 h-9 rounded-md text-sm text-stone-300 hover:bg-stone-700 hover:text-stone-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
   selected:
-    "[&>button]:bg-blue-600 [&>button]:text-white [&>button]:hover:bg-blue-700 [&>button]:font-medium",
-  today: "[&>button]:text-blue-400 [&>button]:font-medium",
-  outside: "[&>button]:text-zinc-600",
-  disabled: "[&>button]:text-zinc-700 [&>button]:cursor-not-allowed",
+    "[&>button]:bg-accent [&>button]:text-stone-900 [&>button]:hover:bg-[#B07820] [&>button]:font-medium",
+  today: "[&>button]:text-accent [&>button]:font-medium",
+  outside: "[&>button]:text-stone-700",
+  disabled: "[&>button]:text-stone-700 [&>button]:cursor-not-allowed",
   hidden: "invisible",
   focused: "",
   chevron: "fill-current",
@@ -73,14 +73,12 @@ export default function DatePicker({ value, onChange }: Props) {
     if (!inputRef.current) return
     const rect = inputRef.current.getBoundingClientRect()
 
-    // Prefer opening above; fall back to below if no room
     const spaceAbove = rect.top - MARGIN
     const top =
       spaceAbove >= CAL_HEIGHT
         ? rect.top - CAL_HEIGHT - MARGIN
         : rect.bottom + MARGIN
 
-    // Clamp left so calendar never bleeds off screen
     const rawLeft = rect.left
     const left = Math.min(rawLeft, window.innerWidth - CAL_WIDTH - MARGIN)
 
@@ -122,7 +120,7 @@ export default function DatePicker({ value, onChange }: Props) {
         onClick={openCalendar}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCalendar() } }}
         placeholder="No date"
-        className="w-full text-sm bg-zinc-800 border border-zinc-600 rounded-md px-3 py-2 text-white placeholder-zinc-500 outline-none focus:border-blue-500 cursor-pointer"
+        className="w-full text-sm bg-stone-900 border border-stone-700 rounded-md px-3 py-2 text-stone-100 placeholder-stone-600 outline-none focus:border-accent cursor-pointer"
       />
       {value && (
         <button
@@ -132,7 +130,7 @@ export default function DatePicker({ value, onChange }: Props) {
             onChange("")
             setOpen(false)
           }}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 text-xs leading-none"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 text-xs leading-none"
           aria-label="Clear date"
         >
           ✕
@@ -142,7 +140,7 @@ export default function DatePicker({ value, onChange }: Props) {
       {open && (
         <div
           ref={calendarRef}
-          className="fixed z-[200] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl p-3"
+          className="fixed z-[200] bg-stone-800 border border-stone-700 rounded-xl shadow-2xl p-3"
           style={{ top: calPos.top, left: calPos.left }}
         >
           <DayPicker
