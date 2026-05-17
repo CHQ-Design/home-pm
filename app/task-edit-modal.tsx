@@ -56,11 +56,11 @@ export default function TaskEditModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.65)" }}
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center"
+      style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-stone-800 border border-stone-700 rounded-xl w-full max-w-md shadow-2xl">
+      <div className="bg-stone-800 border border-stone-700 rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto">
         <div className="p-5 space-y-4">
           <div>
             <label className={labelClass}>Title</label>
@@ -84,7 +84,7 @@ export default function TaskEditModal({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
               <label className={labelClass}>Due date</label>
               <DatePicker
@@ -104,7 +104,7 @@ export default function TaskEditModal({
                 <option value="low">Low</option>
               </select>
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <label className={labelClass}>Assignee</label>
               <select
                 value={form.assigneeId}
