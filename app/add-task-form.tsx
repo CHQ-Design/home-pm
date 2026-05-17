@@ -47,7 +47,7 @@ export default function AddTaskForm({ people }: Props) {
         type="button"
         onClick={() => setShowMore(v => !v)}
         aria-expanded={showMore}
-        className="text-xs text-stone-500 hover:text-stone-300"
+        className="text-xs text-stone-400 hover:text-stone-200 min-h-[44px] inline-flex items-center"
       >
         {showMore ? "▾ fewer options" : "▸ more options"}
       </button>

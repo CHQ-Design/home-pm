@@ -36,7 +36,7 @@ function Section({
   if (tasks.length === 0) return null
   return (
     <section className="mb-4">
-      <h2 className={`text-xs font-semibold uppercase tracking-wider mb-1 ${titleClass}`}>
+      <h2 className={`text-[13px] font-semibold uppercase tracking-wider mb-2 ${titleClass}`}>
         {title}
       </h2>
       <ul className="divide-y divide-stone-800">
@@ -72,7 +72,7 @@ export default function TaskList({ tasks, people }: Props) {
             className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
               filterPersonId === null
                 ? "bg-accent text-stone-900 font-medium"
-                : "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-300"
+                : "bg-stone-800 text-stone-300 border border-stone-600 hover:bg-stone-700 hover:text-stone-100"
             }`}
           >
             All
@@ -85,7 +85,7 @@ export default function TaskList({ tasks, people }: Props) {
               className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
                 filterPersonId === p.id
                   ? "bg-accent text-stone-900 font-medium"
-                  : "bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-stone-300"
+                  : "bg-stone-800 text-stone-300 border border-stone-600 hover:bg-stone-700 hover:text-stone-100"
               }`}
             >
               {p.name}
@@ -108,20 +108,20 @@ export default function TaskList({ tasks, people }: Props) {
 
       <Section title="Overdue"  tasks={groups.overdue}  titleClass="text-red-400"   people={people} />
       <Section title="Today"    tasks={groups.today}    titleClass="text-accent"    people={people} />
-      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-stone-400" people={people} />
-      <Section title="No date"  tasks={groups.noDate}   titleClass="text-stone-600" people={people} />
+      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-stone-300" people={people} />
+      <Section title="No date"  tasks={groups.noDate}   titleClass="text-stone-400" people={people} />
 
       {groups.completed.length > 0 && (
-        <div className="mt-6 border-t border-stone-800 pt-4">
+        <div className="mt-8 border-t border-stone-700 pt-5">
           <button
             onClick={() => setShowCompleted(v => !v)}
             aria-expanded={showCompleted}
-            className="text-sm text-stone-500 hover:text-stone-300"
+            className="text-sm text-stone-400 hover:text-stone-200"
           >
             {showCompleted ? "▾" : "▸"} {groups.completed.length} completed
           </button>
           {showCompleted && (
-            <ul className="mt-2 divide-y divide-stone-800 opacity-60">
+            <ul className="mt-2 divide-y divide-stone-800 opacity-75">
               {groups.completed.map(task => (
                 <TaskItem key={task.id} task={task} people={people} />
               ))}

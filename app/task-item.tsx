@@ -12,7 +12,7 @@ type Priority = "high" | "medium" | "low"
 const PRIORITY_STYLES: Record<Priority, string> = {
   high: "bg-[#C8922A]/20 text-[#D4A035]",
   medium: "",
-  low: "bg-stone-800 text-stone-500",
+  low: "bg-stone-800 text-stone-400 border border-stone-600",
 }
 
 function formatDate(date: Date) {
@@ -77,7 +77,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
             tabIndex={task.completed ? -1 : 0}
             className={`flex-1 text-sm ${
               task.completed
-                ? "line-through text-stone-600"
+                ? "line-through text-stone-400"
                 : "cursor-pointer text-stone-200 hover:text-accent focus-visible:outline-none focus-visible:text-accent"
             }`}
           >
@@ -108,10 +108,10 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
         {/* Bell with 44px touch target */}
         <button
           onClick={() => toggleReminder(task.id)}
-          className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-opacity ${
+          className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
             task.reminderSet
-              ? "opacity-100 text-accent"
-              : "opacity-30 group-hover:opacity-60 hover:!opacity-100 text-stone-400"
+              ? "text-accent"
+              : "text-stone-500 group-hover:text-stone-300"
           }`}
           aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
         >
@@ -121,7 +121,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
         {/* Edit with 44px touch target */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center min-h-[44px] min-w-[44px] text-stone-500 text-sm leading-none shrink-0 opacity-30 group-hover:opacity-100 transition-opacity hover:text-stone-300"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] text-stone-500 text-sm leading-none shrink-0 group-hover:text-stone-300 transition-colors"
           aria-label="Edit task"
         >
           ✎
