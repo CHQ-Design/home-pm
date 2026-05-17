@@ -12,6 +12,7 @@ export default function Nav() {
         <NavLink href="/" active={pathname === "/"}>Things</NavLink>
         <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>
         <NavLink href="/recurring" active={pathname.startsWith("/recurring")}>Recurring</NavLink>
+        <NavLink href="/notes" active={pathname.startsWith("/notes")}>Notes</NavLink>
       </div>
     </nav>
   )
