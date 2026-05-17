@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { Person, Prisma } from "@prisma/client"
+import type { Person, Project, Prisma } from "@prisma/client"
 import { updateTask, deleteTask } from "./actions"
 import DatePicker from "./date-picker"
 
-type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
+type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
 const inputClass =
   "w-full text-sm bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
@@ -15,10 +15,12 @@ const labelClass = "block text-xs font-medium text-[#8C7D6A] mb-1"
 export default function TaskEditModal({
   task,
   people,
+  projects,
   onClose,
 }: {
   task: Task
   people: Person[]
+  projects: Project[]
   onClose: () => void
 }) {
   const [form, setForm] = useState({
@@ -27,6 +29,7 @@ export default function TaskEditModal({
     dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : "",
     priority: task.priority,
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
+    projectId: task.projectId ? String(task.projectId) : "",
   })
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -45,6 +48,7 @@ export default function TaskEditModal({
       dueDate: form.dueDate ? new Date(form.dueDate) : null,
       priority: form.priority as "high" | "medium" | "low",
       assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
+      projectId: form.projectId ? Number(form.projectId) : null,
     })
     onClose()
   }
@@ -118,6 +122,22 @@ export default function TaskEditModal({
               </select>
             </div>
           </div>
+
+          {projects.length > 0 && (
+            <div>
+              <label className={labelClass}>Project</label>
+              <select
+                value={form.projectId}
+                onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
+                className={inputClass}
+              >
+                <option value="">No project</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between px-5 py-3 border-t border-[#D4C9B5]">

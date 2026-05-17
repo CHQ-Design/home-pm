@@ -15,7 +15,7 @@ export async function addProject(formData: FormData) {
   if (!name) return
   const description = (formData.get("description") as string | null)?.trim() || null
   await prisma.project.create({ data: { name, description } })
-  revalidatePath("/projects")
+  revalidatePath("/", "layout")
 }
 
 export async function updateProject(

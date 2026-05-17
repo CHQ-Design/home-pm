@@ -10,12 +10,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const projectId = Number(id)
   if (isNaN(projectId)) notFound()
 
-  const [project, people] = await Promise.all([
+  const [project, people, projects] = await Promise.all([
     prisma.project.findUnique({
       where: { id: projectId },
       include: { tasks: { include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } } },
     }),
     prisma.person.findMany({ orderBy: { name: "asc" } }),
+    prisma.project.findMany({ orderBy: { name: "asc" } }),
   ])
 
   if (!project) notFound()
@@ -59,7 +60,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </div>
 
       <AddTaskForm people={people} projectId={project.id} />
-      <TaskList tasks={project.tasks} people={people} />
+      <TaskList tasks={project.tasks} people={people} projects={projects} />
     </main>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import type { Person, Prisma } from "@prisma/client"
+import type { Person, Project, Prisma } from "@prisma/client"
 import { IconBell, IconBellOff, IconFeather, IconFlame } from "@tabler/icons-react"
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
@@ -26,7 +26,7 @@ function formatDate(date: Date) {
   })
 }
 
-export default function TaskItem({ task, people }: { task: Task; people: Person[] }) {
+export default function TaskItem({ task, people, projects }: { task: Task; people: Person[]; projects: Project[] }) {
   const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -209,6 +209,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
         <TaskEditModal
           task={task}
           people={people}
+          projects={projects}
           onClose={() => setIsModalOpen(false)}
         />,
         document.body

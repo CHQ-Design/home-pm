@@ -57,6 +57,7 @@ export async function updateTask(
     dueDate?: Date | null
     priority?: Priority
     assigneeId?: number | null
+    projectId?: number | null
     reminderSet?: boolean
   }
 ) {

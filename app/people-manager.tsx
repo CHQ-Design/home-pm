@@ -115,6 +115,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                     </span>
                     <button
                       onClick={() => startDelete(person)}
+                      aria-label={`Remove ${person.name}`}
                       className="text-xs text-[#B5A898] hover:text-red-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                     >
                       ✕

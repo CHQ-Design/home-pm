@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { Person, Prisma } from "@prisma/client"
+import type { Person, Project, Prisma } from "@prisma/client"
 import { IconSun, IconWaveSine } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 
@@ -30,9 +30,9 @@ function groupTasks(tasks: Task[]) {
 }
 
 function Section({
-  title, tasks, titleClass, people, icon,
+  title, tasks, titleClass, people, projects, icon,
 }: {
-  title: string; tasks: Task[]; titleClass: string; people: Person[];
+  title: string; tasks: Task[]; titleClass: string; people: Person[]; projects: Project[];
   icon?: React.ReactNode;
 }) {
   if (tasks.length === 0) return null
@@ -44,16 +44,16 @@ function Section({
       </h2>
       <ul className="divide-y divide-[#E4DDD0]">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} people={people} />
+          <TaskItem key={task.id} task={task} people={people} projects={projects} />
         ))}
       </ul>
     </section>
   )
 }
 
-type Props = { tasks: Task[]; people: Person[] }
+type Props = { tasks: Task[]; people: Person[]; projects: Project[] }
 
-export default function TaskList({ tasks, people }: Props) {
+export default function TaskList({ tasks, people, projects }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [filterPersonId, setFilterPersonId] = useState<number | null>(null)
 
@@ -109,11 +109,11 @@ export default function TaskList({ tasks, people }: Props) {
         <p className="text-[#A09080] text-sm py-2">All done!</p>
       )}
 
-      <Section title="Overdue"   tasks={groups.overdue}  titleClass="text-red-700"   people={people} />
-      <Section title="Today"     tasks={groups.today}    titleClass="text-accent"    people={people} />
-      <Section title="Coming up" tasks={groups.upcoming} titleClass="text-[#8C7D6A]" people={people}
+      <Section title="Overdue"   tasks={groups.overdue}  titleClass="text-red-700"   people={people} projects={projects} />
+      <Section title="Today"     tasks={groups.today}    titleClass="text-accent"    people={people} projects={projects} />
+      <Section title="Coming up" tasks={groups.upcoming} titleClass="text-[#8C7D6A]" people={people} projects={projects}
         icon={<IconSun size={14} />} />
-      <Section title="No rush"   tasks={groups.noDate}   titleClass="text-[#A09080]" people={people}
+      <Section title="No rush"   tasks={groups.noDate}   titleClass="text-[#A09080]" people={people} projects={projects}
         icon={<IconWaveSine size={14} />} />
 
       {groups.completed.length > 0 && (
@@ -128,7 +128,7 @@ export default function TaskList({ tasks, people }: Props) {
           {showCompleted && (
             <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} people={people} />
+                <TaskItem key={task.id} task={task} people={people} projects={projects} />
               ))}
             </ul>
           )}
