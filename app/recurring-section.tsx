@@ -49,7 +49,7 @@ function DoneButton({ taskId }: { taskId: number }) {
   )
 }
 
-export default function RecurringSection({ tasks, isAdmin }: { tasks: RecurringTask[]; isAdmin: boolean }) {
+export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null }) {
   if (tasks.length === 0) return null
 
   return (
@@ -77,7 +77,7 @@ export default function RecurringSection({ tasks, isAdmin }: { tasks: RecurringT
                 <span className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
               )}
             </div>
-            {isAdmin && <DoneButton taskId={task.id} />}
+            {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} />}
           </div>
         ))}
       </div>

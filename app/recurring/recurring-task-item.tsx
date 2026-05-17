@@ -69,12 +69,15 @@ export default function RecurringTaskItem({
   people,
   projects,
   isAdmin,
+  sessionPersonId,
 }: {
   task: RecurringTask
   people: Person[]
   projects: Project[]
   isAdmin: boolean
+  sessionPersonId: number | null
 }) {
+  const canComplete = isAdmin || task.assigneeId === sessionPersonId
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [pending, setPending] = useState(false)
@@ -260,13 +263,15 @@ export default function RecurringTaskItem({
             </button>
           </>
         )}
-        <button
-          onClick={handleDone}
-          disabled={pending}
-          className="text-xs px-3 py-1 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
-        >
-          {pending ? "…" : "Done"}
-        </button>
+        {canComplete && (
+          <button
+            onClick={handleDone}
+            disabled={pending}
+            className="text-xs px-3 py-1 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
+          >
+            {pending ? "…" : "Done"}
+          </button>
+        )}
       </div>
     </div>
   )

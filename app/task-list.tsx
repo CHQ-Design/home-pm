@@ -43,7 +43,7 @@ function groupTasks(tasks: Task[]) {
 }
 
 function Section({
-  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin,
+  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId,
 }: {
   title: string
   tasks: Task[]
@@ -53,6 +53,7 @@ function Section({
   projects: Project[]
   icon?: React.ReactNode
   isAdmin: boolean
+  sessionPersonId: number | null
 }) {
   if (tasks.length === 0) return null
   return (
@@ -63,16 +64,16 @@ function Section({
       </h2>
       <ul className="divide-y divide-[#E4DDD0]">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} />
+          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
         ))}
       </ul>
     </section>
   )
 }
 
-type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean }
+type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }
 
-export default function TaskList({ tasks, people, projects, isAdmin }: Props) {
+export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [filterPersonId, setFilterPersonId] = useState<number | null>(null)
 
@@ -170,7 +171,7 @@ export default function TaskList({ tasks, people, projects, isAdmin }: Props) {
           ? <IconStar size={18} aria-hidden="true" />
           : <IconAlertTriangle size={18} aria-hidden="true" />
         }
-        people={people} projects={projects} isAdmin={isAdmin}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
       />
       <Section
         title="Today"
@@ -178,7 +179,7 @@ export default function TaskList({ tasks, people, projects, isAdmin }: Props) {
         titleClass={activePerson ? "" : "text-accent"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconSun size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
       />
       <Section
         title="Coming up"
@@ -186,7 +187,7 @@ export default function TaskList({ tasks, people, projects, isAdmin }: Props) {
         titleClass={activePerson ? "" : "text-[#8C7D6A]"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconClock size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
       />
       <Section
         title="Later"
@@ -194,7 +195,7 @@ export default function TaskList({ tasks, people, projects, isAdmin }: Props) {
         titleClass={activePerson ? "" : "text-[#A09080]"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
       />
 
       {groups.completed.length > 0 && (
@@ -212,7 +213,7 @@ export default function TaskList({ tasks, people, projects, isAdmin }: Props) {
           {showCompleted && (
             <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} />
+                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
               ))}
             </ul>
           )}

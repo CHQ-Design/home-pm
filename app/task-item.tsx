@@ -33,7 +33,8 @@ function formatDate(date: Date) {
   })
 }
 
-export default function TaskItem({ task, people, projects, isAdmin }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean }) {
+export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }) {
+  const canToggle = isAdmin || task.assigneeId === sessionPersonId
   const personColor = task.assigneeId != null
     ? (PERSON_COLORS[task.assigneeId] ?? PERSON_COLOR_FALLBACK)
     : null
@@ -60,7 +61,7 @@ export default function TaskItem({ task, people, projects, isAdmin }: { task: Ta
   }, [task.completed])
 
   function openInline() {
-    if (task.completed) return
+    if (task.completed || !isAdmin) return
     setInlineTitle(task.title)
     setIsInlineEditing(true)
   }
@@ -91,11 +92,12 @@ export default function TaskItem({ task, people, projects, isAdmin }: { task: Ta
         {/* Title row */}
         <div className="flex items-center gap-2 min-h-[44px]">
           {/* Checkbox with 44px touch target */}
-          <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer relative">
+          <label className={`shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] relative ${canToggle ? "cursor-pointer" : "cursor-default"}`}>
             <input
               type="checkbox"
               checked={task.completed}
-              onChange={() => toggleTask(task.id)}
+              onChange={() => { if (canToggle) toggleTask(task.id) }}
+              disabled={!canToggle}
               aria-label={task.title}
               className="peer sr-only"
             />

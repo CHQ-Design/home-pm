@@ -3,7 +3,7 @@
 import { useRef, useState } from "react"
 import type { Person, Prisma } from "@prisma/client"
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
-import { addPerson, deletePerson } from "./actions"
+import { addPerson, deletePerson, updatePerson } from "./actions"
 
 type PersonWithCount = Prisma.PersonGetPayload<{
   include: { _count: { select: { tasks: { where: { completed: false } } } } }
@@ -16,6 +16,8 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
   const [open, setOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [reassignToId, setReassignToId] = useState<string>("")
+  const [editingEmailId, setEditingEmailId] = useState<number | null>(null)
+  const [emailDraft, setEmailDraft] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
 
   const deletingPerson = people.find(p => p.id === deletingId)
@@ -46,6 +48,17 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
   function cancelDelete() {
     setDeletingId(null)
     setReassignToId("")
+  }
+
+  function startEditEmail(person: PersonWithCount) {
+    setEditingEmailId(person.id)
+    setEmailDraft(person.email ?? "")
+  }
+
+  async function saveEmail() {
+    if (!editingEmailId) return
+    await updatePerson(editingEmailId, { email: emailDraft.trim().toLowerCase() || null })
+    setEditingEmailId(null)
   }
 
   return (
@@ -110,20 +123,44 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between group">
-                    <span className="text-sm text-[#4A3F34]">
-                      {person.name}
-                      <span className="text-[#B5A898] ml-1.5 text-xs">
-                        {person._count.tasks} task{person._count.tasks !== 1 ? "s" : ""}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#4A3F34]">
+                        {person.name}
+                        <span className="text-[#B5A898] ml-1.5 text-xs">
+                          {person._count.tasks} task{person._count.tasks !== 1 ? "s" : ""}
+                        </span>
                       </span>
-                    </span>
-                    <button
-                      onClick={() => startDelete(person)}
-                      aria-label={`Remove ${person.name}`}
-                      className="text-xs text-[#B5A898] hover:text-red-700"
-                    >
-                      ✕
-                    </button>
+                      <button
+                        onClick={() => startDelete(person)}
+                        aria-label={`Remove ${person.name}`}
+                        className="text-xs text-[#B5A898] hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    {editingEmailId === person.id ? (
+                      <div className="flex gap-2 mt-1">
+                        <input
+                          type="email"
+                          value={emailDraft}
+                          onChange={e => setEmailDraft(e.target.value)}
+                          onKeyDown={e => { if (e.key === "Enter") saveEmail(); if (e.key === "Escape") setEditingEmailId(null) }}
+                          placeholder="email@example.com"
+                          className="flex-1 text-base bg-[#F2ECE2] border border-[#D4C9B5] rounded px-2 py-1 text-[#3A3228] outline-none focus:border-accent"
+                          autoFocus
+                        />
+                        <button onClick={saveEmail} className="text-xs px-2 py-1 bg-accent text-white rounded hover:bg-[#556148]">Save</button>
+                        <button onClick={() => setEditingEmailId(null)} className="text-xs px-2 py-1 text-[#8C7D6A] hover:text-[#3A3228]">Cancel</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => startEditEmail(person)}
+                        className="text-xs text-[#B5A898] hover:text-[#6B5E52] mt-0.5 block"
+                      >
+                        {person.email ?? "+ Set Google email"}
+                      </button>
+                    )}
                   </div>
                 )}
               </li>

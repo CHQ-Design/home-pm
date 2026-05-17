@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole } from "@/lib/require-auth"
+import { requireRole, requireAssignedOrAdmin } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
@@ -43,9 +43,9 @@ export async function addTask(formData: FormData) {
   revalidatePath("/", "layout")
 }
 
-// Members can toggle task completion — intentionally no requireRole here
 export async function toggleTask(id: number) {
   const task = await prisma.task.findUniqueOrThrow({ where: { id } })
+  await requireAssignedOrAdmin(task.assigneeId)
   await prisma.task.update({
     where: { id },
     data: {
@@ -94,6 +94,12 @@ export async function addPerson(formData: FormData) {
   const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
   await prisma.person.create({ data: { name } })
+  revalidatePath("/", "layout")
+}
+
+export async function updatePerson(id: number, data: { email?: string | null }) {
+  await requireRole("admin")
+  await prisma.person.update({ where: { id }, data })
   revalidatePath("/", "layout")
 }
 

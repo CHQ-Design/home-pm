@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getSessionRole } from "@/lib/require-auth"
+import { getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import AddRecurringForm from "./add-recurring-form"
 import RecurringTaskItem from "./recurring-task-item"
 
 export default async function RecurringPage() {
-  const [tasks, people, projects, role] = await Promise.all([
+  const [tasks, people, projects, role, sessionPersonId] = await Promise.all([
     prisma.recurringTask.findMany({
       include: { assignee: true, project: true },
       orderBy: { nextDue: "asc" },
@@ -14,6 +14,7 @@ export default async function RecurringPage() {
     prisma.person.findMany({ orderBy: { name: "asc" } }),
     prisma.project.findMany({ orderBy: { name: "asc" } }),
     getSessionRole(),
+    getSessionPersonId(),
   ])
   const isAdmin = role === "admin"
 
@@ -40,7 +41,7 @@ export default async function RecurringPage() {
         <section className="mb-6">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-2">Overdue</h2>
           <div className="space-y-2">
-            {overdue.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} />)}
+            {overdue.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
           </div>
         </section>
       )}
@@ -49,7 +50,7 @@ export default async function RecurringPage() {
         <section className="mb-6">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Due this week</h2>
           <div className="space-y-2">
-            {dueThisWeek.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} />)}
+            {dueThisWeek.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
           </div>
         </section>
       )}
@@ -58,7 +59,7 @@ export default async function RecurringPage() {
         <section className="mb-6">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Upcoming</h2>
           <div className="space-y-2">
-            {upcoming.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} />)}
+            {upcoming.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
           </div>
         </section>
       )}
