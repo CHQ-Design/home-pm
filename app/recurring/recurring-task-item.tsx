@@ -122,7 +122,7 @@ export default function RecurringTaskItem({
 
   if (editing) {
     return (
-      <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3">
+      <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3 overflow-hidden">
         <input
           value={form.title}
           onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -130,21 +130,23 @@ export default function RecurringTaskItem({
           className={inputClass}
           autoFocus
         />
-        <select
-          value={form.cadence}
-          onChange={e => setForm(f => ({ ...f, cadence: e.target.value }))}
-          className={inputClass}
-        >
-          {CADENCES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
-        <input
-          type="date"
-          value={form.nextDue}
-          onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
-          className={inputClass}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <select
+            value={form.cadence}
+            onChange={e => setForm(f => ({ ...f, cadence: e.target.value }))}
+            className={inputClass}
+          >
+            {CADENCES.map(c => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={form.nextDue}
+            onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
+            className={`${inputClass} min-w-0`}
+          />
+        </div>
         <textarea
           value={form.notes}
           onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
@@ -152,29 +154,33 @@ export default function RecurringTaskItem({
           rows={2}
           className={`${inputClass} resize-none`}
         />
-        {people.length > 0 && (
-          <select
-            value={form.assigneeId}
-            onChange={e => setForm(f => ({ ...f, assigneeId: e.target.value }))}
-            className={inputClass}
-          >
-            <option value="">No assignee</option>
-            {people.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        )}
-        {projects.length > 0 && (
-          <select
-            value={form.projectId}
-            onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
-            className={inputClass}
-          >
-            <option value="">No project</option>
-            {projects.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+        {(people.length > 0 || projects.length > 0) && (
+          <div className="grid grid-cols-2 gap-3">
+            {people.length > 0 && (
+              <select
+                value={form.assigneeId}
+                onChange={e => setForm(f => ({ ...f, assigneeId: e.target.value }))}
+                className={inputClass}
+              >
+                <option value="">No assignee</option>
+                {people.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            )}
+            {projects.length > 0 && (
+              <select
+                value={form.projectId}
+                onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
+                className={inputClass}
+              >
+                <option value="">No project</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
         )}
         <div className="flex items-center gap-2">
           <button
