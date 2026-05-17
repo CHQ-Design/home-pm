@@ -10,7 +10,7 @@ type PersonWithCount = Prisma.PersonGetPayload<{
 }>
 
 const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-1.5 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-1.5 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function PeopleManager({ people }: { people: PersonWithCount[] }) {
   const [open, setOpen] = useState(false)
@@ -120,7 +120,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                     <button
                       onClick={() => startDelete(person)}
                       aria-label={`Remove ${person.name}`}
-                      className="text-xs text-[#B5A898] hover:text-red-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+                      className="text-xs text-[#B5A898] hover:text-red-700"
                     >
                       ✕
                     </button>

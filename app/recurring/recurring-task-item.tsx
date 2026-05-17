@@ -224,14 +224,14 @@ export default function RecurringTaskItem({
         </button>
         <button
           onClick={() => setEditing(true)}
-          className="text-sm text-[#B5A898] hover:text-[#6B5E52] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+          className="text-sm text-[#B5A898] hover:text-[#6B5E52]"
           aria-label={`Edit ${task.title}`}
         >
           ✎
         </button>
         <button
           onClick={() => setConfirming(true)}
-          className="text-sm text-[#B5A898] hover:text-red-600 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+          className="text-sm text-[#B5A898] hover:text-red-600"
           aria-label={`Delete ${task.title}`}
         >
           ✕
