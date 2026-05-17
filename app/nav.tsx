@@ -13,8 +13,8 @@ export default function Nav() {
           The Board
         </Link>
         <NavLink href="/" active={pathname === "/"}>Things</NavLink>
-        <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>
         <NavLink href="/recurring" active={pathname.startsWith("/recurring")}>Routines</NavLink>
+        <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>
         <NavLink href="/notes" active={pathname.startsWith("/notes")}>Notes</NavLink>
       </div>
     </nav>
