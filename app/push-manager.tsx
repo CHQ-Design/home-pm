@@ -14,6 +14,7 @@ function urlBase64ToUint8Array(base64String: string) {
 export default function PushManager() {
   const [status, setStatus] = useState<"unsupported" | "denied" | "subscribed" | "unsubscribed">("unsubscribed")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -32,6 +33,7 @@ export default function PushManager() {
 
   async function subscribe() {
     setLoading(true)
+    setError(null)
     try {
       const reg = await navigator.serviceWorker.ready
       const sub = await reg.pushManager.subscribe({
@@ -43,8 +45,13 @@ export default function PushManager() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sub.toJSON()),
       })
-      if (!res.ok) throw new Error(`Subscribe failed: ${res.status}`)
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(`${res.status}: ${body.error ?? "unknown"}`)
+      }
       setStatus("subscribed")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to subscribe")
     } finally {
       setLoading(false)
     }
@@ -74,10 +81,12 @@ export default function PushManager() {
   const isSubscribed = status === "subscribed"
 
   return (
+    <div className="ml-auto flex items-center gap-1">
+      {error && <span className="text-red-500 text-xs">{error}</span>}
     <button
       onClick={isSubscribed ? unsubscribe : subscribe}
       disabled={loading}
-      className="ml-auto text-[#B5A898] hover:text-[#6B5E52] shrink-0 pl-2 disabled:opacity-50"
+      className="text-[#B5A898] hover:text-[#6B5E52] shrink-0 pl-2 disabled:opacity-50"
       aria-label={isSubscribed ? "Disable notifications" : "Enable notifications"}
       title={isSubscribed ? "Disable notifications" : "Enable notifications"}
     >
@@ -93,5 +102,6 @@ export default function PushManager() {
         </svg>
       )}
     </button>
+    </div>
   )
 }
