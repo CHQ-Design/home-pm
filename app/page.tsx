@@ -13,7 +13,7 @@ export default async function Home() {
   ])
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
+    <main className="w-full max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Tasks</h1>
       <AddTaskForm people={people} />
       <TaskList tasks={tasks} people={people} />

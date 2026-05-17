@@ -15,6 +15,7 @@
 
 html {
   background: var(--background);
+  scrollbar-gutter: stable both-edges;
 }
 
 body {
