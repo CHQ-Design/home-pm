@@ -81,7 +81,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
   return (
     <li className="group">
       <div
-        className="relative flex items-center gap-2 min-h-[44px] rounded-md active:bg-[rgba(200,146,42,0.07)] border-l-[3px]"
+        className="relative flex items-center gap-2 min-h-[44px] rounded-md hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)] border-l-[3px] transition-colors"
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
       >
         {/* Custom checkbox with 44px touch target */}
@@ -174,12 +174,18 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
 
         {task.assignee && !isInlineEditing && (
           <span
-            className="text-xs px-1.5 py-0.5 rounded-full shrink-0 border"
+            className="text-xs pl-1 pr-2 py-0.5 rounded-full shrink-0 border flex items-center gap-1"
             style={personColor
               ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
               : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
             }
           >
+            <span
+              className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
+              style={{ backgroundColor: personColor?.border ?? "#C8BFAD", color: "white" }}
+            >
+              {task.assignee.name[0]}
+            </span>
             {task.assignee.name}
           </span>
         )}

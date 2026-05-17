@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
-import { IconAlertTriangle, IconClock, IconLeaf, IconSun } from "@tabler/icons-react"
+import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -124,7 +124,9 @@ export default function TaskList({ tasks, people, projects }: Props) {
         </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
-        <p className="text-[#A09080] text-sm py-2">All done!</p>
+        <p className="font-serif text-xl text-[#A09080] py-2">
+          {(["The board's clear. ✦", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
+        </p>
       )}
 
       <Section title="Overdue"   tasks={groups.overdue}  titleClass="text-red-700"   people={people} projects={projects}
@@ -143,7 +145,10 @@ export default function TaskList({ tasks, people, projects }: Props) {
             aria-expanded={showCompleted}
             className="text-sm text-[#8C7D6A] hover:text-[#3A3228]"
           >
-            {showCompleted ? "▾" : "▸"} {groups.completed.length} things done
+            <span className="inline-flex items-center gap-1">
+              {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
+              {groups.completed.length} things done
+            </span>
           </button>
           {showCompleted && (
             <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">

@@ -9,6 +9,9 @@ export default function Nav() {
   return (
     <nav className="border-b border-[#DDD5C5]">
       <div className="max-w-2xl mx-auto px-4 flex gap-1 h-12 items-center">
+        <Link href="/" className="font-serif text-base font-bold text-[#3A3228] mr-3 shrink-0">
+          The Board
+        </Link>
         <NavLink href="/" active={pathname === "/"}>Things</NavLink>
         <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>
         <NavLink href="/recurring" active={pathname.startsWith("/recurring")}>Recurring</NavLink>

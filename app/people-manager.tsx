@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react"
 import type { Person, Prisma } from "@prisma/client"
+import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
 import { addPerson, deletePerson } from "./actions"
 
 type PersonWithCount = Prisma.PersonGetPayload<{
@@ -54,7 +55,10 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
         aria-expanded={open}
         className="text-sm text-[#A09080] hover:text-[#3A3228]"
       >
-        {open ? "▾" : "▸"} Manage people
+        <span className="inline-flex items-center gap-1">
+          {open ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
+          Manage people
+        </span>
       </button>
 
       {open && (
