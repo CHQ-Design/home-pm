@@ -2,15 +2,25 @@ import { prisma } from "@/lib/prisma"
 import AddTaskForm from "./add-task-form"
 import TaskList from "./task-list"
 import PeopleManager from "./people-manager"
+import RecurringSection from "./recurring-section"
 
 export default async function Home() {
-  const [tasks, people, projects] = await Promise.all([
+  const now = new Date()
+  const in7Days = new Date(now)
+  in7Days.setDate(in7Days.getDate() + 7)
+
+  const [tasks, people, projects, recurringTasks] = await Promise.all([
     prisma.task.findMany({ include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({
       include: { _count: { select: { tasks: { where: { completed: false } } } } },
       orderBy: { name: "asc" },
     }),
     prisma.project.findMany({ orderBy: { name: "asc" } }),
+    prisma.recurringTask.findMany({
+      where: { nextDue: { lte: in7Days } },
+      include: { assignee: true },
+      orderBy: { nextDue: "asc" },
+    }),
   ])
 
   return (
@@ -18,6 +28,7 @@ export default async function Home() {
       <h1 className="font-serif text-2xl font-bold mb-6">Tasks</h1>
       <AddTaskForm people={people} projects={projects} />
       <TaskList tasks={tasks} people={people} projects={projects} />
+      <RecurringSection tasks={recurringTasks} />
       <PeopleManager people={people} />
     </main>
   )

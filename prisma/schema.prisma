@@ -17,10 +17,24 @@ model Project {
 }
 
 model Person {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  tasks     Task[]
+  id             Int             @id @default(autoincrement())
+  name           String
+  createdAt      DateTime        @default(now())
+  tasks          Task[]
+  recurringTasks RecurringTask[]
+}
+
+model RecurringTask {
+  id            Int       @id @default(autoincrement())
+  title         String
+  notes         String?
+  intervalValue Int
+  intervalUnit  String    // "day" | "week" | "month" | "year"
+  nextDue       DateTime
+  lastCompleted DateTime?
+  assigneeId    Int?
+  assignee      Person?   @relation(fields: [assigneeId], references: [id])
+  createdAt     DateTime  @default(now())
 }
 
 model Task {
