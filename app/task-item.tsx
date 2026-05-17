@@ -85,163 +85,166 @@ export default function TaskItem({ task, people, projects, isAdmin }: { task: Ta
     <li className="group">
       <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       <div
-        className="relative flex items-center gap-2 min-h-[44px] rounded-md hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)] border-l-[3px] transition-colors"
+        className="relative rounded-md hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)] border-l-[3px] transition-colors"
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
       >
-        {/* Custom checkbox with 44px touch target */}
-        <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer relative">
-          <input
-            type="checkbox"
-            checked={task.completed}
-            onChange={() => toggleTask(task.id)}
-            aria-label={task.title}
-            className="peer sr-only"
-          />
-          {/* Visual checkbox */}
-          <span
-            className={`
-              h-4 w-4 rounded border flex items-center justify-center shrink-0
-              transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
-              ${task.completed
-                ? "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
-                : "bg-transparent border-[#C8BFAD] scale-100 peer-focus-visible:border-accent"
-              }
-            `}
-          >
-            {task.completed && (
-              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </span>
+        {/* Title row */}
+        <div className="flex items-center gap-2 min-h-[44px]">
+          {/* Checkbox with 44px touch target */}
+          <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer relative">
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => toggleTask(task.id)}
+              aria-label={task.title}
+              className="peer sr-only"
+            />
+            <span
+              className={`
+                h-4 w-4 rounded border flex items-center justify-center shrink-0
+                transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
+                ${task.completed
+                  ? "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
+                  : "bg-transparent border-[#C8BFAD] scale-100 peer-focus-visible:border-accent"
+                }
+              `}
+            >
+              {task.completed && (
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </span>
 
-          {/* Particle burst + star pop */}
-          {showParticles && (
-            <span aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              {PARTICLE_ANGLES.map(angle => (
+            {/* Particle burst + star pop */}
+            {showParticles && (
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                {PARTICLE_ANGLES.map(angle => (
+                  <span
+                    key={angle}
+                    className="absolute h-1.5 w-1.5 rounded-full"
+                    style={{
+                      backgroundColor: personColor?.border ?? "#6B7A5A",
+                      ["--angle" as string]: `${angle}deg`,
+                      animation: "particle-burst 550ms cubic-bezier(0.22,1,0.36,1) forwards",
+                    }}
+                  />
+                ))}
                 <span
-                  key={angle}
-                  className="absolute h-1.5 w-1.5 rounded-full"
+                  className="absolute text-base font-bold select-none"
                   style={{
-                    backgroundColor: personColor?.border ?? "#6B7A5A",
-                    ["--angle" as string]: `${angle}deg`,
-                    animation: "particle-burst 550ms cubic-bezier(0.22,1,0.36,1) forwards",
+                    color: personColor?.border ?? "#6B7A5A",
+                    animation: "star-pop 700ms ease-out forwards",
                   }}
-                />
-              ))}
-              <span
-                className="absolute text-base font-bold select-none"
-                style={{
-                  color: personColor?.border ?? "#6B7A5A",
-                  animation: "star-pop 700ms ease-out forwards",
-                }}
-              >
-                ★
+                >
+                  ★
+                </span>
               </span>
+            )}
+          </label>
+
+          {isInlineEditing ? (
+            <input
+              value={inlineTitle}
+              onChange={e => setInlineTitle(e.target.value)}
+              onBlur={saveInline}
+              onKeyDown={e => {
+                if (e.key === "Enter") saveInline()
+                if (e.key === "Escape") setIsInlineEditing(false)
+              }}
+              className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-[#3A3228]"
+              autoFocus
+            />
+          ) : (
+            <span
+              onClick={openInline}
+              onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
+              role="button"
+              tabIndex={task.completed ? -1 : 0}
+              className={`relative flex-1 text-base font-medium ${
+                task.completed
+                  ? "text-[#A09080]"
+                  : "cursor-pointer text-[#3A3228] hover:text-[#8A6E4B] focus-visible:outline-none focus-visible:text-[#8A6E4B]"
+              }`}
+            >
+              {task.title}
+              {task.completed && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 h-px bg-[#C8BFAD] -translate-y-1/2"
+                  style={justCompleted
+                    ? { animation: "strikethrough 350ms ease-out 80ms both" }
+                    : { width: "100%" }}
+                />
+              )}
             </span>
           )}
-        </label>
 
-        {isInlineEditing ? (
-          <input
-            value={inlineTitle}
-            onChange={e => setInlineTitle(e.target.value)}
-            onBlur={saveInline}
-            onKeyDown={e => {
-              if (e.key === "Enter") saveInline()
-              if (e.key === "Escape") setIsInlineEditing(false)
-            }}
-            className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-[#3A3228]"
-            autoFocus
-          />
-        ) : (
-          <span
-            onClick={openInline}
-            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
-            role="button"
-            tabIndex={task.completed ? -1 : 0}
-            className={`relative flex-1 text-base font-medium ${
-              task.completed
-                ? "text-[#A09080]"
-                : "cursor-pointer text-[#3A3228] hover:text-[#8A6E4B] focus-visible:outline-none focus-visible:text-[#8A6E4B]"
-            }`}
-          >
-            {task.title}
-            {/* Strikethrough overlay */}
-            {task.completed && (
-              <span
-                aria-hidden="true"
-                className="absolute left-0 top-1/2 h-px bg-[#C8BFAD] -translate-y-1/2"
-                style={justCompleted
-                  ? { animation: "strikethrough 350ms ease-out 80ms both" }
-                  : { width: "100%" }}
-              />
-            )}
-          </span>
-        )}
-
-        {isAdmin && task.project && !isInlineEditing && (
-          <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent shrink-0">
-            {task.project.name}
-          </span>
-        )}
-
-        {task.assignee && !isInlineEditing && (
-          <span
-            className="text-xs pl-1 pr-2 py-0.5 rounded-full shrink-0 border flex items-center gap-1"
-            style={personColor
-              ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
-              : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
-            }
-          >
-            <span
-              className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
-              style={{ backgroundColor: personColor?.border ?? "#C8BFAD", color: "white" }}
+          {/* Bell and edit — admin only */}
+          {isAdmin && <>
+            <button
+              onClick={handleBell}
+              className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
+                task.reminderSet
+                  ? "text-accent"
+                  : "text-[#B5A898] group-hover:text-[#6B5E52]"
+              }`}
+              aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
+              style={bellRinging ? { animation: "bell-ring 300ms cubic-bezier(0.34,1.56,0.64,1) forwards" } : undefined}
             >
-              {task.assignee.name[0]}
-            </span>
-            {task.assignee.name}
-          </span>
-        )}
+              {task.reminderSet ? <IconBell size={16} /> : <IconBellOff size={16} />}
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
+              aria-label="Edit thing"
+            >
+              ✎
+            </button>
+          </>}
+        </div>
 
-        {task.dueDate && !isInlineEditing && (
-          <span className="text-xs text-[#A09080] shrink-0">{formatDate(task.dueDate)}</span>
+        {/* Metadata row — shown below title, indented to align with title text */}
+        {!isInlineEditing && (task.assignee || task.dueDate || (isAdmin && task.priority !== "medium") || (isAdmin && task.project)) && (
+          <div className="flex flex-wrap gap-1.5 pl-11 pb-2">
+            {isAdmin && task.project && (
+              <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent">
+                {task.project.name}
+              </span>
+            )}
+            {task.assignee && (
+              <span
+                className="text-xs pl-1 pr-2 py-0.5 rounded-full border flex items-center gap-1"
+                style={personColor
+                  ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
+                  : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
+                }
+              >
+                <span
+                  className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
+                  style={{ backgroundColor: personColor?.border ?? "#C8BFAD", color: "white" }}
+                >
+                  {task.assignee.name[0]}
+                </span>
+                {task.assignee.name}
+              </span>
+            )}
+            {task.dueDate && (
+              <span className="text-xs text-[#A09080]">{formatDate(task.dueDate)}</span>
+            )}
+            {isAdmin && task.priority !== "medium" && (
+              <span
+                className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium ${
+                  PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
+                }`}
+              >
+                {task.priority === "high" && <IconFlame size={10} />}
+                {task.priority === "low" && <IconFeather size={10} />}
+                {task.priority}
+              </span>
+            )}
+          </div>
         )}
-
-        {isAdmin && task.priority !== "medium" && !isInlineEditing && (
-          <span
-            className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
-              PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
-            }`}
-          >
-            {task.priority === "high" && <IconFlame size={10} />}
-            {task.priority === "low" && <IconFeather size={10} />}
-            {task.priority}
-          </span>
-        )}
-
-        {/* Bell and edit — admin only */}
-        {isAdmin && <>
-          <button
-            onClick={handleBell}
-            className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
-              task.reminderSet
-                ? "text-accent"
-                : "text-[#B5A898] group-hover:text-[#6B5E52]"
-            }`}
-            aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
-            style={bellRinging ? { animation: "bell-ring 300ms cubic-bezier(0.34,1.56,0.64,1) forwards" } : undefined}
-          >
-            {task.reminderSet ? <IconBell size={16} /> : <IconBellOff size={16} />}
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
-            aria-label="Edit thing"
-          >
-            ✎
-          </button>
-        </>}
       </div>
 
       {isModalOpen && createPortal(

@@ -45,7 +45,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-180.png" />
         <meta name="theme-color" content="#6B7A5A" />
       </head>
-      <body className="min-h-[100dvh] flex flex-col">
+      <body className="min-h-[100dvh] flex flex-col overflow-x-hidden">
         <AuthSessionProvider>
           <Nav />
           {children}

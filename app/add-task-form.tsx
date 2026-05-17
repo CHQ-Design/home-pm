@@ -119,40 +119,46 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
             rows={2}
             className={`w-full ${inputClass} resize-none`}
           />
-          <div className="flex gap-2 flex-wrap">
-            <input
-              type="date"
-              name="dueDate"
-              className={`${inputClass} [color-scheme:light]`}
-            />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-[#8C7D6A] mb-1">Due date</label>
+              <input
+                type="date"
+                name="dueDate"
+                className={`w-full ${inputClass} [color-scheme:light]`}
+              />
+            </div>
             <div className="relative">
+              <label className="block text-xs text-[#8C7D6A] mb-1">Priority</label>
               <select name="priority" defaultValue="medium" className={selectClass}>
-                <option value="high">High priority</option>
-                <option value="medium">Medium priority</option>
-                <option value="low">Low priority</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
               </select>
-              <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8C7D6A]" />
+              <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
             </div>
             {people.length > 0 && (
               <div className="relative">
+                <label className="block text-xs text-[#8C7D6A] mb-1">Assignee</label>
                 <select name="assigneeId" defaultValue="" className={selectClass}>
                   <option value="">Unassigned</option>
                   {people.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
-                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8C7D6A]" />
+                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
               </div>
             )}
             {!projectId && projects && projects.length > 0 && (
               <div className="relative">
+                <label className="block text-xs text-[#8C7D6A] mb-1">Project</label>
                 <select name="projectId" defaultValue="" className={selectClass}>
                   <option value="">No project</option>
                   {projects.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
-                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8C7D6A]" />
+                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
               </div>
             )}
           </div>
