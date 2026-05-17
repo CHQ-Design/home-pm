@@ -18,7 +18,9 @@ const inputClass =
   "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function AddTaskForm({ people, projects, projectId }: Props) {
-  const [showMore, setShowMore] = useState(false)
+  const [showMore, setShowMore] = useState(() =>
+    typeof window !== "undefined" && sessionStorage.getItem("addTaskShowMore") === "true"
+  )
   const [submitting, setSubmitting] = useState(false)
   const [titleValue, setTitleValue] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
@@ -89,7 +91,11 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
 
       <button
         type="button"
-        onClick={() => setShowMore(v => !v)}
+        onClick={() => setShowMore(v => {
+          const next = !v
+          sessionStorage.setItem("addTaskShowMore", String(next))
+          return next
+        })}
         aria-expanded={showMore}
         className="text-xs text-[#8C7D6A] hover:text-[#3A3228] min-h-[44px] inline-flex items-center"
       >
