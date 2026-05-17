@@ -9,7 +9,7 @@ type PersonWithCount = Prisma.PersonGetPayload<{
 }>
 
 const inputClass =
-  "bg-stone-900 border border-stone-700 rounded-lg px-3 py-1.5 text-sm text-stone-100 placeholder-stone-500 outline-none focus:border-accent"
+  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-1.5 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#C8922A]/20"
 
 export default function PeopleManager({ people }: { people: PersonWithCount[] }) {
   const [open, setOpen] = useState(false)
@@ -48,11 +48,11 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
   }
 
   return (
-    <div className="mt-10 border-t border-stone-800 pt-6">
+    <div className="mt-10 border-t border-[#DDD5C5] pt-6">
       <button
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="text-sm text-stone-500 hover:text-stone-300"
+        className="text-sm text-[#A09080] hover:text-[#3A3228]"
       >
         {open ? "▾" : "▸"} Manage people
       </button>
@@ -60,24 +60,24 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
       {open && (
         <div className="mt-3 space-y-3">
           {people.length === 0 && (
-            <p className="text-sm text-stone-600">No people yet.</p>
+            <p className="text-sm text-[#A09080]">No people yet.</p>
           )}
 
           <ul className="space-y-1">
             {people.map(person => (
               <li key={person.id}>
                 {deletingId === person.id ? (
-                  <div className="p-3 bg-stone-900 rounded-lg border border-stone-700 space-y-2">
+                  <div className="p-3 bg-[#EDE6D8] rounded-lg border border-[#D4C9B5] space-y-2">
                     {hasTasks ? (
                       <>
-                        <p className="text-sm text-stone-300">
+                        <p className="text-sm text-[#4A3F34]">
                           <strong>{person.name}</strong> has {person._count.tasks} task
                           {person._count.tasks !== 1 ? "s" : ""}. Reassign them?
                         </p>
                         <select
                           value={reassignToId}
                           onChange={e => setReassignToId(e.target.value)}
-                          className="text-sm bg-stone-800 border border-stone-700 rounded px-2 py-1.5 text-stone-200 outline-none focus:border-accent"
+                          className="text-sm bg-[#F2ECE2] border border-[#D4C9B5] rounded px-2 py-1.5 text-[#3A3228] outline-none focus:border-accent"
                         >
                           <option value="">Leave unassigned</option>
                           {others.map(p => (
@@ -86,7 +86,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                         </select>
                       </>
                     ) : (
-                      <p className="text-sm text-stone-300">
+                      <p className="text-sm text-[#4A3F34]">
                         Remove <strong>{person.name}</strong>?
                       </p>
                     )}
@@ -99,7 +99,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                       </button>
                       <button
                         onClick={cancelDelete}
-                        className="text-sm px-3 py-1 text-stone-400 hover:text-stone-200"
+                        className="text-sm px-3 py-1 text-[#8C7D6A] hover:text-[#3A3228]"
                       >
                         Cancel
                       </button>
@@ -107,15 +107,15 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                   </div>
                 ) : (
                   <div className="flex items-center justify-between group">
-                    <span className="text-sm text-stone-300">
+                    <span className="text-sm text-[#4A3F34]">
                       {person.name}
-                      <span className="text-stone-600 ml-1.5 text-xs">
+                      <span className="text-[#B5A898] ml-1.5 text-xs">
                         {person._count.tasks} task{person._count.tasks !== 1 ? "s" : ""}
                       </span>
                     </span>
                     <button
                       onClick={() => startDelete(person)}
-                      className="text-xs text-stone-600 hover:text-red-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+                      className="text-xs text-[#B5A898] hover:text-red-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                     >
                       ✕
                     </button>

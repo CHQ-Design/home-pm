@@ -8,9 +8,9 @@ import DatePicker from "./date-picker"
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
 
 const inputClass =
-  "w-full text-sm bg-stone-900 border border-stone-700 rounded-md px-3 py-2 text-stone-100 placeholder-stone-600 outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+  "w-full text-sm bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#C8922A]/20"
 
-const labelClass = "block text-xs font-medium text-stone-400 mb-1"
+const labelClass = "block text-xs font-medium text-[#8C7D6A] mb-1"
 
 export default function TaskEditModal({
   task,
@@ -57,10 +57,10 @@ export default function TaskEditModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center"
-      style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
+      style={{ backgroundColor: "rgba(44,35,22,0.45)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-stone-800 border border-stone-700 rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto">
+      <div className="bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto">
         <div className="p-5 space-y-4">
           <div>
             <label className={labelClass}>Title</label>
@@ -120,10 +120,10 @@ export default function TaskEditModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-5 py-3 border-t border-stone-700">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-[#D4C9B5]">
           {confirmDelete ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-stone-300">Delete this task?</span>
+              <span className="text-sm text-[#4A3F34]">Delete this task?</span>
               <button
                 onClick={handleDelete}
                 className="text-sm px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -132,7 +132,7 @@ export default function TaskEditModal({
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-sm text-stone-500 hover:text-stone-300"
+                className="text-sm text-[#8C7D6A] hover:text-[#3A3228]"
               >
                 Cancel
               </button>
@@ -140,7 +140,7 @@ export default function TaskEditModal({
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="text-sm text-stone-500 hover:text-red-400"
+              className="text-sm text-[#A09080] hover:text-red-700"
             >
               Delete task
             </button>
@@ -149,7 +149,7 @@ export default function TaskEditModal({
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="text-sm px-4 py-1.5 text-stone-400 hover:text-stone-200"
+              className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
             >
               Cancel
             </button>

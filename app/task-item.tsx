@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import type { Person, Prisma } from "@prisma/client"
+import { IconBell, IconBellOff, IconFeather, IconFlame } from "@tabler/icons-react"
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 
@@ -10,10 +11,12 @@ type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
 type Priority = "high" | "medium" | "low"
 
 const PRIORITY_STYLES: Record<Priority, string> = {
-  high: "bg-[#C8922A]/20 text-[#D4A035]",
+  high: "bg-[#C8922A]/20 text-[#8A6E4B]",
   medium: "",
-  low: "bg-stone-800 text-stone-400 border border-stone-600",
+  low: "bg-[#EDE6D8] text-[#8C7D6A] border border-[#C8BFAD]",
 }
+
+const PARTICLE_ANGLES = [0, 60, 120, 180, 240, 300]
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -27,6 +30,21 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
   const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [showParticles, setShowParticles] = useState(false)
+  const [justCompleted, setJustCompleted] = useState(false)
+  const [bellRinging, setBellRinging] = useState(false)
+  const prevCompleted = useRef(task.completed)
+
+  useEffect(() => {
+    if (!prevCompleted.current && task.completed) {
+      setShowParticles(true)
+      setJustCompleted(true)
+      const t = setTimeout(() => setShowParticles(false), 600)
+      return () => clearTimeout(t)
+    }
+    if (!task.completed) setJustCompleted(false)
+    prevCompleted.current = task.completed
+  }, [task.completed])
 
   function openInline() {
     if (task.completed) return
@@ -42,19 +60,59 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
     }
   }
 
+  async function handleBell() {
+    if (!task.reminderSet) {
+      setBellRinging(true)
+      setTimeout(() => setBellRinging(false), 400)
+    }
+    await toggleReminder(task.id)
+  }
+
   return (
     <li className="group">
-      <div className="flex items-center gap-2 min-h-[44px]">
-        {/* 44px touch target wrapping the visual checkbox */}
-        <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer">
+      <div className="relative flex items-center gap-2 min-h-[44px] rounded-md active:bg-[rgba(200,146,42,0.07)]">
+        {/* Custom checkbox with 44px touch target */}
+        <label className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer relative">
           <input
             type="checkbox"
             checked={task.completed}
             onChange={() => toggleTask(task.id)}
             aria-label={task.title}
-            className="h-4 w-4 rounded border-stone-600 cursor-pointer"
-            style={{ accentColor: "#C8922A" }}
+            className="peer sr-only"
           />
+          {/* Visual checkbox */}
+          <span
+            className={`
+              h-4 w-4 rounded border flex items-center justify-center shrink-0
+              transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
+              ${task.completed
+                ? "bg-[#C8922A] border-[#C8922A] scale-110"
+                : "bg-transparent border-[#C8BFAD] scale-100 peer-focus-visible:border-accent"
+              }
+            `}
+          >
+            {task.completed && (
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4L3.5 6.5L9 1" stroke="#1C1814" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </span>
+
+          {/* Particle burst */}
+          {showParticles && (
+            <span aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              {PARTICLE_ANGLES.map(angle => (
+                <span
+                  key={angle}
+                  className="absolute h-1.5 w-1.5 rounded-full bg-[#C8922A]"
+                  style={{
+                    ["--angle" as string]: `${angle}deg`,
+                    animation: "particle-burst 550ms cubic-bezier(0.22,1,0.36,1) forwards",
+                  }}
+                />
+              ))}
+            </span>
+          )}
         </label>
 
         {isInlineEditing ? (
@@ -66,7 +124,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
               if (e.key === "Enter") saveInline()
               if (e.key === "Escape") setIsInlineEditing(false)
             }}
-            className="flex-1 text-sm border-b border-accent outline-none bg-transparent py-0.5 text-stone-100"
+            className="flex-1 text-sm border-b border-accent outline-none bg-transparent py-0.5 text-[#3A3228]"
             autoFocus
           />
         ) : (
@@ -75,53 +133,66 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
             onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
             role="button"
             tabIndex={task.completed ? -1 : 0}
-            className={`flex-1 text-sm ${
+            className={`relative flex-1 text-sm ${
               task.completed
-                ? "line-through text-stone-400"
-                : "cursor-pointer text-stone-200 hover:text-accent focus-visible:outline-none focus-visible:text-accent"
+                ? "text-[#A09080]"
+                : "cursor-pointer text-[#3A3228] hover:text-[#8A6E4B] focus-visible:outline-none focus-visible:text-[#8A6E4B]"
             }`}
           >
             {task.title}
+            {/* Strikethrough overlay */}
+            {task.completed && (
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-1/2 h-px bg-[#C8BFAD] -translate-y-1/2"
+                style={justCompleted
+                  ? { animation: "strikethrough 350ms ease-out 80ms both" }
+                  : { width: "100%" }}
+              />
+            )}
           </span>
         )}
 
         {task.assignee && !isInlineEditing && (
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-stone-800 text-stone-400 shrink-0">
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#EDE6D8] text-[#8C7D6A] shrink-0">
             {task.assignee.name}
           </span>
         )}
 
         {task.dueDate && !isInlineEditing && (
-          <span className="text-xs text-stone-500 shrink-0">{formatDate(task.dueDate)}</span>
+          <span className="text-xs text-[#A09080] shrink-0">{formatDate(task.dueDate)}</span>
         )}
 
         {task.priority !== "medium" && !isInlineEditing && (
           <span
-            className={`text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
+            className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
               PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
             }`}
           >
+            {task.priority === "high" && <IconFlame size={10} />}
+            {task.priority === "low" && <IconFeather size={10} />}
             {task.priority}
           </span>
         )}
 
         {/* Bell with 44px touch target */}
         <button
-          onClick={() => toggleReminder(task.id)}
+          onClick={handleBell}
           className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
             task.reminderSet
               ? "text-accent"
-              : "text-stone-500 group-hover:text-stone-300"
+              : "text-[#B5A898] group-hover:text-[#6B5E52]"
           }`}
           aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
+          style={bellRinging ? { animation: "bell-ring 300ms cubic-bezier(0.34,1.56,0.64,1) forwards" } : undefined}
         >
-          🔔
+          {task.reminderSet ? <IconBell size={16} /> : <IconBellOff size={16} />}
         </button>
 
         {/* Edit with 44px touch target */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center min-h-[44px] min-w-[44px] text-stone-500 text-sm leading-none shrink-0 group-hover:text-stone-300 transition-colors"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
           aria-label="Edit task"
         >
           ✎

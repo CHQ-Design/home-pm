@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import type { Person, Prisma } from "@prisma/client"
+import { IconSun, IconWaveSine } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
@@ -29,17 +30,19 @@ function groupTasks(tasks: Task[]) {
 }
 
 function Section({
-  title, tasks, titleClass, people,
+  title, tasks, titleClass, people, icon,
 }: {
-  title: string; tasks: Task[]; titleClass: string; people: Person[]
+  title: string; tasks: Task[]; titleClass: string; people: Person[];
+  icon?: React.ReactNode;
 }) {
   if (tasks.length === 0) return null
   return (
     <section className="mb-4">
-      <h2 className={`text-[13px] font-semibold uppercase tracking-wider mb-2 ${titleClass}`}>
+      <h2 className={`flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wider mb-2 ${titleClass}`}>
+        {icon}
         {title}
       </h2>
-      <ul className="divide-y divide-stone-800">
+      <ul className="divide-y divide-[#E4DDD0]">
         {tasks.map(task => (
           <TaskItem key={task.id} task={task} people={people} />
         ))}
@@ -72,7 +75,7 @@ export default function TaskList({ tasks, people }: Props) {
             className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
               filterPersonId === null
                 ? "bg-accent text-stone-900 font-medium"
-                : "bg-stone-800 text-stone-300 border border-stone-600 hover:bg-stone-700 hover:text-stone-100"
+                : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
             }`}
           >
             All
@@ -85,7 +88,7 @@ export default function TaskList({ tasks, people }: Props) {
               className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
                 filterPersonId === p.id
                   ? "bg-accent text-stone-900 font-medium"
-                  : "bg-stone-800 text-stone-300 border border-stone-600 hover:bg-stone-700 hover:text-stone-100"
+                  : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
               }`}
             >
               {p.name}
@@ -95,33 +98,35 @@ export default function TaskList({ tasks, people }: Props) {
       )}
 
       {openCount === 0 && groups.completed.length === 0 && filterPersonId === null && (
-        <p className="text-stone-500 text-sm py-4">No tasks yet. Add one above.</p>
+        <p className="text-[#A09080] text-sm py-4">No tasks yet. Add one above.</p>
       )}
       {openCount === 0 && groups.completed.length === 0 && filterPersonId !== null && (
-        <p className="text-stone-500 text-sm py-4">
+        <p className="text-[#A09080] text-sm py-4">
           No open tasks for {people.find(p => p.id === filterPersonId)?.name}.
         </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
-        <p className="text-stone-500 text-sm py-2">All done!</p>
+        <p className="text-[#A09080] text-sm py-2">All done!</p>
       )}
 
-      <Section title="Overdue"  tasks={groups.overdue}  titleClass="text-red-400"   people={people} />
-      <Section title="Today"    tasks={groups.today}    titleClass="text-accent"    people={people} />
-      <Section title="Upcoming" tasks={groups.upcoming} titleClass="text-stone-300" people={people} />
-      <Section title="No date"  tasks={groups.noDate}   titleClass="text-stone-400" people={people} />
+      <Section title="Overdue"   tasks={groups.overdue}  titleClass="text-red-700"   people={people} />
+      <Section title="Today"     tasks={groups.today}    titleClass="text-accent"    people={people} />
+      <Section title="Coming up" tasks={groups.upcoming} titleClass="text-[#8C7D6A]" people={people}
+        icon={<IconSun size={14} />} />
+      <Section title="No rush"   tasks={groups.noDate}   titleClass="text-[#A09080]" people={people}
+        icon={<IconWaveSine size={14} />} />
 
       {groups.completed.length > 0 && (
-        <div className="mt-8 border-t border-stone-700 pt-5">
+        <div className="mt-8 border-t border-[#D4C9B5] pt-5">
           <button
             onClick={() => setShowCompleted(v => !v)}
             aria-expanded={showCompleted}
-            className="text-sm text-stone-400 hover:text-stone-200"
+            className="text-sm text-[#8C7D6A] hover:text-[#3A3228]"
           >
             {showCompleted ? "▾" : "▸"} {groups.completed.length} completed
           </button>
           {showCompleted && (
-            <ul className="mt-2 divide-y divide-stone-800 opacity-75">
+            <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">
               {groups.completed.map(task => (
                 <TaskItem key={task.id} task={task} people={people} />
               ))}

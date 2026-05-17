@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1C1814;
-  --foreground: #F0EAE0;
+  --background: #F9F5EF;
+  --foreground: #3A3228;
 }
 
 @theme inline {
@@ -11,6 +11,7 @@
   --color-accent: #C8922A;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-fraunces);
 }
 
 html {
@@ -22,4 +23,26 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes strikethrough {
+  from { width: 0% }
+  to   { width: 100% }
+}
+
+@keyframes bell-ring {
+  0%   { transform: rotate(0deg) scale(1); }
+  40%  { transform: rotate(-18deg) scale(1.25); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes particle-burst {
+  0%   { opacity: 1; transform: rotate(var(--angle, 0deg)) translateX(0) scale(1.2); }
+  80%  { opacity: 0.5; }
+  100% { opacity: 0; transform: rotate(var(--angle, 0deg)) translateX(28px) scale(0); }
+}
+
+@keyframes placeholder-fade {
+  0%, 100% { opacity: 0; }
+  15%, 85%  { opacity: 1; }
 }
