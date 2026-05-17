@@ -30,7 +30,7 @@ model Task {
   dueDate     DateTime?
   priority    String    @default("medium")
   completed   Boolean   @default(false)
-  reminderSet Boolean   @default(false)
+  reminderSet Boolean   @default(false) // TODO: wire to actual notifications (email/push) before this means anything
   createdAt   DateTime  @default(now())
   completedAt DateTime?
   assigneeId  Int?
