@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 export async function addTask(formData: FormData) {
   const title = (formData.get("title") as string).trim()
   if (!title) return
-  const notes = (formData.get("notes") as string).trim() || null
+  const notes = (formData.get("notes") as string | null)?.trim() || null
   const dueDateStr = formData.get("dueDate") as string
   const priority = (formData.get("priority") as string) || "medium"
   const assigneeIdStr = formData.get("assigneeId") as string
