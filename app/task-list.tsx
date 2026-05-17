@@ -15,16 +15,23 @@ function localTodayStr() {
   return new Date().toLocaleDateString("en-CA")
 }
 
+const PRIORITY_ORDER: Record<string, number> = { high: 1, medium: 2, low: 3 }
+
+function byPriority(a: Task, b: Task) {
+  const p = (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
+  if (p !== 0) return p
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}
+
 function groupTasks(tasks: Task[]) {
   const today = localTodayStr()
   const open = tasks.filter(t => !t.completed)
 
   return {
-    overdue:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today)
-                  .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()),
-    today:    open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today),
-    upcoming: open.filter(t => t.dueDate && utcDateStr(t.dueDate) > today),
-    noDate:   open.filter(t => !t.dueDate),
+    overdue:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today).sort(byPriority),
+    today:    open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today).sort(byPriority),
+    upcoming: open.filter(t => t.dueDate && utcDateStr(t.dueDate) > today).sort(byPriority),
+    noDate:   open.filter(t => !t.dueDate).sort(byPriority),
     completed: tasks.filter(t => t.completed),
   }
 }

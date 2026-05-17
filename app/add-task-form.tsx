@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import type { Person } from "@prisma/client"
+import type { Person, Project } from "@prisma/client"
 import { addTask } from "./actions"
 
-type Props = { people: Person[]; projectId?: number }
+type Props = { people: Person[]; projects?: Project[]; projectId?: number }
 
 const PLACEHOLDERS = [
   "Buy oat milk…",
@@ -17,7 +17,7 @@ const PLACEHOLDERS = [
 const inputClass =
   "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
-export default function AddTaskForm({ people, projectId }: Props) {
+export default function AddTaskForm({ people, projects, projectId }: Props) {
   const [showMore, setShowMore] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [titleValue, setTitleValue] = useState("")
@@ -127,6 +127,18 @@ export default function AddTaskForm({ people, projectId }: Props) {
               >
                 <option value="">Unassigned</option>
                 {people.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            )}
+            {!projectId && projects && projects.length > 0 && (
+              <select
+                name="projectId"
+                defaultValue=""
+                className={inputClass}
+              >
+                <option value="">No project</option>
+                {projects.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
