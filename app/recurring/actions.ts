@@ -7,6 +7,18 @@ import { revalidatePath } from "next/cache"
 const VALID_UNITS = ["day", "week", "month", "year"] as const
 type Unit = typeof VALID_UNITS[number]
 
+function parseDate(raw: string | null): Date | null {
+  if (!raw) return null
+  const d = new Date(raw)
+  return isNaN(d.getTime()) ? null : d
+}
+
+function parseId(raw: string | null): number | null {
+  if (!raw) return null
+  const n = parseInt(raw, 10)
+  return isNaN(n) || n <= 0 ? null : n
+}
+
 function computeNextDue(from: Date, value: number, unit: Unit): Date {
   const d = new Date(from)
   switch (unit) {
@@ -29,11 +41,10 @@ export async function addRecurringTask(formData: FormData) {
   const intervalUnit = iu
   if (!intervalValue || !VALID_UNITS.includes(intervalUnit as Unit)) return
 
-  const nextDueRaw = (formData.get("nextDue") as string) ?? ""
-  if (!nextDueRaw) return
+  const nextDue = parseDate(formData.get("nextDue") as string)
+  if (!nextDue) return
 
   const notes = ((formData.get("notes") as string) ?? "").trim() || null
-  const assigneeIdRaw = formData.get("assigneeId") as string
 
   await prisma.recurringTask.create({
     data: {
@@ -41,8 +52,8 @@ export async function addRecurringTask(formData: FormData) {
       notes,
       intervalValue,
       intervalUnit,
-      nextDue: new Date(nextDueRaw),
-      assigneeId: assigneeIdRaw ? Number(assigneeIdRaw) : null,
+      nextDue,
+      assigneeId: parseId(formData.get("assigneeId") as string),
     },
   })
   revalidatePath("/", "layout")

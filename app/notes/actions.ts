@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { requireRole } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { unlink } from "fs/promises"
 import { join } from "path"
@@ -23,6 +24,7 @@ async function removeFile(filename: string) {
 }
 
 export async function addNote(formData: FormData, attachments: AttachmentInput[]) {
+  await requireRole("admin")
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
 
@@ -47,6 +49,7 @@ export async function updateNote(
   data: { title?: string; body?: string | null; tags?: string | null; projectId?: number | null },
   newAttachments: AttachmentInput[] = []
 ) {
+  await requireRole("admin")
   if (data.tags !== undefined && data.tags !== null) {
     data = { ...data, tags: normalizeTags(data.tags) }
   }
@@ -62,6 +65,7 @@ export async function updateNote(
 }
 
 export async function deleteNote(id: number) {
+  await requireRole("admin")
   const note = await prisma.note.findUnique({ where: { id }, include: { attachments: true } })
   if (note) {
     for (const att of note.attachments) {
@@ -73,6 +77,7 @@ export async function deleteNote(id: number) {
 }
 
 export async function deleteAttachment(id: number) {
+  await requireRole("admin")
   const att = await prisma.attachment.findUnique({ where: { id } })
   if (!att) return
   await removeFile(att.filename)

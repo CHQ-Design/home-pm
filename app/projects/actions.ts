@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { requireRole } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_STATUSES = ["active", "paused", "done"] as const
@@ -11,6 +12,7 @@ function parseStatus(raw: unknown): Status {
 }
 
 export async function addProject(formData: FormData) {
+  await requireRole("admin")
   const name = (formData.get("name") as string).trim()
   if (!name) return
   const description = (formData.get("description") as string | null)?.trim() || null
@@ -22,6 +24,7 @@ export async function updateProject(
   id: number,
   data: { name?: string; description?: string | null; status?: Status }
 ) {
+  await requireRole("admin")
   const update = { ...data }
   if (update.status !== undefined) update.status = parseStatus(update.status)
   await prisma.project.update({ where: { id }, data: update })
@@ -29,6 +32,7 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: number) {
+  await requireRole("admin")
   await prisma.$transaction([
     prisma.task.updateMany({ where: { projectId: id }, data: { projectId: null } }),
     prisma.project.delete({ where: { id } }),

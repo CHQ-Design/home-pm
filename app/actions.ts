@@ -11,29 +11,39 @@ function parsePriority(raw: unknown): Priority {
   return VALID_PRIORITIES.includes(raw as Priority) ? (raw as Priority) : "medium"
 }
 
+function parseDate(raw: string | null): Date | null {
+  if (!raw) return null
+  const d = new Date(raw)
+  return isNaN(d.getTime()) ? null : d
+}
+
+function parseId(raw: string | null): number | null {
+  if (!raw) return null
+  const n = parseInt(raw, 10)
+  return isNaN(n) || n <= 0 ? null : n
+}
+
 export async function addTask(formData: FormData) {
   await requireRole("admin")
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
   const notes = (formData.get("notes") as string | null)?.trim() || null
-  const dueDateStr = formData.get("dueDate") as string
   const priority = parsePriority(formData.get("priority"))
-  const assigneeIdStr = formData.get("assigneeId") as string
-  const projectIdStr = formData.get("projectId") as string
 
   await prisma.task.create({
     data: {
       title,
       notes,
-      dueDate: dueDateStr ? new Date(dueDateStr) : null,
+      dueDate: parseDate(formData.get("dueDate") as string),
       priority,
-      assigneeId: assigneeIdStr ? Number(assigneeIdStr) : null,
-      projectId: projectIdStr ? Number(projectIdStr) : null,
+      assigneeId: parseId(formData.get("assigneeId") as string),
+      projectId: parseId(formData.get("projectId") as string),
     },
   })
   revalidatePath("/", "layout")
 }
 
+// Members can toggle task completion — intentionally no requireRole here
 export async function toggleTask(id: number) {
   const task = await prisma.task.findUniqueOrThrow({ where: { id } })
   await prisma.task.update({
