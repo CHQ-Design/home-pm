@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
