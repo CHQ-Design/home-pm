@@ -50,25 +50,23 @@ export default function AddRecurringForm({ people, projects }: { people: Person[
         autoComplete="off"
         required
       />
-      <div className="grid grid-cols-2 gap-3 overflow-hidden">
-        <div className="min-w-0">
-          <label className="block text-xs text-[#8C7D6A] mb-1">Cadence</label>
-          <select name="cadence" defaultValue="1|week" className={inputClass}>
-            {CADENCES.map(c => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-0">
-          <label className="block text-xs text-[#8C7D6A] mb-1">First due</label>
-          <input
-            type="date"
-            name="nextDue"
-            defaultValue={todayString()}
-            className={`${inputClass} min-w-0`}
-            required
-          />
-        </div>
+      <div className="flex gap-4">
+        <label className="text-xs text-[#8C7D6A] shrink-0 mt-3">Cadence</label>
+        <select name="cadence" defaultValue="1|week" className={inputClass}>
+          {CADENCES.map(c => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex gap-4">
+        <label className="text-xs text-[#8C7D6A] shrink-0 mt-3">First due</label>
+        <input
+          type="date"
+          name="nextDue"
+          defaultValue={todayString()}
+          className={inputClass}
+          required
+        />
       </div>
 
       {showNotes && (
