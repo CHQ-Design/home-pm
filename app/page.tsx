@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { prisma } from "@/lib/prisma"
 import AddTaskForm from "./add-task-form"
 import TaskList from "./task-list"

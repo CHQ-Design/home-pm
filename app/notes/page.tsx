@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { prisma } from "@/lib/prisma"
 import AddNoteForm from "./add-note-form"
 import NoteList from "./note-list"

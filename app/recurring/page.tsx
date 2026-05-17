@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { prisma } from "@/lib/prisma"
 import AddRecurringForm from "./add-recurring-form"
 import RecurringTaskItem from "./recurring-task-item"
