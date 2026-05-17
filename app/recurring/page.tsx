@@ -17,15 +17,18 @@ export default async function RecurringPage() {
     getSessionPersonId(),
   ])
   const isAdmin = role === "admin"
+  const visibleTasks = isAdmin
+    ? tasks
+    : tasks.filter(t => t.assigneeId === sessionPersonId)
 
   const now = new Date()
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const in7Days = new Date(todayStart)
   in7Days.setDate(in7Days.getDate() + 7)
 
-  const overdue      = tasks.filter(t => new Date(t.nextDue) < todayStart)
-  const dueThisWeek  = tasks.filter(t => { const d = new Date(t.nextDue); return d >= todayStart && d <= in7Days })
-  const upcoming     = tasks.filter(t => new Date(t.nextDue) > in7Days)
+  const overdue      = visibleTasks.filter(t => new Date(t.nextDue) < todayStart)
+  const dueThisWeek  = visibleTasks.filter(t => { const d = new Date(t.nextDue); return d >= todayStart && d <= in7Days })
+  const upcoming     = visibleTasks.filter(t => new Date(t.nextDue) > in7Days)
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
@@ -33,7 +36,7 @@ export default async function RecurringPage() {
 
       {isAdmin && <AddRecurringForm people={people} projects={projects} />}
 
-      {tasks.length === 0 && (
+      {visibleTasks.length === 0 && (
         <p className="text-sm text-[#A09080]">No recurring tasks yet. Add one above.</p>
       )}
 

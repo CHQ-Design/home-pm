@@ -29,6 +29,9 @@ export default async function Home() {
   ])
 
   const isAdmin = role === "admin"
+  const visibleRecurringTasks = isAdmin
+    ? recurringTasks
+    : recurringTasks.filter(t => t.assigneeId === sessionPersonId)
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
@@ -38,7 +41,7 @@ export default async function Home() {
       <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       {isAdmin && <AddTaskForm people={people} projects={projects} />}
       <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
-      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       {isAdmin && <PeopleManager people={people} />}
     </main>
   )
