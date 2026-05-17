@@ -130,23 +130,21 @@ export default function RecurringTaskItem({
           className={inputClass}
           autoFocus
         />
-        <div className="grid grid-cols-2 gap-3">
-          <select
-            value={form.cadence}
-            onChange={e => setForm(f => ({ ...f, cadence: e.target.value }))}
-            className={inputClass}
-          >
-            {CADENCES.map(c => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
-          </select>
-          <input
-            type="date"
-            value={form.nextDue}
-            onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
-            className={inputClass}
-          />
-        </div>
+        <select
+          value={form.cadence}
+          onChange={e => setForm(f => ({ ...f, cadence: e.target.value }))}
+          className={inputClass}
+        >
+          {CADENCES.map(c => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
+        <input
+          type="date"
+          value={form.nextDue}
+          onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
+          className={inputClass}
+        />
         <textarea
           value={form.notes}
           onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
