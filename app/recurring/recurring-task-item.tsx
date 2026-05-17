@@ -62,7 +62,7 @@ function localDateString(d: Date | string): string {
 }
 
 const inputClass =
-  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function RecurringTaskItem({
   task,
@@ -157,7 +157,7 @@ export default function RecurringTaskItem({
             ))}
           </select>
         )}
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleSave}
             disabled={pending}
@@ -170,6 +170,12 @@ export default function RecurringTaskItem({
             className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
           >
             Cancel
+          </button>
+          <button
+            onClick={() => { setEditing(false); setConfirming(true) }}
+            className="text-sm px-4 py-1.5 text-red-500 hover:text-red-700 ml-auto"
+          >
+            Delete
           </button>
         </div>
       </div>
