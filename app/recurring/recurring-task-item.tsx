@@ -79,6 +79,7 @@ export default function RecurringTaskItem({
 }) {
   const canComplete = isAdmin || task.assigneeId === sessionPersonId
   const [editing, setEditing] = useState(false)
+  const [showNotes, setShowNotes] = useState(!!task.notes)
   const [confirming, setConfirming] = useState(false)
   const [pending, setPending] = useState(false)
   const [form, setForm] = useState({
@@ -147,13 +148,15 @@ export default function RecurringTaskItem({
             className={`${inputClass} min-w-0`}
           />
         </div>
-        <textarea
-          value={form.notes}
-          onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-          placeholder="Notes (optional)"
-          rows={2}
-          className={`${inputClass} resize-none`}
-        />
+        {showNotes && (
+          <textarea
+            value={form.notes}
+            onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+            placeholder="Notes (optional)"
+            rows={2}
+            className={`${inputClass} resize-none`}
+          />
+        )}
         {(people.length > 0 || projects.length > 0) && (
           <div className="grid grid-cols-2 gap-3">
             {people.length > 0 && (
@@ -182,7 +185,7 @@ export default function RecurringTaskItem({
             )}
           </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleSave}
             disabled={pending}
@@ -195,6 +198,13 @@ export default function RecurringTaskItem({
             className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
           >
             Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowNotes(v => !v)}
+            className={`text-xs ${showNotes ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+          >
+            {showNotes ? "− Notes" : "+ Notes"}
           </button>
           <button
             onClick={() => { setEditing(false); setConfirming(true) }}
