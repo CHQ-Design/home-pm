@@ -120,6 +120,7 @@ export default function DatePicker({ value, onChange }: Props) {
         readOnly
         value={formatDisplay(value)}
         onClick={openCalendar}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCalendar() } }}
         placeholder="No date"
         className="w-full text-sm bg-zinc-800 border border-zinc-600 rounded-md px-3 py-2 text-white placeholder-zinc-500 outline-none focus:border-blue-500 cursor-pointer"
       />

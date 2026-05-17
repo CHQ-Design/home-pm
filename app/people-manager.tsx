@@ -111,7 +111,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                     </span>
                     <button
                       onClick={() => startDelete(person)}
-                      className="text-xs text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="text-xs text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                     >
                       ✕
                     </button>

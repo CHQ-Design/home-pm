@@ -7,7 +7,9 @@ import TaskEditModal from "./task-edit-modal"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true } }>
 
-const PRIORITY_STYLES: Record<string, string> = {
+type Priority = "high" | "medium" | "low"
+
+const PRIORITY_STYLES: Record<Priority, string> = {
   high: "bg-red-100 text-red-700",
   medium: "bg-amber-100 text-amber-700",
   low: "bg-slate-100 text-slate-500",
@@ -33,11 +35,11 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
   }
 
   async function saveInline() {
+    setIsInlineEditing(false) // set first so onBlur after Enter is a no-op
     const trimmed = inlineTitle.trim()
     if (trimmed && trimmed !== task.title) {
       await updateTask(task.id, { title: trimmed })
     }
-    setIsInlineEditing(false)
   }
 
   return (
@@ -87,7 +89,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
 
         <span
           className={`text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
-            PRIORITY_STYLES[task.priority] ?? PRIORITY_STYLES.medium
+            PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.medium
           }`}
         >
           {task.priority}

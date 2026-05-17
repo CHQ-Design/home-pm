@@ -3,12 +3,19 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 
+const VALID_PRIORITIES = ["high", "medium", "low"] as const
+type Priority = typeof VALID_PRIORITIES[number]
+
+function parsePriority(raw: unknown): Priority {
+  return VALID_PRIORITIES.includes(raw as Priority) ? (raw as Priority) : "medium"
+}
+
 export async function addTask(formData: FormData) {
   const title = (formData.get("title") as string).trim()
   if (!title) return
   const notes = (formData.get("notes") as string | null)?.trim() || null
   const dueDateStr = formData.get("dueDate") as string
-  const priority = (formData.get("priority") as string) || "medium"
+  const priority = parsePriority(formData.get("priority"))
   const assigneeIdStr = formData.get("assigneeId") as string
 
   await prisma.task.create({
@@ -46,11 +53,14 @@ export async function updateTask(
     title?: string
     notes?: string | null
     dueDate?: Date | null
-    priority?: string
+    priority?: Priority
     assigneeId?: number | null
     reminderSet?: boolean
   }
 ) {
+  if (data.priority !== undefined) {
+    data.priority = parsePriority(data.priority)
+  }
   await prisma.task.update({ where: { id }, data })
   revalidatePath("/")
 }
