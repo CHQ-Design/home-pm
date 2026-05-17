@@ -65,6 +65,15 @@ model RecurringTask {
   createdAt     DateTime  @default(now())
 }
 
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userEmail String
+  createdAt DateTime @default(now())
+}
+
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
