@@ -16,10 +16,10 @@ const PLACEHOLDERS = [
 ]
 
 const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 const selectClass =
-  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg pl-3 pr-8 py-2 text-sm text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 appearance-none"
+  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg pl-3 pr-8 py-2 text-base text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 appearance-none"
 
 export default function AddTaskForm({ people, projects, projectId }: Props) {
   const [showMore, setShowMore] = useState(false)
