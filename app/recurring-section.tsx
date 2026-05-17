@@ -49,16 +49,18 @@ function DoneButton({ taskId }: { taskId: number }) {
   )
 }
 
-export default function RecurringSection({ tasks }: { tasks: RecurringTask[] }) {
+export default function RecurringSection({ tasks, isAdmin }: { tasks: RecurringTask[]; isAdmin: boolean }) {
   if (tasks.length === 0) return null
 
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A]">Routines</h2>
-        <Link href="/recurring" className="text-xs text-[#B5A898] hover:text-[#6B5E52]">
-          Manage →
-        </Link>
+        {isAdmin && (
+          <Link href="/recurring" className="text-xs text-[#B5A898] hover:text-[#6B5E52]">
+            Manage →
+          </Link>
+        )}
       </div>
       <div className="space-y-1.5">
         {tasks.map(task => (
@@ -75,7 +77,7 @@ export default function RecurringSection({ tasks }: { tasks: RecurringTask[] }) 
                 <span className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
               )}
             </div>
-            <DoneButton taskId={task.id} />
+            {isAdmin && <DoneButton taskId={task.id} />}
           </div>
         ))}
       </div>

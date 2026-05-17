@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { requireRole } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_UNITS = ["day", "week", "month", "year"] as const
@@ -18,6 +19,7 @@ function computeNextDue(from: Date, value: number, unit: Unit): Date {
 }
 
 export async function addRecurringTask(formData: FormData) {
+  await requireRole("admin")
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
 
@@ -47,6 +49,7 @@ export async function addRecurringTask(formData: FormData) {
 }
 
 export async function completeRecurringTask(id: number) {
+  await requireRole("admin")
   const task = await prisma.recurringTask.findUnique({ where: { id } })
   if (!task) return
 
@@ -71,12 +74,14 @@ export async function updateRecurringTask(
     assigneeId?: number | null
   }
 ) {
+  await requireRole("admin")
   if (data.intervalUnit && !VALID_UNITS.includes(data.intervalUnit as Unit)) return
   await prisma.recurringTask.update({ where: { id }, data })
   revalidatePath("/", "layout")
 }
 
 export async function deleteRecurringTask(id: number) {
+  await requireRole("admin")
   await prisma.recurringTask.delete({ where: { id } })
   revalidatePath("/", "layout")
 }

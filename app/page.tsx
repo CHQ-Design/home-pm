@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
+import { getSessionRole } from "@/lib/require-auth"
 import AddTaskForm from "./add-task-form"
 import TaskList from "./task-list"
 import PeopleManager from "./people-manager"
@@ -11,7 +12,7 @@ export default async function Home() {
   const in7Days = new Date(now)
   in7Days.setDate(in7Days.getDate() + 7)
 
-  const [tasks, people, projects, recurringTasks] = await Promise.all([
+  const [tasks, people, projects, recurringTasks, role] = await Promise.all([
     prisma.task.findMany({ include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({
       include: { _count: { select: { tasks: { where: { completed: false } } } } },
@@ -23,7 +24,10 @@ export default async function Home() {
       include: { assignee: true },
       orderBy: { nextDue: "asc" },
     }),
+    getSessionRole(),
   ])
+
+  const isAdmin = role === "admin"
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
@@ -31,10 +35,10 @@ export default async function Home() {
         {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
       </p>
       <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
-      <AddTaskForm people={people} projects={projects} />
-      <TaskList tasks={tasks} people={people} projects={projects} />
-      <RecurringSection tasks={recurringTasks} />
-      <PeopleManager people={people} />
+      {isAdmin && <AddTaskForm people={people} projects={projects} />}
+      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} />
+      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} />
+      {isAdmin && <PeopleManager people={people} />}
     </main>
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import Nav from "./nav";
+import AuthSessionProvider from "./session-provider";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -45,8 +46,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#6B7A5A" />
       </head>
       <body className="min-h-[100dvh] flex flex-col">
-        <Nav />
-        {children}
+        <AuthSessionProvider>
+          <Nav />
+          {children}
+        </AuthSessionProvider>
       </body>
     </html>
   );

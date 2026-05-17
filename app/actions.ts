@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { requireRole } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
@@ -11,6 +12,7 @@ function parsePriority(raw: unknown): Priority {
 }
 
 export async function addTask(formData: FormData) {
+  await requireRole("admin")
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
   const notes = (formData.get("notes") as string | null)?.trim() || null
@@ -45,6 +47,7 @@ export async function toggleTask(id: number) {
 }
 
 export async function deleteTask(id: number) {
+  await requireRole("admin")
   await prisma.task.delete({ where: { id } })
   revalidatePath("/", "layout")
 }
@@ -61,6 +64,7 @@ export async function updateTask(
     reminderSet?: boolean
   }
 ) {
+  await requireRole("admin")
   if (data.priority !== undefined) {
     data.priority = parsePriority(data.priority)
   }
@@ -69,12 +73,14 @@ export async function updateTask(
 }
 
 export async function toggleReminder(id: number) {
+  await requireRole("admin")
   const task = await prisma.task.findUniqueOrThrow({ where: { id } })
   await prisma.task.update({ where: { id }, data: { reminderSet: !task.reminderSet } })
   revalidatePath("/", "layout")
 }
 
 export async function addPerson(formData: FormData) {
+  await requireRole("admin")
   const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
   await prisma.person.create({ data: { name } })
@@ -82,6 +88,7 @@ export async function addPerson(formData: FormData) {
 }
 
 export async function deletePerson(id: number, reassignToId?: number) {
+  await requireRole("admin")
   await prisma.$transaction([
     prisma.task.updateMany({
       where: { assigneeId: id },

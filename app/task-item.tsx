@@ -33,7 +33,7 @@ function formatDate(date: Date) {
   })
 }
 
-export default function TaskItem({ task, people, projects }: { task: Task; people: Person[]; projects: Project[] }) {
+export default function TaskItem({ task, people, projects, isAdmin }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean }) {
   const personColor = task.assigneeId != null
     ? (PERSON_COLORS[task.assigneeId] ?? PERSON_COLOR_FALLBACK)
     : null
@@ -180,7 +180,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
           </span>
         )}
 
-        {task.project && !isInlineEditing && (
+        {isAdmin && task.project && !isInlineEditing && (
           <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent shrink-0">
             {task.project.name}
           </span>
@@ -208,7 +208,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
           <span className="text-xs text-[#A09080] shrink-0">{formatDate(task.dueDate)}</span>
         )}
 
-        {task.priority !== "medium" && !isInlineEditing && (
+        {isAdmin && task.priority !== "medium" && !isInlineEditing && (
           <span
             className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium shrink-0 ${
               PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
@@ -220,28 +220,28 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
           </span>
         )}
 
-        {/* Bell with 44px touch target */}
-        <button
-          onClick={handleBell}
-          className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
-            task.reminderSet
-              ? "text-accent"
-              : "text-[#B5A898] group-hover:text-[#6B5E52]"
-          }`}
-          aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
-          style={bellRinging ? { animation: "bell-ring 300ms cubic-bezier(0.34,1.56,0.64,1) forwards" } : undefined}
-        >
-          {task.reminderSet ? <IconBell size={16} /> : <IconBellOff size={16} />}
-        </button>
-
-        {/* Edit with 44px touch target */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
-          aria-label="Edit thing"
-        >
-          ✎
-        </button>
+        {/* Bell and edit — admin only */}
+        {isAdmin && <>
+          <button
+            onClick={handleBell}
+            className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
+              task.reminderSet
+                ? "text-accent"
+                : "text-[#B5A898] group-hover:text-[#6B5E52]"
+            }`}
+            aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
+            style={bellRinging ? { animation: "bell-ring 300ms cubic-bezier(0.34,1.56,0.64,1) forwards" } : undefined}
+          >
+            {task.reminderSet ? <IconBell size={16} /> : <IconBellOff size={16} />}
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
+            aria-label="Edit thing"
+          >
+            ✎
+          </button>
+        </>}
       </div>
 
       {isModalOpen && createPortal(
