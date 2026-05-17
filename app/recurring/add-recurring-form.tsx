@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import type { Person } from "@prisma/client"
+import type { Person, Project } from "@prisma/client"
 import { addRecurringTask } from "./actions"
 
 const CADENCES = [
@@ -25,10 +25,11 @@ function todayString() {
   return `${yyyy}-${mm}-${dd}`
 }
 
-export default function AddRecurringForm({ people }: { people: Person[] }) {
+export default function AddRecurringForm({ people, projects }: { people: Person[]; projects: Project[] }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [showNotes, setShowNotes] = useState(false)
   const [showAssignee, setShowAssignee] = useState(false)
+  const [showProject, setShowProject] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -37,6 +38,7 @@ export default function AddRecurringForm({ people }: { people: Person[] }) {
     formRef.current?.reset()
     setShowNotes(false)
     setShowAssignee(false)
+    setShowProject(false)
   }
 
   return (
@@ -87,6 +89,15 @@ export default function AddRecurringForm({ people }: { people: Person[] }) {
         </select>
       )}
 
+      {showProject && projects.length > 0 && (
+        <select name="projectId" className={inputClass}>
+          <option value="">No project</option>
+          {projects.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex gap-3">
           <button
@@ -103,6 +114,15 @@ export default function AddRecurringForm({ people }: { people: Person[] }) {
               className={`text-xs ${showAssignee ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
             >
               {showAssignee ? "− Assignee" : "+ Assignee"}
+            </button>
+          )}
+          {projects.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowProject(v => !v)}
+              className={`text-xs ${showProject ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+            >
+              {showProject ? "− Project" : "+ Project"}
             </button>
           )}
         </div>

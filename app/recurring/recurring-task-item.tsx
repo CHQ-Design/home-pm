@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import type { Prisma, Person } from "@prisma/client"
+import type { Prisma, Person, Project } from "@prisma/client"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
 
-type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
+type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
 
 const CADENCES = [
   { label: "Daily",          value: "1|day" },
@@ -67,9 +67,13 @@ const inputClass =
 export default function RecurringTaskItem({
   task,
   people,
+  projects,
+  isAdmin,
 }: {
   task: RecurringTask
   people: Person[]
+  projects: Project[]
+  isAdmin: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
@@ -80,6 +84,7 @@ export default function RecurringTaskItem({
     cadence: `${task.intervalValue}|${task.intervalUnit}`,
     nextDue: localDateString(task.nextDue),
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
+    projectId: task.projectId ? String(task.projectId) : "",
   })
 
   async function handleDone() {
@@ -100,6 +105,7 @@ export default function RecurringTaskItem({
       intervalUnit: iu,
       nextDue: new Date(form.nextDue),
       assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
+      projectId: form.projectId ? Number(form.projectId) : null,
     })
     setPending(false)
     setEditing(false)
@@ -153,6 +159,18 @@ export default function RecurringTaskItem({
           >
             <option value="">No assignee</option>
             {people.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        )}
+        {projects.length > 0 && (
+          <select
+            value={form.projectId}
+            onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
+            className={inputClass}
+          >
+            <option value="">No project</option>
+            {projects.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
@@ -215,26 +233,33 @@ export default function RecurringTaskItem({
           {task.assignee && (
             <span className="text-xs text-[#B5A898]">{task.assignee.name}</span>
           )}
+          {task.project && (
+            <span className="text-xs text-[#8C7D6A] bg-[#E8E0D0] rounded px-1.5 py-0.5">{task.project.name}</span>
+          )}
         </div>
         {task.notes && (
           <p className="text-xs text-[#8C7D6A] mt-1">{task.notes}</p>
         )}
       </div>
       <div className="flex items-center shrink-0">
-        <button
-          onClick={() => setEditing(true)}
-          className="text-sm text-[#B5A898] hover:text-[#6B5E52] px-2 py-2"
-          aria-label={`Edit ${task.title}`}
-        >
-          ✎
-        </button>
-        <button
-          onClick={() => setConfirming(true)}
-          className="text-sm text-[#B5A898] hover:text-red-600 px-2 py-2"
-          aria-label={`Delete ${task.title}`}
-        >
-          ✕
-        </button>
+        {isAdmin && (
+          <>
+            <button
+              onClick={() => setEditing(true)}
+              className="text-sm text-[#B5A898] hover:text-[#6B5E52] px-2 py-2"
+              aria-label={`Edit ${task.title}`}
+            >
+              ✎
+            </button>
+            <button
+              onClick={() => setConfirming(true)}
+              className="text-sm text-[#B5A898] hover:text-red-600 px-2 py-2"
+              aria-label={`Delete ${task.title}`}
+            >
+              ✕
+            </button>
+          </>
+        )}
         <button
           onClick={handleDone}
           disabled={pending}

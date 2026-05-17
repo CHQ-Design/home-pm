@@ -54,6 +54,7 @@ export async function addRecurringTask(formData: FormData) {
       intervalUnit,
       nextDue,
       assigneeId: parseId(formData.get("assigneeId") as string),
+      projectId: parseId(formData.get("projectId") as string),
     },
   })
   revalidatePath("/", "layout")
@@ -83,6 +84,7 @@ export async function updateRecurringTask(
     intervalUnit?: string
     nextDue?: Date
     assigneeId?: number | null
+    projectId?: number | null
   }
 ) {
   await requireRole("admin")
