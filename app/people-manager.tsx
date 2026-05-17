@@ -9,7 +9,7 @@ type PersonWithCount = Prisma.PersonGetPayload<{
 }>
 
 const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-1.5 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#C8922A]/20"
+  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-1.5 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function PeopleManager({ people }: { people: PersonWithCount[] }) {
   const [open, setOpen] = useState(false)
@@ -134,7 +134,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
             />
             <button
               type="submit"
-              className="px-3 py-1.5 bg-accent text-stone-900 font-medium text-sm rounded-lg hover:bg-[#B07820]"
+              className="px-3 py-1.5 bg-accent text-stone-900 font-medium text-sm rounded-lg hover:bg-[#556148]"
             >
               Add
             </button>

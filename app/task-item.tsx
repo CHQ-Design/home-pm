@@ -86,7 +86,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
               h-4 w-4 rounded border flex items-center justify-center shrink-0
               transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
               ${task.completed
-                ? "bg-[#C8922A] border-[#C8922A] scale-110"
+                ? "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
                 : "bg-transparent border-[#C8BFAD] scale-100 peer-focus-visible:border-accent"
               }
             `}
@@ -104,7 +104,7 @@ export default function TaskItem({ task, people }: { task: Task; people: Person[
               {PARTICLE_ANGLES.map(angle => (
                 <span
                   key={angle}
-                  className="absolute h-1.5 w-1.5 rounded-full bg-[#C8922A]"
+                  className="absolute h-1.5 w-1.5 rounded-full bg-[#6B7A5A]"
                   style={{
                     ["--angle" as string]: `${angle}deg`,
                     animation: "particle-burst 550ms cubic-bezier(0.22,1,0.36,1) forwards",

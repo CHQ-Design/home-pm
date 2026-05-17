@@ -15,7 +15,7 @@ const PLACEHOLDERS = [
 ]
 
 const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#C8922A]/20"
+  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function AddTaskForm({ people }: Props) {
   const [showMore, setShowMore] = useState(false)
@@ -80,7 +80,7 @@ export default function AddTaskForm({ people }: Props) {
         <button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 bg-accent text-stone-900 font-medium text-sm rounded-lg hover:bg-[#B07820] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-accent text-stone-900 font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? "Adding…" : "Add"}
         </button>
