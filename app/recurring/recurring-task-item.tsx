@@ -200,7 +200,7 @@ export default function RecurringTaskItem({
   }
 
   return (
-    <div className="flex items-start gap-3 p-4 bg-[#F2ECE2] rounded-xl border border-[#E4DDD0] group">
+    <div className="flex items-center gap-3 p-4 bg-[#F2ECE2] rounded-xl border border-[#E4DDD0] group">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-[#3A3228]">{task.title}</p>
         <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
@@ -214,7 +214,7 @@ export default function RecurringTaskItem({
           <p className="text-xs text-[#8C7D6A] mt-1">{task.notes}</p>
         )}
       </div>
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-2.5 shrink-0">
         <button
           onClick={handleDone}
           disabled={pending}
