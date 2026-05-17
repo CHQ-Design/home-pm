@@ -46,3 +46,10 @@ body {
   0%, 100% { opacity: 0; }
   15%, 85%  { opacity: 1; }
 }
+
+@keyframes star-pop {
+  0%   { opacity: 0; transform: scale(0.5) translateY(0); }
+  20%  { opacity: 1; transform: scale(1.5) translateY(-6px); }
+  60%  { opacity: 1; transform: scale(1.2) translateY(-14px); }
+  100% { opacity: 0; transform: scale(0.8) translateY(-22px); }
+}

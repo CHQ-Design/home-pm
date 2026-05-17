@@ -43,14 +43,17 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
   const [showParticles, setShowParticles] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
   const [bellRinging, setBellRinging] = useState(false)
+  const [announcement, setAnnouncement] = useState("")
   const prevCompleted = useRef(task.completed)
 
   useEffect(() => {
     if (!prevCompleted.current && task.completed) {
       setShowParticles(true)
       setJustCompleted(true)
-      const t = setTimeout(() => setShowParticles(false), 600)
-      return () => clearTimeout(t)
+      setAnnouncement(`${task.title} done!`)
+      const t = setTimeout(() => setShowParticles(false), 750)
+      const a = setTimeout(() => setAnnouncement(""), 1500)
+      return () => { clearTimeout(t); clearTimeout(a) }
     }
     if (!task.completed) setJustCompleted(false)
     prevCompleted.current = task.completed
@@ -80,6 +83,7 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
 
   return (
     <li className="group">
+      <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       <div
         className="relative flex items-center gap-2 min-h-[44px] rounded-md hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)] border-l-[3px] transition-colors"
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
@@ -111,19 +115,29 @@ export default function TaskItem({ task, people, projects }: { task: Task; peopl
             )}
           </span>
 
-          {/* Particle burst */}
+          {/* Particle burst + star pop */}
           {showParticles && (
             <span aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
               {PARTICLE_ANGLES.map(angle => (
                 <span
                   key={angle}
-                  className="absolute h-1.5 w-1.5 rounded-full bg-[#6B7A5A]"
+                  className="absolute h-1.5 w-1.5 rounded-full"
                   style={{
+                    backgroundColor: personColor?.border ?? "#6B7A5A",
                     ["--angle" as string]: `${angle}deg`,
                     animation: "particle-burst 550ms cubic-bezier(0.22,1,0.36,1) forwards",
                   }}
                 />
               ))}
+              <span
+                className="absolute text-base font-bold select-none"
+                style={{
+                  color: personColor?.border ?? "#6B7A5A",
+                  animation: "star-pop 700ms ease-out forwards",
+                }}
+              >
+                ★
+              </span>
             </span>
           )}
         </label>

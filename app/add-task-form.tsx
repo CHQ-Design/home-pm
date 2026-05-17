@@ -2,20 +2,24 @@
 
 import { useEffect, useRef, useState } from "react"
 import type { Person, Project } from "@prisma/client"
+import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
 import { addTask } from "./actions"
 
 type Props = { people: Person[]; projects?: Project[]; projectId?: number }
 
 const PLACEHOLDERS = [
   "Add a thing…",
-  "What's your thing for today?",
-  "Something for Hudson or Quinn?",
-  "What are you putting off?",
+  "What needs doing around here?",
+  "Something for Hudson to do?",
+  "Quinn's turn to help?",
   "What would make tomorrow easier?",
 ]
 
 const inputClass =
   "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+
+const selectClass =
+  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg pl-3 pr-8 py-2 text-sm text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 appearance-none"
 
 export default function AddTaskForm({ people, projects, projectId }: Props) {
   const [showMore, setShowMore] = useState(false)
@@ -101,7 +105,10 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
         aria-expanded={showMore}
         className="text-xs text-[#8C7D6A] hover:text-[#3A3228] min-h-[44px] inline-flex items-center"
       >
-        {showMore ? "▾ fewer options" : "▸ more options"}
+        <span className="inline-flex items-center gap-1">
+          {showMore ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
+          {showMore ? "fewer options" : "more options"}
+        </span>
       </button>
 
       {showMore && (
@@ -118,38 +125,35 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
               name="dueDate"
               className={`${inputClass} [color-scheme:light]`}
             />
-            <select
-              name="priority"
-              defaultValue="medium"
-              className={inputClass}
-            >
-              <option value="high">High priority</option>
-              <option value="medium">Medium priority</option>
-              <option value="low">Low priority</option>
-            </select>
-            {people.length > 0 && (
-              <select
-                name="assigneeId"
-                defaultValue=""
-                className={inputClass}
-              >
-                <option value="">Unassigned</option>
-                {people.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
+            <div className="relative">
+              <select name="priority" defaultValue="medium" className={selectClass}>
+                <option value="high">High priority</option>
+                <option value="medium">Medium priority</option>
+                <option value="low">Low priority</option>
               </select>
+              <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8C7D6A]" />
+            </div>
+            {people.length > 0 && (
+              <div className="relative">
+                <select name="assigneeId" defaultValue="" className={selectClass}>
+                  <option value="">Unassigned</option>
+                  {people.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8C7D6A]" />
+              </div>
             )}
             {!projectId && projects && projects.length > 0 && (
-              <select
-                name="projectId"
-                defaultValue=""
-                className={inputClass}
-              >
-                <option value="">No project</option>
-                {projects.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select name="projectId" defaultValue="" className={selectClass}>
+                  <option value="">No project</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8C7D6A]" />
+              </div>
             )}
           </div>
         </div>

@@ -55,7 +55,7 @@ export default function RecurringSection({ tasks }: { tasks: RecurringTask[] }) 
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A]">Recurring</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A]">Routines</h2>
         <Link href="/recurring" className="text-xs text-[#B5A898] hover:text-[#6B5E52]">
           Manage →
         </Link>

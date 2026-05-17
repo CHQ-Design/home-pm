@@ -110,7 +110,7 @@ export default function AddRecurringForm({ people }: { people: Person[] }) {
           type="submit"
           className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-[#556148]"
         >
-          Add recurring task
+          Add routine
         </button>
       </div>
     </form>
