@@ -1,18 +1,14 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma"
+import AddTaskForm from "./add-task-form"
+import TaskList from "./task-list"
 
 export default async function Home() {
-  const hellos = await prisma.hello.findMany();
-
+  const tasks = await prisma.task.findMany({ orderBy: { createdAt: "asc" } })
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Home PM</h1>
-      <ul className="space-y-2">
-        {hellos.map((h) => (
-          <li key={h.id} className="text-gray-700">
-            {h.message}
-          </li>
-        ))}
-      </ul>
+    <main className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Tasks</h1>
+      <AddTaskForm />
+      <TaskList tasks={tasks} />
     </main>
-  );
+  )
 }
