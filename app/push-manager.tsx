@@ -38,11 +38,12 @@ export default function PushManager() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
-      await fetch("/api/subscribe", {
+      const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sub.toJSON()),
       })
+      if (!res.ok) throw new Error(`Subscribe failed: ${res.status}`)
       setStatus("subscribed")
     } finally {
       setLoading(false)
