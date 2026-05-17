@@ -220,27 +220,27 @@ export default function RecurringTaskItem({
           <p className="text-xs text-[#8C7D6A] mt-1">{task.notes}</p>
         )}
       </div>
-      <div className="flex items-center gap-2.5 shrink-0">
-        <button
-          onClick={handleDone}
-          disabled={pending}
-          className="text-xs px-3 py-1 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
-        >
-          {pending ? "…" : "Done"}
-        </button>
+      <div className="flex items-center shrink-0">
         <button
           onClick={() => setEditing(true)}
-          className="text-sm text-[#B5A898] hover:text-[#6B5E52]"
+          className="text-sm text-[#B5A898] hover:text-[#6B5E52] px-2 py-2"
           aria-label={`Edit ${task.title}`}
         >
           ✎
         </button>
         <button
           onClick={() => setConfirming(true)}
-          className="text-sm text-[#B5A898] hover:text-red-600"
+          className="text-sm text-[#B5A898] hover:text-red-600 px-2 py-2"
           aria-label={`Delete ${task.title}`}
         >
           ✕
+        </button>
+        <button
+          onClick={handleDone}
+          disabled={pending}
+          className="text-xs px-3 py-1 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
+        >
+          {pending ? "…" : "Done"}
         </button>
       </div>
     </div>
