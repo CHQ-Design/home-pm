@@ -25,6 +25,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   ])
 
   const isAdmin = role === "admin"
+  const visibleTasks = isAdmin
+    ? project?.tasks ?? []
+    : (project?.tasks ?? []).filter(t => t.assigneeId === sessionPersonId)
 
   if (!project) notFound()
 
@@ -49,7 +52,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       />
 
       {isAdmin && <AddTaskForm people={people} projectId={project.id} />}
-      <TaskList tasks={project.tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
     </main>
   )
 }

@@ -29,6 +29,9 @@ export default async function Home() {
   ])
 
   const isAdmin = role === "admin"
+  const visibleTasks = isAdmin
+    ? tasks
+    : tasks.filter(t => t.assigneeId === sessionPersonId)
   const visibleRecurringTasks = isAdmin
     ? recurringTasks
     : recurringTasks.filter(t => t.assigneeId === sessionPersonId)
@@ -40,7 +43,7 @@ export default async function Home() {
       </p>
       <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       {isAdmin && <AddTaskForm people={people} projects={projects} />}
-      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       {isAdmin && <PeopleManager people={people} />}
     </main>
