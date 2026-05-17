@@ -134,7 +134,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
             />
             <button
               type="submit"
-              className="px-3 py-1.5 bg-accent text-stone-900 font-medium text-sm rounded-lg hover:bg-[#556148]"
+              className="px-3 py-1.5 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148]"
             >
               Add
             </button>

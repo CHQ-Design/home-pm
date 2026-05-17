@@ -155,7 +155,7 @@ export default function TaskEditModal({
             </button>
             <button
               onClick={handleSave}
-              className="text-sm px-4 py-1.5 bg-accent text-stone-900 font-medium rounded-md hover:bg-[#556148]"
+              className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148]"
             >
               Save
             </button>

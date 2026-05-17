@@ -74,7 +74,7 @@ export default function TaskList({ tasks, people }: Props) {
             aria-pressed={filterPersonId === null}
             className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
               filterPersonId === null
-                ? "bg-accent text-stone-900 font-medium"
+                ? "bg-accent text-white font-medium"
                 : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
             }`}
           >
@@ -87,7 +87,7 @@ export default function TaskList({ tasks, people }: Props) {
               aria-pressed={filterPersonId === p.id}
               className={`text-xs px-4 py-2.5 rounded-full transition-colors touch-manipulation ${
                 filterPersonId === p.id
-                  ? "bg-accent text-stone-900 font-medium"
+                  ? "bg-accent text-white font-medium"
                   : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
               }`}
             >
