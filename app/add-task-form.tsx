@@ -18,9 +18,11 @@ const inputClass =
   "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function AddTaskForm({ people, projects, projectId }: Props) {
-  const [showMore, setShowMore] = useState(() =>
-    typeof window !== "undefined" && sessionStorage.getItem("addTaskShowMore") === "true"
-  )
+  const [showMore, setShowMore] = useState(false)
+
+  useEffect(() => {
+    setShowMore(sessionStorage.getItem("addTaskShowMore") === "true")
+  }, [])
   const [submitting, setSubmitting] = useState(false)
   const [titleValue, setTitleValue] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)

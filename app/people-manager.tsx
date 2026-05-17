@@ -5,7 +5,7 @@ import type { Person, Prisma } from "@prisma/client"
 import { addPerson, deletePerson } from "./actions"
 
 type PersonWithCount = Prisma.PersonGetPayload<{
-  include: { _count: { select: { tasks: true } } }
+  include: { _count: { select: { tasks: { where: { completed: false } } } } }
 }>
 
 const inputClass =

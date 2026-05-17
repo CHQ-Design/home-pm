@@ -20,7 +20,7 @@ export async function addProject(formData: FormData) {
 
 export async function updateProject(
   id: number,
-  data: { name?: string; description?: string | null; status?: string }
+  data: { name?: string; description?: string | null; status?: Status }
 ) {
   const update = { ...data }
   if (update.status !== undefined) update.status = parseStatus(update.status)

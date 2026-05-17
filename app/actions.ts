@@ -11,7 +11,7 @@ function parsePriority(raw: unknown): Priority {
 }
 
 export async function addTask(formData: FormData) {
-  const title = (formData.get("title") as string).trim()
+  const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
   const notes = (formData.get("notes") as string | null)?.trim() || null
   const dueDateStr = formData.get("dueDate") as string
@@ -75,7 +75,7 @@ export async function toggleReminder(id: number) {
 }
 
 export async function addPerson(formData: FormData) {
-  const name = (formData.get("name") as string).trim()
+  const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
   await prisma.person.create({ data: { name } })
   revalidatePath("/", "layout")

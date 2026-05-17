@@ -15,7 +15,9 @@ export default function ProjectStatusSelect({
   async function handleChange(value: string) {
     setIsPending(true)
     try {
-      await updateProject(projectId, { status: value })
+      await updateProject(projectId, { status: value as "active" | "paused" | "done" })
+    } catch (err) {
+      console.error("Failed to update project status", err)
     } finally {
       setIsPending(false)
     }
