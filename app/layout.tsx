@@ -20,8 +20,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Home PM",
+  title: "The Board",
   description: "Personal project manager for home and family life",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "The Board",
+  },
 };
 
 export default function RootLayout({
@@ -34,6 +39,11 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+        <meta name="theme-color" content="#6B7A5A" />
+      </head>
       <body className="min-h-[100dvh] flex flex-col">
         <Nav />
         {children}
