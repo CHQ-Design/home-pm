@@ -119,15 +119,15 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
             rows={2}
             className={`w-full ${inputClass} resize-none`}
           />
+          <div className="flex gap-3 items-center">
+            <label className="text-xs text-[#8C7D6A] shrink-0">Due date</label>
+            <input
+              type="date"
+              name="dueDate"
+              className={`${inputClass} [color-scheme:light]`}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs text-[#8C7D6A] mb-1">Due date</label>
-              <input
-                type="date"
-                name="dueDate"
-                className={`w-full ${inputClass} [color-scheme:light]`}
-              />
-            </div>
             <div className="relative">
               <label className="block text-xs text-[#8C7D6A] mb-1">Priority</label>
               <select name="priority" defaultValue="medium" className={selectClass}>
