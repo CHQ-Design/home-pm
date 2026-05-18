@@ -32,10 +32,10 @@ function formatDate(d: Date | string): string {
 }
 
 function daysDiff(nextDue: Date | string): number {
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const due = new Date(new Date(nextDue).toDateString()) // local midnight
-  return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const d = new Date()
+  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+  const dueStr = new Date(nextDue).toISOString().slice(0, 10)
+  return Math.round((new Date(dueStr).getTime() - new Date(todayStr).getTime()) / (1000 * 60 * 60 * 24))
 }
 
 function dueDateClass(nextDue: Date | string): string {
@@ -248,7 +248,7 @@ export default function RecurringTaskItem({
         <p className="text-sm font-medium text-[#3A3228]">{task.title}</p>
         <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
           <span className="text-xs text-[#A09080]">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
-          <span className={`text-xs ${dueDateClass(task.nextDue)}`}>{dueDateLabel(task.nextDue)}</span>
+          <span className={`text-xs ${dueDateClass(task.nextDue)}`} suppressHydrationWarning>{dueDateLabel(task.nextDue)}</span>
           {task.assignee && (
             <span className="text-xs text-[#B5A898]">{task.assignee.name}</span>
           )}
