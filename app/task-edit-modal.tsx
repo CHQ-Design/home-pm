@@ -60,7 +60,7 @@ export default function TaskEditModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overflow-x-hidden p-4 sm:items-center"
       style={{ backgroundColor: "rgba(44,35,22,0.45)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
@@ -142,44 +142,47 @@ export default function TaskEditModal({
 
         <div className="flex items-center justify-between px-5 py-3 border-t border-[#D4C9B5]">
           {confirmDelete ? (
-            <div className="flex items-center gap-3">
+            <>
               <span className="text-sm text-[#4A3F34]">Delete this task?</span>
-              <button
-                onClick={handleDelete}
-                className="text-sm px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="text-sm text-[#8C7D6A] hover:text-[#3A3228]"
-              >
-                Cancel
-              </button>
-            </div>
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="text-sm px-4 py-1.5 bg-red-600 text-white font-medium rounded-md hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </>
           ) : (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="text-sm text-[#A09080] hover:text-red-700"
-            >
-              Delete task
-            </button>
+            <>
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="text-sm text-[#A09080] hover:text-red-700"
+              >
+                Delete task
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onClose}
+                  className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148]"
+                >
+                  Save
+                </button>
+              </div>
+            </>
           )}
-
-          <div className="flex gap-2">
-            <button
-              onClick={onClose}
-              className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148]"
-            >
-              Save
-            </button>
-          </div>
         </div>
       </div>
     </div>
