@@ -58,10 +58,11 @@ model Note {
 
 model Attachment {
   id           Int      @id @default(autoincrement())
-  filename     String   // UUID-based name on disk
+  filename     String   // UUID-based name, used as serve-route key
   originalName String
   mimeType     String
   size         Int
+  blobUrl      String?  // Vercel Blob URL; null for legacy local files
   noteId       Int
   note         Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())

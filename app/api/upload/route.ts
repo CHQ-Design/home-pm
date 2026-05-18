@@ -1,5 +1,4 @@
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
+import { put } from "@vercel/blob"
 import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
@@ -49,19 +48,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "File type not allowed" }, { status: 415 })
   }
 
-  const bytes = await file.arrayBuffer()
-  const buffer = Buffer.from(bytes)
   const mimeType = MIME_MAP[rawExt] ?? "application/octet-stream"
   const filename = `${randomUUID()}.${rawExt}`
 
-  const uploadDir = join(process.cwd(), "uploads")
-  await mkdir(uploadDir, { recursive: true })
-  await writeFile(join(uploadDir, filename), buffer)
+  const blob = await put(filename, file, { access: "public", contentType: mimeType })
 
   return NextResponse.json({
     filename,
     originalName: file.name,
     mimeType,
-    size: buffer.byteLength,
+    size: file.size,
+    blobUrl: blob.url,
   })
 }

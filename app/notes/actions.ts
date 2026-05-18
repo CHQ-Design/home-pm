@@ -5,12 +5,14 @@ import { getSessionUser, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { unlink } from "fs/promises"
 import { join } from "path"
+import { del } from "@vercel/blob"
 
 type AttachmentInput = {
   filename: string
   originalName: string
   mimeType: string
   size: number
+  blobUrl?: string
 }
 
 const UUID_FILENAME_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$/
@@ -29,9 +31,12 @@ function normalizeTags(raw: string): string | null {
   return tags.length > 0 ? tags.join(", ") : null
 }
 
-async function removeFile(filename: string) {
-  const path = join(process.cwd(), "uploads", filename)
-  await unlink(path).catch(() => {})
+async function removeFile(filename: string, blobUrl?: string | null) {
+  if (blobUrl) {
+    await del(blobUrl).catch(() => {})
+  } else {
+    await unlink(join(process.cwd(), "uploads", filename)).catch(() => {})
+  }
 }
 
 export async function addNote(formData: FormData, attachments: AttachmentInput[]) {
@@ -97,7 +102,7 @@ export async function deleteNote(id: number) {
   })
   if (!note) return
   for (const att of note.attachments) {
-    await removeFile(att.filename)
+    await removeFile(att.filename, att.blobUrl)
   }
   await prisma.note.delete({ where: { id, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
@@ -111,7 +116,7 @@ export async function deleteAttachment(id: number) {
     include: { note: { select: { householdId: true } } },
   })
   if (!att || att.note.householdId !== sessionUser.householdId) return
-  await removeFile(att.filename)
+  await removeFile(att.filename, att.blobUrl)
   await prisma.attachment.delete({ where: { id } })
   revalidatePath("/", "layout")
 }

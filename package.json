@@ -11,6 +11,7 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@tabler/icons-react": "^3.44.0",
+    "@vercel/blob": "^2.4.0",
     "next": "16.2.6",
     "next-auth": "^4.24.14",
     "react": "19.2.4",

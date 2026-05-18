@@ -34,10 +34,16 @@ export async function GET(
 
   const att = await prisma.attachment.findFirst({
     where: { filename },
-    select: { id: true, originalName: true },
+    select: { id: true, originalName: true, blobUrl: true },
   })
   if (!att) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
+  // New files: redirect to Vercel Blob URL
+  if (att.blobUrl) {
+    return NextResponse.redirect(att.blobUrl)
+  }
+
+  // Legacy files: read from local disk
   const filepath = join(process.cwd(), "uploads", filename)
   try {
     const file = await readFile(filepath)
