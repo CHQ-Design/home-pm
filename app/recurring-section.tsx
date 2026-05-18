@@ -41,7 +41,7 @@ function DoneButton({ taskId }: { taskId: number }) {
     <button
       onClick={handleClick}
       disabled={pending}
-      className="text-xs px-2.5 py-1 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 shrink-0"
+      className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 shrink-0"
     >
       {pending ? "…" : "Done"}
     </button>
@@ -56,7 +56,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A]">Routines</h2>
         {isAdmin && (
-          <Link href="/recurring" className="text-xs text-[#B5A898] hover:text-[#6B5E52]">
+          <Link href="/recurring" className="min-h-[44px] inline-flex items-center text-xs text-[#B5A898] hover:text-[#6B5E52]">
             Manage →
           </Link>
         )}

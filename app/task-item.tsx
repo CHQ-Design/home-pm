@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import type { Person, Project, Prisma } from "@prisma/client"
-import { IconBell, IconBellOff, IconFeather, IconFlame } from "@tabler/icons-react"
+import { IconBell, IconBellOff, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 
@@ -201,7 +201,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
               aria-label="Edit thing"
             >
-              ✎
+              <IconPencilMinus size={16} aria-hidden="true" />
             </button>
           </>}
         </div>

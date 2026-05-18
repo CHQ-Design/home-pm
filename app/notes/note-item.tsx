@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import type { Prisma, Project } from "@prisma/client"
 import { updateNote, deleteNote, deleteAttachment } from "./actions"
 
@@ -168,20 +169,20 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setEditing(true)}
-            className="text-sm text-[#B5A898] hover:text-[#6B5E52]"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#C8BFAD] hover:text-[#6B5E52] active:text-[#3A3228]"
             aria-label={`Edit ${note.title}`}
           >
-            ✎
+            <IconPencilMinus size={15} aria-hidden="true" />
           </button>
           <button
             onClick={() => setConfirming(true)}
-            className="text-sm text-[#B5A898] hover:text-red-600"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#C8BFAD] hover:text-red-600 active:text-red-700"
             aria-label={`Delete ${note.title}`}
           >
-            ✕
+            <IconX size={15} aria-hidden="true" />
           </button>
         </div>
       </div>

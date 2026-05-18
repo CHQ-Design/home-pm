@@ -21,7 +21,7 @@ export default function Nav() {
         {session && (
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="ml-auto text-[#B5A898] hover:text-[#6B5E52] shrink-0 pl-2"
+            className="ml-auto flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-[#6B5E52] shrink-0"
             aria-label="Sign out"
             title="Sign out"
           >

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
+import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -264,17 +265,17 @@ export default function RecurringTaskItem({
           <>
             <button
               onClick={() => setEditing(true)}
-              className="text-sm text-[#B5A898] hover:text-[#6B5E52] px-2 py-2"
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-[#6B5E52]"
               aria-label={`Edit ${task.title}`}
             >
-              ✎
+              <IconPencilMinus size={16} aria-hidden="true" />
             </button>
             <button
               onClick={() => setConfirming(true)}
-              className="text-sm text-[#B5A898] hover:text-red-600 px-2 py-2"
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-red-600"
               aria-label={`Delete ${task.title}`}
             >
-              ✕
+              <IconX size={16} aria-hidden="true" />
             </button>
           </>
         )}
@@ -282,7 +283,7 @@ export default function RecurringTaskItem({
           <button
             onClick={handleDone}
             disabled={pending}
-            className="text-xs px-3 py-1 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
+            className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
           >
             {pending ? "…" : "Done"}
           </button>

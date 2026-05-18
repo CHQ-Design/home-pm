@@ -75,7 +75,7 @@ type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: bo
 
 export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
-  const [filterPersonId, setFilterPersonId] = useState<number | null>(null)
+  const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
 
   const filtered = filterPersonId === null
     ? tasks
@@ -99,7 +99,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             onClick={() => setFilterPersonId(null)}
             aria-pressed={filterPersonId === null}
             aria-label="Show everyone's things"
-            className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] ${
+            className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
               filterPersonId === null
                 ? "bg-accent text-white font-medium"
                 : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
@@ -116,7 +116,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
                 onClick={() => setFilterPersonId(p.id)}
                 aria-pressed={isActive}
                 aria-label={`Show ${p.name}'s things`}
-                className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px]"
+                className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
                 style={isActive
                   ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
                   : { backgroundColor: "#EDE6D8", color: "#6B5E52", borderColor: "#C8BFAD" }
@@ -148,12 +148,13 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         </div>
       )}
 
-      {openCount === 0 && groups.completed.length === 0 && filterPersonId === null && (
-        <p className="text-[#A09080] text-sm py-4">No things yet. Add one above.</p>
-      )}
-      {openCount === 0 && groups.completed.length === 0 && filterPersonId !== null && (
+      {openCount === 0 && groups.completed.length === 0 && (
         <p className="text-[#A09080] text-sm py-4">
-          No things for {activePerson?.name}.
+          {!isAdmin
+            ? "Nothing on your list right now."
+            : filterPersonId !== null
+              ? `No things for ${activePerson?.name}.`
+              : "No things yet. Add one above."}
         </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
@@ -203,7 +204,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           <button
             onClick={() => setShowCompleted(v => !v)}
             aria-expanded={showCompleted}
-            className="text-sm text-[#8C7D6A] hover:text-[#3A3228]"
+            className="min-h-[44px] inline-flex items-center text-sm text-[#8C7D6A] hover:text-[#3A3228]"
           >
             <span className="inline-flex items-center gap-1">
               {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
