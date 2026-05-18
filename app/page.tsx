@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import AddTaskForm from "./add-task-form"
 import TaskList from "./task-list"
-import PeopleManager from "./people-manager"
 import RecurringSection from "./recurring-section"
 import LocalDate from "./local-date"
 
@@ -15,10 +14,7 @@ export default async function Home() {
 
   const [tasks, people, projects, recurringTasks, role, sessionPersonId] = await Promise.all([
     prisma.task.findMany({ include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
-    prisma.person.findMany({
-      include: { _count: { select: { tasks: { where: { completed: false } } } } },
-      orderBy: { name: "asc" },
-    }),
+    prisma.person.findMany({ orderBy: { name: "asc" } }),
     prisma.project.findMany({ orderBy: { name: "asc" } }),
     prisma.recurringTask.findMany({
       where: { nextDue: { lte: in7Days } },
@@ -50,7 +46,6 @@ export default async function Home() {
       {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
       <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
-      {isAdmin && <PeopleManager people={people} />}
     </main>
   )
 }

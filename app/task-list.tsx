@@ -17,12 +17,22 @@ function byPriority(a: Task, b: Task) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 }
 
+function byPriorityThenDate(a: Task, b: Task) {
+  const p = (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
+  if (p !== 0) return p
+  if (a.dueDate && b.dueDate) {
+    const d = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    if (d !== 0) return d
+  }
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}
+
 function groupTasks(tasks: Task[], today: string) {
   const open = tasks.filter(t => !t.completed)
   return {
-    overdue:   open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today).sort(byPriority),
-    today:     open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today).sort(byPriority),
-    upcoming:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) > today).sort(byPriority),
+    overdue:   open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today).sort(byPriorityThenDate),
+    today:     open.filter(t => t.dueDate && utcDateStr(t.dueDate) === today).sort(byPriorityThenDate),
+    upcoming:  open.filter(t => t.dueDate && utcDateStr(t.dueDate) > today).sort(byPriorityThenDate),
     noDate:    open.filter(t => !t.dueDate).sort(byPriority),
     completed: tasks.filter(t => t.completed),
   }
