@@ -4,6 +4,9 @@ import { useRef, useState } from "react"
 import type { Person, Project } from "@prisma/client"
 import { addRecurringTask } from "./actions"
 import { inputClass } from "@/lib/styles"
+import DatePicker from "../date-picker"
+import TimePicker from "../time-picker"
+import CustomSelect from "../custom-select"
 
 const CADENCES = [
   { label: "Mon–Fri",        value: "1|weekday" },
@@ -26,6 +29,12 @@ function todayString() {
 
 export default function AddRecurringForm({ people, projects, isAdmin }: { people: Person[]; projects: Project[]; isAdmin: boolean }) {
   const formRef = useRef<HTMLFormElement>(null)
+  const [nextDue, setNextDue] = useState(todayString())
+  const [time, setTime] = useState("")
+  const [cadence, setCadence] = useState("1|week")
+  const [assigneeId, setAssigneeId] = useState("")
+  const [projectId, setProjectId] = useState("")
+  const [reminderMinutesBefore, setReminderMinutesBefore] = useState("")
   const [showNotes, setShowNotes] = useState(false)
   const [showTime, setShowTime] = useState(false)
   const [showReminder, setShowReminder] = useState(false)
@@ -37,6 +46,12 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
     const formData = new FormData(e.currentTarget)
     await addRecurringTask(formData)
     formRef.current?.reset()
+    setNextDue(todayString())
+    setTime("")
+    setCadence("1|week")
+    setAssigneeId("")
+    setProjectId("")
+    setReminderMinutesBefore("")
     setShowNotes(false)
     setShowTime(false)
     setShowReminder(false)
@@ -53,23 +68,24 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         autoComplete="off"
         required
       />
-      <div className="flex gap-4">
-        <label className="text-xs text-[#8C7D6A] shrink-0 mt-3">Cadence</label>
-        <select name="cadence" defaultValue="1|week" className={inputClass}>
-          {CADENCES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
+      <div className="flex gap-4 items-center">
+        <label className="text-xs text-[#8C7D6A] shrink-0">Cadence</label>
+        <div className="flex-1">
+          <CustomSelect
+            name="cadence"
+            value={cadence}
+            onChange={setCadence}
+            options={CADENCES.map(c => ({ label: c.label, value: c.value }))}
+            aria-label="Cadence"
+          />
+        </div>
       </div>
-      <div className="flex gap-4">
-        <label className="text-xs text-[#8C7D6A] shrink-0 mt-3">First due</label>
-        <input
-          type="date"
-          name="nextDue"
-          defaultValue={todayString()}
-          className={inputClass}
-          required
-        />
+      <div className="flex gap-4 items-center">
+        <label className="text-xs text-[#8C7D6A] shrink-0">First due</label>
+        <div className="flex-1">
+          <input type="hidden" name="nextDue" value={nextDue} />
+          <DatePicker value={nextDue} onChange={setNextDue} />
+        </div>
       </div>
 
       {showNotes && (
@@ -83,44 +99,50 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
 
       {showTime && (
         <div className="flex gap-4 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0 mt-2">Time</label>
-          <input
-            type="time"
-            name="time"
-            className={`${inputClass} [color-scheme:light]`}
-          />
+          <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
+          <TimePicker value={time} onChange={setTime} name="time" />
         </div>
       )}
 
       {showReminder && (
         <div className="flex gap-4 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0 mt-2">Remind me</label>
-          <select name="reminderMinutesBefore" defaultValue="" className={inputClass}>
-            <option value="">No reminder</option>
-            <option value="0">At the time</option>
-            <option value="30">30 minutes before</option>
-            <option value="60">1 hour before</option>
-            <option value="1440">1 day before</option>
-          </select>
+          <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
+          <div className="flex-1">
+            <CustomSelect
+              name="reminderMinutesBefore"
+              value={reminderMinutesBefore}
+              onChange={setReminderMinutesBefore}
+              options={[
+                { label: "No reminder", value: "" },
+                { label: "At the time", value: "0" },
+                { label: "30 minutes before", value: "30" },
+                { label: "1 hour before", value: "60" },
+                { label: "1 day before", value: "1440" },
+              ]}
+              aria-label="Reminder"
+            />
+          </div>
         </div>
       )}
 
       {isAdmin && showAssignee && people.length > 0 && (
-        <select name="assigneeId" className={inputClass}>
-          <option value="">No assignee</option>
-          {people.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <CustomSelect
+          name="assigneeId"
+          value={assigneeId}
+          onChange={setAssigneeId}
+          options={[{ label: "No assignee", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
+          aria-label="Assignee"
+        />
       )}
 
       {isAdmin && showProject && projects.length > 0 && (
-        <select name="projectId" className={inputClass}>
-          <option value="">No project</option>
-          {projects.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <CustomSelect
+          name="projectId"
+          value={projectId}
+          onChange={setProjectId}
+          options={[{ label: "No project", value: "" }, ...projects.map(p => ({ label: p.name, value: String(p.id) }))]}
+          aria-label="Project"
+        />
       )}
 
       <div className="flex items-center justify-between">

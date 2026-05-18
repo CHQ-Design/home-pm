@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import type { Person, Project } from "@prisma/client"
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
 import { addTask } from "./actions"
-import { inputClass, selectClass } from "@/lib/styles"
+import { inputClass } from "@/lib/styles"
+import DatePicker from "./date-picker"
+import TimePicker from "./time-picker"
+import CustomSelect from "./custom-select"
 
 type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdmin: boolean }
 
@@ -27,6 +30,11 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [titleValue, setTitleValue] = useState("")
   const [dueDate, setDueDate] = useState("")
+  const [time, setTime] = useState("")
+  const [priority, setPriority] = useState("medium")
+  const [assigneeId, setAssigneeId] = useState("")
+  const [selectedProjectId, setSelectedProjectId] = useState("")
+  const [reminderMinutesBefore, setReminderMinutesBefore] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [focused, setFocused] = useState(false)
@@ -67,6 +75,11 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
     formRef.current?.reset()
     setTitleValue("")
     setDueDate("")
+    setTime("")
+    setPriority("medium")
+    setAssigneeId("")
+    setSelectedProjectId("")
+    setReminderMinutesBefore("")
     setSubmitting(false)
   }
 
@@ -138,66 +151,68 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
           />
           <div className="flex gap-3 items-center">
             <label className="text-xs text-[#8C7D6A] shrink-0">Due date</label>
-            <input
-              type="date"
-              name="dueDate"
-              value={dueDate}
-              onChange={e => setDueDate(e.target.value)}
-              className={`${inputClass} [color-scheme:light]`}
-            />
+            <div className="flex-1">
+              <input type="hidden" name="dueDate" value={dueDate} />
+              <DatePicker value={dueDate} onChange={setDueDate} />
+            </div>
           </div>
           <div className="flex gap-3 items-center">
             <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
-            <input
-              type="time"
-              name="time"
-              className={`${inputClass} [color-scheme:light]`}
-            />
+            <TimePicker value={time} onChange={setTime} name="time" />
           </div>
           {dueDate && (
             <div className="flex gap-3 items-center">
               <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
-              <select name="reminderMinutesBefore" defaultValue="" className={`${inputClass} appearance-none`}>
-                <option value="">No reminder</option>
-                <option value="0">At the time</option>
-                <option value="30">30 minutes before</option>
-                <option value="60">1 hour before</option>
-                <option value="1440">1 day before</option>
-              </select>
+              <div className="flex-1">
+                <CustomSelect
+                  name="reminderMinutesBefore"
+                  value={reminderMinutesBefore}
+                  onChange={setReminderMinutesBefore}
+                  options={[
+                    { label: "No reminder", value: "" },
+                    { label: "At the time", value: "0" },
+                    { label: "30 minutes before", value: "30" },
+                    { label: "1 hour before", value: "60" },
+                    { label: "1 day before", value: "1440" },
+                  ]}
+                  aria-label="Reminder"
+                />
+              </div>
             </div>
           )}
           <div className="grid grid-cols-2 gap-2">
-            <div className="relative">
+            <div>
               <label className="block text-xs text-[#8C7D6A] mb-1">Priority</label>
-              <select name="priority" defaultValue="medium" className={selectClass}>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-              <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
+              <CustomSelect
+                name="priority"
+                value={priority}
+                onChange={setPriority}
+                options={[{ label: "High", value: "high" }, { label: "Medium", value: "medium" }, { label: "Low", value: "low" }]}
+                aria-label="Priority"
+              />
             </div>
             {isAdmin && people.length > 0 && (
-              <div className="relative">
+              <div>
                 <label className="block text-xs text-[#8C7D6A] mb-1">Assignee</label>
-                <select name="assigneeId" defaultValue="" className={selectClass}>
-                  <option value="">Unassigned</option>
-                  {people.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
+                <CustomSelect
+                  name="assigneeId"
+                  value={assigneeId}
+                  onChange={setAssigneeId}
+                  options={[{ label: "Unassigned", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
+                  aria-label="Assignee"
+                />
               </div>
             )}
             {isAdmin && !projectId && projects && projects.length > 0 && (
-              <div className="relative">
+              <div>
                 <label className="block text-xs text-[#8C7D6A] mb-1">Project</label>
-                <select name="projectId" defaultValue="" className={selectClass}>
-                  <option value="">No project</option>
-                  {projects.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-                <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
+                <CustomSelect
+                  name="projectId"
+                  value={selectedProjectId}
+                  onChange={setSelectedProjectId}
+                  options={[{ label: "No project", value: "" }, ...projects.map(p => ({ label: p.name, value: String(p.id) }))]}
+                  aria-label="Project"
+                />
               </div>
             )}
           </div>

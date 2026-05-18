@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { updateTask, deleteTask } from "./actions"
 import DatePicker from "./date-picker"
+import TimePicker from "./time-picker"
+import CustomSelect from "./custom-select"
 import { inputClass } from "@/lib/styles"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -138,70 +140,58 @@ export default function TaskEditModal({
             </div>
             <div>
               <label className={labelClass}>Time</label>
-              <input
-                type="time"
+              <TimePicker
                 value={form.time}
-                onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                className={`${inputClass} [color-scheme:light]`}
+                onChange={time => setForm(f => ({ ...f, time }))}
               />
             </div>
             <div>
               <label className={labelClass}>Priority</label>
-              <select
+              <CustomSelect
                 value={form.priority}
-                onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
-                className={inputClass}
-              >
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
+                onChange={priority => setForm(f => ({ ...f, priority }))}
+                options={[{ label: "High", value: "high" }, { label: "Medium", value: "medium" }, { label: "Low", value: "low" }]}
+                aria-label="Priority"
+              />
             </div>
             <div className="col-span-2 sm:col-span-1">
               <label className={labelClass}>Assignee</label>
-              <select
+              <CustomSelect
                 value={form.assigneeId}
-                onChange={e => setForm(f => ({ ...f, assigneeId: e.target.value }))}
-                className={inputClass}
-              >
-                <option value="">Unassigned</option>
-                {people.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+                onChange={assigneeId => setForm(f => ({ ...f, assigneeId }))}
+                options={[{ label: "Unassigned", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
+                aria-label="Assignee"
+              />
             </div>
           </div>
 
           {projects.length > 0 && (
             <div>
               <label className={labelClass}>Project</label>
-              <select
+              <CustomSelect
                 value={form.projectId}
-                onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
-                className={inputClass}
-              >
-                <option value="">No project</option>
-                {projects.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+                onChange={projectId => setForm(f => ({ ...f, projectId }))}
+                options={[{ label: "No project", value: "" }, ...projects.map(p => ({ label: p.name, value: String(p.id) }))]}
+                aria-label="Project"
+              />
             </div>
           )}
 
           {form.dueDate && (
             <div className="col-span-2 sm:col-span-3">
               <label className={labelClass}>Remind me</label>
-              <select
+              <CustomSelect
                 value={form.reminderMinutesBefore}
-                onChange={e => setForm(f => ({ ...f, reminderMinutesBefore: e.target.value }))}
-                className={inputClass}
-              >
-                <option value="">No reminder</option>
-                <option value="0">At the time</option>
-                <option value="30">30 minutes before</option>
-                <option value="60">1 hour before</option>
-                <option value="1440">1 day before</option>
-              </select>
+                onChange={reminderMinutesBefore => setForm(f => ({ ...f, reminderMinutesBefore }))}
+                options={[
+                  { label: "No reminder", value: "" },
+                  { label: "At the time", value: "0" },
+                  { label: "30 minutes before", value: "30" },
+                  { label: "1 hour before", value: "60" },
+                  { label: "1 day before", value: "1440" },
+                ]}
+                aria-label="Reminder"
+              />
             </div>
           )}
         </div>

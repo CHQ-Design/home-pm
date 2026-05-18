@@ -6,6 +6,9 @@ import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
 import { todayUTC, todayLocal, daysDiff, formatTime } from "@/lib/dates"
 import { inputClass } from "@/lib/styles"
+import DatePicker from "../date-picker"
+import TimePicker from "../time-picker"
+import CustomSelect from "../custom-select"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
 
@@ -142,47 +145,44 @@ export default function RecurringTaskItem({
           className={inputClass}
           autoFocus
         />
-        <select
+        <CustomSelect
           aria-label="Cadence"
           value={form.cadence}
-          onChange={e => setForm(f => ({ ...f, cadence: e.target.value }))}
-          className={inputClass}
-        >
-          {CADENCES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
+          onChange={cadence => setForm(f => ({ ...f, cadence }))}
+          options={CADENCES.map(c => ({ label: c.label, value: c.value }))}
+        />
         <div className="flex gap-3 items-center">
           <label className="text-xs text-[#8C7D6A] shrink-0">Next due</label>
-          <input
-            type="date"
-            value={form.nextDue}
-            onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
-            className={inputClass}
-          />
+          <div className="flex-1">
+            <DatePicker
+              value={form.nextDue}
+              onChange={nextDue => setForm(f => ({ ...f, nextDue }))}
+            />
+          </div>
         </div>
         <div className="flex gap-3 items-center">
           <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
-          <input
-            type="time"
+          <TimePicker
             value={form.time}
-            onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-            className={`${inputClass} [color-scheme:light]`}
+            onChange={time => setForm(f => ({ ...f, time }))}
           />
         </div>
         <div className="flex gap-3 items-center">
           <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
-          <select
-            value={form.reminderMinutesBefore}
-            onChange={e => setForm(f => ({ ...f, reminderMinutesBefore: e.target.value }))}
-            className={inputClass}
-          >
-            <option value="">No reminder</option>
-            <option value="0">At the time</option>
-            <option value="30">30 minutes before</option>
-            <option value="60">1 hour before</option>
-            <option value="1440">1 day before</option>
-          </select>
+          <div className="flex-1">
+            <CustomSelect
+              value={form.reminderMinutesBefore}
+              onChange={reminderMinutesBefore => setForm(f => ({ ...f, reminderMinutesBefore }))}
+              options={[
+                { label: "No reminder", value: "" },
+                { label: "At the time", value: "0" },
+                { label: "30 minutes before", value: "30" },
+                { label: "1 hour before", value: "60" },
+                { label: "1 day before", value: "1440" },
+              ]}
+              aria-label="Reminder"
+            />
+          </div>
         </div>
         {showNotes && (
           <textarea
@@ -196,28 +196,20 @@ export default function RecurringTaskItem({
         {(people.length > 0 || projects.length > 0) && (
           <div className="grid grid-cols-2 gap-3">
             {people.length > 0 && (
-              <select
+              <CustomSelect
                 value={form.assigneeId}
-                onChange={e => setForm(f => ({ ...f, assigneeId: e.target.value }))}
-                className={inputClass}
-              >
-                <option value="">No assignee</option>
-                {people.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+                onChange={assigneeId => setForm(f => ({ ...f, assigneeId }))}
+                options={[{ label: "No assignee", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
+                aria-label="Assignee"
+              />
             )}
             {projects.length > 0 && (
-              <select
+              <CustomSelect
                 value={form.projectId}
-                onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
-                className={inputClass}
-              >
-                <option value="">No project</option>
-                {projects.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+                onChange={projectId => setForm(f => ({ ...f, projectId }))}
+                options={[{ label: "No project", value: "" }, ...projects.map(p => ({ label: p.name, value: String(p.id) }))]}
+                aria-label="Project"
+              />
             )}
           </div>
         )}
