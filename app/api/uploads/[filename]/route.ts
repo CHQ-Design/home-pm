@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getDownloadUrl } from "@vercel/blob"
 
 const MIME_MAP: Record<string, string> = {
   pdf: "application/pdf",
@@ -38,9 +39,10 @@ export async function GET(
   })
   if (!att) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  // New files: redirect to Vercel Blob URL
+  // New files: redirect to a signed Vercel Blob download URL
   if (att.blobUrl) {
-    return NextResponse.redirect(att.blobUrl)
+    const signedUrl = await getDownloadUrl(att.blobUrl)
+    return NextResponse.redirect(signedUrl.toString())
   }
 
   // Legacy files: read from local disk

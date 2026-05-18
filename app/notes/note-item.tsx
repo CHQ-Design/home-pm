@@ -12,6 +12,7 @@ type UploadedFile = {
   originalName: string
   mimeType: string
   size: number
+  blobUrl?: string
 }
 
 const inputClass =

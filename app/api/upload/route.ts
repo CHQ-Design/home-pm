@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   const mimeType = MIME_MAP[rawExt] ?? "application/octet-stream"
   const filename = `${randomUUID()}.${rawExt}`
 
-  const blob = await put(filename, file, { access: "public", contentType: mimeType })
+  const blob = await put(filename, file, { access: "private", contentType: mimeType })
 
   return NextResponse.json({
     filename,
