@@ -65,8 +65,10 @@ export default function PushManager() {
   async function unsubscribe() {
     setLoading(true)
     try {
+      console.log("[push] unsubscribe called")
       const reg = await navigator.serviceWorker.ready
       const sub = await reg.pushManager.getSubscription()
+      console.log("[push] existing browser subscription:", sub?.endpoint ?? "none")
       if (sub) {
         await fetch("/api/subscribe", {
           method: "DELETE",
@@ -89,7 +91,7 @@ export default function PushManager() {
     <div className="ml-auto flex items-center gap-1">
       {error && <span className="text-red-500 text-xs">{error}</span>}
     <button
-      onClick={isSubscribed ? unsubscribe : subscribe}
+      onClick={() => { console.log("[push] bell tapped, status:", status); isSubscribed ? unsubscribe() : subscribe() }}
       disabled={loading}
       className="text-[#B5A898] hover:text-[#6B5E52] shrink-0 pl-2 disabled:opacity-50"
       aria-label={isSubscribed ? "Disable notifications" : "Enable notifications"}
