@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
 import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
@@ -31,23 +31,21 @@ function formatDate(d: Date | string): string {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
 }
 
-function daysDiff(nextDue: Date | string): number {
-  const d = new Date()
-  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+function daysDiff(nextDue: Date | string, today: string): number {
   const dueStr = new Date(nextDue).toISOString().slice(0, 10)
-  return Math.round((new Date(dueStr).getTime() - new Date(todayStr).getTime()) / (1000 * 60 * 60 * 24))
+  return Math.round((new Date(dueStr).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function dueDateClass(nextDue: Date | string): string {
-  const diff = daysDiff(nextDue)
+function dueDateClass(nextDue: Date | string, today: string): string {
+  const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600 font-medium"
   if (diff === 0) return "text-[#C8922A] font-medium"
   if (diff <= 7) return "text-[#8A6E4B]"
   return "text-[#A09080]"
 }
 
-function dueDateLabel(nextDue: Date | string): string {
-  const diff = daysDiff(nextDue)
+function dueDateLabel(nextDue: Date | string, today: string): string {
+  const diff = daysDiff(nextDue, today)
   if (diff < 0) return `Overdue · ${formatDate(nextDue)}`
   if (diff === 0) return "Due today"
   if (diff === 1) return "Due tomorrow"
@@ -78,6 +76,12 @@ export default function RecurringTaskItem({
   isAdmin: boolean
   sessionPersonId: number | null
 }) {
+  const [today, setToday] = useState(() => new Date().toISOString().slice(0, 10))
+  useEffect(() => {
+    const d = new Date()
+    setToday(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)
+  }, [])
+
   const canComplete = isAdmin || task.assigneeId === sessionPersonId
   const [editing, setEditing] = useState(false)
   const [showNotes, setShowNotes] = useState(!!task.notes)
@@ -248,7 +252,7 @@ export default function RecurringTaskItem({
         <p className="text-sm font-medium text-[#3A3228]">{task.title}</p>
         <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
           <span className="text-xs text-[#A09080]">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
-          <span className={`text-xs ${dueDateClass(task.nextDue)}`} suppressHydrationWarning>{dueDateLabel(task.nextDue)}</span>
+          <span className={`text-xs ${dueDateClass(task.nextDue, today)}`}>{dueDateLabel(task.nextDue, today)}</span>
           {task.assignee && (
             <span className="text-xs text-[#B5A898]">{task.assignee.name}</span>
           )}

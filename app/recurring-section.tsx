@@ -1,33 +1,27 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Prisma } from "@prisma/client"
 import { completeRecurringTask } from "./recurring/actions"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
 
-function localDateStr() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-}
-
-function daysDiff(nextDue: Date | string): number {
-  const todayMs = new Date(localDateStr()).getTime()
+function daysDiff(nextDue: Date | string, today: string): number {
   const dueMs = new Date(new Date(nextDue).toISOString().slice(0, 10)).getTime()
-  return Math.round((dueMs - todayMs) / (1000 * 60 * 60 * 24))
+  return Math.round((dueMs - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function dueDateLabel(nextDue: Date | string): string {
-  const diff = daysDiff(nextDue)
+function dueDateLabel(nextDue: Date | string, today: string): string {
+  const diff = daysDiff(nextDue, today)
   if (diff < 0) return "Overdue"
   if (diff === 0) return "Today"
   if (diff === 1) return "Tomorrow"
   return `In ${diff} days`
 }
 
-function dueDateClass(nextDue: Date | string): string {
-  const diff = daysDiff(nextDue)
+function dueDateClass(nextDue: Date | string, today: string): string {
+  const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600"
   if (diff === 0) return "text-[#C8922A]"
   return "text-[#A09080]"
@@ -54,6 +48,12 @@ function DoneButton({ taskId }: { taskId: number }) {
 }
 
 export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null }) {
+  const [today, setToday] = useState(() => new Date().toISOString().slice(0, 10))
+  useEffect(() => {
+    const d = new Date()
+    setToday(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)
+  }, [])
+
   if (tasks.length === 0) return null
 
   return (
@@ -74,8 +74,8 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
           >
             <div className="flex-1 min-w-0">
               <span className="text-sm text-[#3A3228]">{task.title}</span>
-              <span className={`ml-2 text-xs ${dueDateClass(task.nextDue)}`} suppressHydrationWarning>
-                {dueDateLabel(task.nextDue)}
+              <span className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
+                {dueDateLabel(task.nextDue, today)}
               </span>
               {task.assignee && (
                 <span className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
