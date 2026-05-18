@@ -8,6 +8,7 @@ import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 import { todayLocal, utcDateStr, formatTime } from "@/lib/dates"
 import { getPersonColor } from "@/lib/person-colors"
+import { playCompletionTone } from "@/lib/sounds"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type Priority = "high" | "medium" | "low"
@@ -57,6 +58,11 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
       setShowParticles(true)
       setJustCompleted(true)
       setAnnouncement(`${task.title} done!`)
+      const sorted = [...people].sort((a, b) => a.id - b.id)
+      const personIndex = task.assigneeId != null
+        ? sorted.findIndex(p => p.id === task.assigneeId)
+        : null
+      playCompletionTone(personIndex)
       const t = setTimeout(() => setShowParticles(false), 750)
       const a = setTimeout(() => setAnnouncement(""), 1500)
       return () => { clearTimeout(t); clearTimeout(a) }
