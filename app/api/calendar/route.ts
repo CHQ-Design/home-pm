@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 function icalDate(date: Date): string {
   return new Date(date).toISOString().slice(0, 10).replace(/-/g, "")
@@ -38,6 +40,9 @@ function foldLine(line: string): string {
 const PRIORITY_MAP: Record<string, number> = { high: 1, medium: 5, low: 9 }
 
 export async function GET() {
+  const session = await getServerSession(authOptions)
+  if (!session) return new NextResponse("Unauthorized", { status: 401 })
+
   const tasks = await prisma.task.findMany({
     where: { dueDate: { not: null }, completed: false },
     include: { assignee: true },

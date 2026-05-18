@@ -100,6 +100,7 @@ export async function updateRecurringTask(
 ) {
   await requireRole("admin")
   if (data.intervalUnit && !VALID_UNITS.includes(data.intervalUnit as Unit)) return
+  if (data.intervalValue !== undefined && (!Number.isInteger(data.intervalValue) || data.intervalValue < 1)) return
   await prisma.recurringTask.update({ where: { id }, data })
   revalidatePath("/", "layout")
 }

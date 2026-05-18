@@ -3,6 +3,7 @@ import { join } from "path"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 const MIME_MAP: Record<string, string> = {
   pdf: "application/pdf",
@@ -30,6 +31,12 @@ export async function GET(
   if (!filename || filename.includes("..") || filename.includes("/")) {
     return NextResponse.json({ error: "Bad request" }, { status: 400 })
   }
+
+  const att = await prisma.attachment.findFirst({
+    where: { filename },
+    select: { id: true },
+  })
+  if (!att) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
   const filepath = join(process.cwd(), "uploads", filename)
   try {

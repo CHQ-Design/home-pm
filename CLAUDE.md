@@ -13,8 +13,8 @@ Only #1 is in scope right now. Do not build the others until Craig asks.
 
 ## Tech stack
 - **Framework:** Next.js (App Router) with TypeScript
-- **Database:** SQLite, single file at `./prisma/dev.db`
-- **ORM:** Prisma
+- **Database:** PostgreSQL via Neon (serverless). Connection string in `DATABASE_URL` env var.
+- **ORM:** Prisma — schema at `prisma/schema.prisma`. Use `npx prisma db push` (not `migrate dev`) to sync schema changes to Neon.
 - **Styling:** Tailwind CSS
 - **Runtime:** Node 20+
 
@@ -40,7 +40,7 @@ Write code like a senior full-stack engineer who values security, simplicity, an
 
 ### Hard constraints
 - **No speculative architecture.** No abstractions, helpers, or patterns until they're justified by code that exists today.
-- **No enterprise patterns for a personal app.** Don't reach for Postgres, queues, microservices, external auth, or caching layers unless the code clearly demands it. SQLite is fine.
+- **No enterprise patterns for a personal app.** Don't reach for queues, microservices, or caching layers unless the code clearly demands it.
 - **No new dependencies without asking.** If a library is tempting, propose it first and explain the tradeoff.
 - **Smallest viable change.** Prefer 20 lines that solve the problem over 200 lines of "future-proofing".
 - **Call out feature creep.** If a request is asking for something that belongs in a later phase, say so before building it.
@@ -54,10 +54,10 @@ Write code like a senior full-stack engineer who values security, simplicity, an
 - When you finish a feature, suggest the next logical step but don't start on it.
 
 ## Current state
-Empty project. The first task is to scaffold Next.js, set up Prisma + SQLite, and build a minimal task tracker (add task, list tasks, mark done). See `PROJECT_PLAN.md` for the phased roadmap.
+App is live and in use. Tasks, recurring routines, projects, and notes are all built. Auth is Google OAuth with an email allowlist. Deployed on Vercel with Neon PostgreSQL.
 
 ## Useful commands
 - `npm run dev` — start the dev server
 - `npx prisma studio` — visual database browser
-- `npx prisma migrate dev` — apply schema changes
+- `npx prisma db push` — sync schema changes to Neon (not `migrate dev`)
 - `npm run build && npm start` — production build (run before assuming a deploy works)

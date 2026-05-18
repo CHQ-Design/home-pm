@@ -13,6 +13,17 @@ type AttachmentInput = {
   size: number
 }
 
+const UUID_FILENAME_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$/
+
+function sanitizeAttachments(atts: AttachmentInput[]): AttachmentInput[] {
+  return atts.filter(att =>
+    UUID_FILENAME_RE.test(att.filename) &&
+    typeof att.originalName === "string" && att.originalName.length > 0 &&
+    typeof att.mimeType === "string" &&
+    typeof att.size === "number" && att.size > 0
+  )
+}
+
 function normalizeTags(raw: string): string | null {
   const tags = raw.split(",").map(t => t.trim().toLowerCase()).filter(Boolean)
   return tags.length > 0 ? tags.join(", ") : null
@@ -31,6 +42,7 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
   const body = ((formData.get("body") as string) ?? "").trim() || null
   const tags = normalizeTags((formData.get("tags") as string) ?? "")
   const projectIdRaw = formData.get("projectId") as string
+  const safeAttachments = sanitizeAttachments(attachments)
 
   await prisma.note.create({
     data: {
@@ -38,7 +50,7 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
       body,
       tags,
       projectId: projectIdRaw ? Number(projectIdRaw) : null,
-      attachments: attachments.length > 0 ? { create: attachments } : undefined,
+      attachments: safeAttachments.length > 0 ? { create: safeAttachments } : undefined,
     },
   })
   revalidatePath("/", "layout")
@@ -53,12 +65,13 @@ export async function updateNote(
   if (data.tags !== undefined && data.tags !== null) {
     data = { ...data, tags: normalizeTags(data.tags) }
   }
+  const safeAttachments = sanitizeAttachments(newAttachments)
   await prisma.note.update({
     where: { id },
     data: {
       ...data,
       updatedAt: new Date(),
-      attachments: newAttachments.length > 0 ? { create: newAttachments } : undefined,
+      attachments: safeAttachments.length > 0 ? { create: safeAttachments } : undefined,
     },
   })
   revalidatePath("/", "layout")

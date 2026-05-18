@@ -8,6 +8,13 @@ export async function POST(request: Request) {
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const sub = await request.json()
+  if (
+    typeof sub?.endpoint !== "string" ||
+    typeof sub?.keys?.p256dh !== "string" ||
+    typeof sub?.keys?.auth !== "string"
+  ) {
+    return NextResponse.json({ error: "Invalid subscription" }, { status: 400 })
+  }
   const userEmail = session.user.email.toLowerCase()
 
   await prisma.pushSubscription.upsert({
