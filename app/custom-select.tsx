@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { IconChevronDown } from "@tabler/icons-react"
 
 export interface SelectOption {
@@ -20,20 +21,34 @@ interface Props {
 export default function CustomSelect({ value, onChange, options, name, placeholder, "aria-label": ariaLabel }: Props) {
   const [open, setOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [listPos, setListPos] = useState({ top: 0, left: 0, width: 0 })
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
   const currentLabel = options.find(o => o.value === value)?.label ?? placeholder ?? ""
 
+  function openList() {
+    if (!triggerRef.current) return
+    const rect = triggerRef.current.getBoundingClientRect()
+    setListPos({ top: rect.bottom + 4, left: rect.left, width: rect.width })
+    setFocusedIndex(options.findIndex(o => o.value === value))
+    setOpen(true)
+  }
+
   useEffect(() => {
     if (!open) return
-    setFocusedIndex(options.findIndex(o => o.value === value))
 
     function onMouseDown(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      if (!triggerRef.current?.contains(target) && !listRef.current?.contains(target)) {
+        setOpen(false)
+      }
     }
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") { setOpen(false); containerRef.current?.querySelector<HTMLElement>("[data-trigger]")?.focus() }
+      if (e.key === "Escape") {
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
     }
     document.addEventListener("mousedown", onMouseDown)
     document.addEventListener("keydown", onKeyDown)
@@ -41,7 +56,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
       document.removeEventListener("mousedown", onMouseDown)
       document.removeEventListener("keydown", onKeyDown)
     }
-  }, [open, options, value])
+  }, [open])
 
   useEffect(() => {
     if (!open || focusedIndex < 0) return
@@ -51,7 +66,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
   function handleTriggerKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
       e.preventDefault()
-      setOpen(true)
+      openList()
     }
   }
 
@@ -62,22 +77,23 @@ export default function CustomSelect({ value, onChange, options, name, placehold
       e.preventDefault()
       onChange(options[index].value)
       setOpen(false)
-      containerRef.current?.querySelector<HTMLElement>("[data-trigger]")?.focus()
+      triggerRef.current?.focus()
     } else if (e.key === "Tab") {
       setOpen(false)
     }
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div className="relative">
       {name && <input type="hidden" name={name} value={value} />}
       <button
+        ref={triggerRef}
         type="button"
         data-trigger
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen(v => !v)}
+        onClick={() => open ? setOpen(false) : openList()}
         onKeyDown={handleTriggerKeyDown}
         className="w-full flex items-center justify-between gap-1 bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-sm text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 text-left"
       >
@@ -85,12 +101,13 @@ export default function CustomSelect({ value, onChange, options, name, placehold
         <IconChevronDown size={14} aria-hidden="true" className="shrink-0 text-[#8C7D6A]" />
       </button>
 
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <ul
           ref={listRef}
           role="listbox"
           aria-label={ariaLabel}
-          className="absolute z-50 mt-1 w-full bg-[#F4EEE3] border border-[#D4C9B5] rounded-lg shadow-md overflow-hidden"
+          className="fixed z-[200] bg-[#F4EEE3] border border-[#D4C9B5] rounded-lg shadow-md overflow-hidden"
+          style={{ top: listPos.top, left: listPos.left, width: listPos.width }}
         >
           {options.map((opt, i) => (
             <li
@@ -100,7 +117,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
               tabIndex={focusedIndex === i ? 0 : -1}
               ref={el => { if (focusedIndex === i) el?.focus() }}
               onMouseEnter={() => setFocusedIndex(i)}
-              onClick={() => { onChange(opt.value); setOpen(false); containerRef.current?.querySelector<HTMLElement>("[data-trigger]")?.focus() }}
+              onClick={() => { onChange(opt.value); setOpen(false); triggerRef.current?.focus() }}
               onKeyDown={e => handleOptionKeyDown(e, i)}
               className={`px-3 py-2.5 text-sm cursor-pointer outline-none min-h-[44px] flex items-center
                 ${opt.value === value ? "text-accent font-medium" : "text-[#3A3228]"}
@@ -109,7 +126,8 @@ export default function CustomSelect({ value, onChange, options, name, placehold
               {opt.label}
             </li>
           ))}
-        </ul>
+        </ul>,
+        document.body
       )}
     </div>
   )
