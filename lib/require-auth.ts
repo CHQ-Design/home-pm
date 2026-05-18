@@ -43,6 +43,21 @@ export async function getSessionPersonId(): Promise<number | null> {
   return person?.id ?? null
 }
 
+// Verifies a project or person ID belongs to the given household. Returns the ID or null.
+export async function verifyBelongsToHousehold(
+  type: "project" | "person",
+  id: number | null | undefined,
+  householdId: number
+): Promise<number | null> {
+  if (id == null) return null
+  if (type === "project") {
+    const found = await prisma.project.findFirst({ where: { id, householdId }, select: { id: true } })
+    return found ? id : null
+  }
+  const found = await prisma.person.findFirst({ where: { id, householdId }, select: { id: true } })
+  return found ? id : null
+}
+
 // Allows action if caller is admin of the same household, or if the item is assigned to them.
 export async function requireAssignedOrAdmin(
   assigneeId: number | null,

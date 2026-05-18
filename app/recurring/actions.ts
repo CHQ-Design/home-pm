@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId } from "@/lib/require-auth"
+import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { parseReminder } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 
@@ -18,6 +18,12 @@ function parseId(raw: string | null): number | null {
   if (!raw) return null
   const n = parseInt(raw, 10)
   return isNaN(n) || n <= 0 ? null : n
+}
+
+const TIME_RE = /^\d{2}:\d{2}$/
+function parseTime(raw: string | null): string | null {
+  if (!raw) return null
+  return TIME_RE.test(raw) ? raw : null
 }
 
 function computeNextDue(from: Date, value: number, unit: Unit): Date {
@@ -59,16 +65,23 @@ export async function addRecurringTask(formData: FormData) {
 
   const reminderMinutesBefore = parseReminder(formData.get("reminderMinutesBefore") as string | null)
 
+  const [assigneeId, projectId] = isAdmin
+    ? await Promise.all([
+        verifyBelongsToHousehold("person", parseId(formData.get("assigneeId") as string), householdId),
+        verifyBelongsToHousehold("project", parseId(formData.get("projectId") as string), householdId),
+      ])
+    : [sessionPersonId, null]
+
   await prisma.recurringTask.create({
     data: {
       title,
       notes,
-      time: (formData.get("time") as string | null) || null,
+      time: parseTime(formData.get("time") as string | null),
       intervalValue,
       intervalUnit,
       nextDue,
-      assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
-      projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
+      assigneeId,
+      projectId,
       reminderMinutesBefore,
       householdId,
     },
@@ -109,9 +122,18 @@ export async function updateRecurringTask(
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   if (data.intervalUnit && !VALID_UNITS.includes(data.intervalUnit as Unit)) return
   if (data.intervalValue !== undefined && (!Number.isInteger(data.intervalValue) || data.intervalValue < 1)) return
+  if (data.time !== undefined && data.time !== null) {
+    if (!TIME_RE.test(data.time)) data.time = null
+  }
   if (data.reminderMinutesBefore !== undefined && data.reminderMinutesBefore !== null) {
     const r = data.reminderMinutesBefore
     if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
+  }
+  if (data.assigneeId !== undefined && data.assigneeId !== null) {
+    data.assigneeId = await verifyBelongsToHousehold("person", data.assigneeId, sessionUser.householdId)
+  }
+  if (data.projectId !== undefined && data.projectId !== null) {
+    data.projectId = await verifyBelongsToHousehold("project", data.projectId, sessionUser.householdId)
   }
   await prisma.recurringTask.update({ where: { id, householdId: sessionUser.householdId }, data })
   revalidatePath("/", "layout")

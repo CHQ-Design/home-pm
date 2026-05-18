@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, getSessionUser } from "@/lib/require-auth"
+import { getSessionUser, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { unlink } from "fs/promises"
 import { join } from "path"
@@ -43,6 +43,7 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
   const body = ((formData.get("body") as string) ?? "").trim() || null
   const tags = normalizeTags((formData.get("tags") as string) ?? "")
   const projectIdRaw = formData.get("projectId") as string
+  const projectId = projectIdRaw ? await verifyBelongsToHousehold("project", Number(projectIdRaw), sessionUser.householdId) : null
   const safeAttachments = sanitizeAttachments(attachments)
 
   await prisma.note.create({
@@ -50,7 +51,7 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
       title,
       body,
       tags,
-      projectId: projectIdRaw ? Number(projectIdRaw) : null,
+      projectId,
       householdId: sessionUser.householdId,
       attachments: safeAttachments.length > 0 ? { create: safeAttachments } : undefined,
     },
@@ -63,13 +64,21 @@ export async function updateNote(
   data: { title?: string; body?: string | null; tags?: string | null; projectId?: number | null },
   newAttachments: AttachmentInput[] = []
 ) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  if (data.title !== undefined) {
+    data.title = data.title.trim()
+    if (!data.title) delete data.title
+  }
   if (data.tags !== undefined && data.tags !== null) {
     data = { ...data, tags: normalizeTags(data.tags) }
   }
+  if (data.projectId !== undefined && data.projectId !== null) {
+    data = { ...data, projectId: await verifyBelongsToHousehold("project", data.projectId, sessionUser.householdId) }
+  }
   const safeAttachments = sanitizeAttachments(newAttachments)
   await prisma.note.update({
-    where: { id },
+    where: { id, householdId: sessionUser.householdId },
     data: {
       ...data,
       updatedAt: new Date(),
@@ -80,21 +89,28 @@ export async function updateNote(
 }
 
 export async function deleteNote(id: number) {
-  await requireRole("admin")
-  const note = await prisma.note.findUnique({ where: { id }, include: { attachments: true } })
-  if (note) {
-    for (const att of note.attachments) {
-      await removeFile(att.filename)
-    }
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  const note = await prisma.note.findUnique({
+    where: { id, householdId: sessionUser.householdId },
+    include: { attachments: true },
+  })
+  if (!note) return
+  for (const att of note.attachments) {
+    await removeFile(att.filename)
   }
-  await prisma.note.delete({ where: { id } })
+  await prisma.note.delete({ where: { id, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
 }
 
 export async function deleteAttachment(id: number) {
-  await requireRole("admin")
-  const att = await prisma.attachment.findUnique({ where: { id } })
-  if (!att) return
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  const att = await prisma.attachment.findUnique({
+    where: { id },
+    include: { note: { select: { householdId: true } } },
+  })
+  if (!att || att.note.householdId !== sessionUser.householdId) return
   await removeFile(att.filename)
   await prisma.attachment.delete({ where: { id } })
   revalidatePath("/", "layout")

@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, getSessionUser } from "@/lib/require-auth"
+import { getSessionUser } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_STATUSES = ["active", "paused", "done"] as const
@@ -25,18 +25,20 @@ export async function updateProject(
   id: number,
   data: { name?: string; description?: string | null; status?: Status }
 ) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const update = { ...data }
   if (update.status !== undefined) update.status = parseStatus(update.status)
-  await prisma.project.update({ where: { id }, data: update })
+  await prisma.project.update({ where: { id, householdId: sessionUser.householdId }, data: update })
   revalidatePath("/", "layout")
 }
 
 export async function deleteProject(id: number) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   await prisma.$transaction([
-    prisma.task.updateMany({ where: { projectId: id }, data: { projectId: null } }),
-    prisma.project.delete({ where: { id } }),
+    prisma.task.updateMany({ where: { projectId: id, householdId: sessionUser.householdId }, data: { projectId: null } }),
+    prisma.project.delete({ where: { id, householdId: sessionUser.householdId } }),
   ])
   revalidatePath("/", "layout")
 }

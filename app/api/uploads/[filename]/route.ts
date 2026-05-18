@@ -34,7 +34,7 @@ export async function GET(
 
   const att = await prisma.attachment.findFirst({
     where: { filename },
-    select: { id: true },
+    select: { id: true, originalName: true },
   })
   if (!att) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
@@ -43,7 +43,12 @@ export async function GET(
     const file = await readFile(filepath)
     const ext = filename.split(".").pop()?.toLowerCase() ?? ""
     const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
-    return new Response(file, { headers: { "Content-Type": mimeType } })
+    return new Response(file, {
+      headers: {
+        "Content-Type": mimeType,
+        "Content-Disposition": `attachment; filename="${att.originalName ?? filename}"`,
+      },
+    })
   } catch {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
