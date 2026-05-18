@@ -58,11 +58,6 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
       setShowParticles(true)
       setJustCompleted(true)
       setAnnouncement(`${task.title} done!`)
-      const sorted = [...people].sort((a, b) => a.id - b.id)
-      const personIndex = task.assigneeId != null
-        ? sorted.findIndex(p => p.id === task.assigneeId)
-        : null
-      playCompletionTone(personIndex)
       const t = setTimeout(() => setShowParticles(false), 750)
       const a = setTimeout(() => setAnnouncement(""), 1500)
       return () => { clearTimeout(t); clearTimeout(a) }
@@ -107,7 +102,17 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             <input
               type="checkbox"
               checked={task.completed}
-              onChange={() => { if (canToggle) toggleTask(task.id) }}
+              onChange={() => {
+                if (!canToggle) return
+                if (!task.completed) {
+                  const sorted = [...people].sort((a, b) => a.id - b.id)
+                  const personIndex = task.assigneeId != null
+                    ? sorted.findIndex(p => p.id === task.assigneeId)
+                    : null
+                  playCompletionTone(personIndex)
+                }
+                toggleTask(task.id)
+              }}
               disabled={!canToggle}
               aria-label={task.title}
               className="peer sr-only"
