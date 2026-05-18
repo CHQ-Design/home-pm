@@ -22,6 +22,7 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
 }) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
+  const [editingId, setEditingId] = useState<number | null>(null)
 
   const in7Days = addDays(today, 7)
 
@@ -33,32 +34,43 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
     return <p className="text-sm text-[#A09080]">No routines yet. Add one above.</p>
   }
 
+  function item(t: RecurringTask) {
+    const dimmed = editingId !== null && editingId !== t.id
+    return (
+      <div key={t.id} className={dimmed ? "opacity-40 pointer-events-none transition-opacity" : "transition-opacity"}>
+        <RecurringTaskItem
+          task={t}
+          people={people}
+          projects={projects}
+          isAdmin={isAdmin}
+          sessionPersonId={sessionPersonId}
+          onEditStart={() => setEditingId(t.id)}
+          onEditEnd={() => setEditingId(null)}
+        />
+      </div>
+    )
+  }
+
   return (
     <>
       {overdue.length > 0 && (
         <section className="mb-6">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-2">Overdue</h2>
-          <div className="space-y-2">
-            {overdue.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
-          </div>
+          <div className="space-y-2">{overdue.map(item)}</div>
         </section>
       )}
 
       {dueThisWeek.length > 0 && (
         <section className="mb-6">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Due this week</h2>
-          <div className="space-y-2">
-            {dueThisWeek.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
-          </div>
+          <div className="space-y-2">{dueThisWeek.map(item)}</div>
         </section>
       )}
 
       {upcoming.length > 0 && (
         <section className="mb-6">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Upcoming</h2>
-          <div className="space-y-2">
-            {upcoming.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
-          </div>
+          <div className="space-y-2">{upcoming.map(item)}</div>
         </section>
       )}
     </>

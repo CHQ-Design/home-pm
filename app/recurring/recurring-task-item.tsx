@@ -65,12 +65,16 @@ export default function RecurringTaskItem({
   projects,
   isAdmin,
   sessionPersonId,
+  onEditStart,
+  onEditEnd,
 }: {
   task: RecurringTask
   people: Person[]
   projects: Project[]
   isAdmin: boolean
   sessionPersonId: number | null
+  onEditStart?: () => void
+  onEditEnd?: () => void
 }) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
@@ -114,6 +118,7 @@ export default function RecurringTaskItem({
     })
     setPending(false)
     setEditing(false)
+    onEditEnd?.()
   }
 
   async function handleDelete() {
@@ -196,7 +201,7 @@ export default function RecurringTaskItem({
             {pending ? "Saving…" : "Save"}
           </button>
           <button
-            onClick={() => setEditing(false)}
+            onClick={() => { setEditing(false); onEditEnd?.() }}
             className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
           >
             Cancel
@@ -209,7 +214,7 @@ export default function RecurringTaskItem({
             {showNotes ? "− Notes" : "+ Notes"}
           </button>
           <button
-            onClick={() => { setEditing(false); setConfirming(true) }}
+            onClick={() => { setEditing(false); onEditEnd?.(); setConfirming(true) }}
             className="text-sm px-4 py-1.5 text-red-500 hover:text-red-700 ml-auto"
           >
             Delete
@@ -264,7 +269,7 @@ export default function RecurringTaskItem({
         {isAdmin && (
           <>
             <button
-              onClick={() => setEditing(true)}
+              onClick={() => { setEditing(true); onEditStart?.() }}
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-[#6B5E52]"
               aria-label={`Edit ${task.title}`}
             >
