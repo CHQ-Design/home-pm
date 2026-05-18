@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions, getRole } from "@/lib/auth"
+import { authOptions } from "@/lib/auth"
 
 function icalDate(date: Date): string {
   return new Date(date).toISOString().slice(0, 10).replace(/-/g, "")
@@ -44,7 +44,8 @@ export async function GET() {
   if (!session) return new NextResponse("Unauthorized", { status: 401 })
 
   const email = session.user?.email?.toLowerCase() ?? ""
-  const isAdmin = getRole(email) === "admin"
+  const dbUser = await prisma.user.findUnique({ where: { email }, select: { role: true } })
+  const isAdmin = dbUser?.role === "admin"
 
   let assigneeFilter: { assigneeId?: number } = {}
   if (!isAdmin) {

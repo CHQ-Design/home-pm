@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
+import { requireRole, requireAssignedOrAdmin, getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { todayUTC } from "@/lib/dates"
 import { parseReminder } from "@/lib/parse"
@@ -26,8 +26,9 @@ function parseId(raw: string | null): number | null {
 }
 
 export async function addTask(formData: FormData) {
-  const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
-  if (!role) throw new Error("Not authenticated")
+  const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
+  if (!sessionUser) throw new Error("Not authenticated")
+  const { role, householdId } = sessionUser
   const isAdmin = role === "admin"
   if (!isAdmin && !sessionPersonId) {
     return { error: "Your account isn't linked to a person yet. Ask your admin." }
@@ -48,6 +49,7 @@ export async function addTask(formData: FormData) {
       assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
       projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
       reminderMinutesBefore: parseReminder(formData.get("reminderMinutesBefore") as string | null),
+      householdId,
     },
   })
   revalidatePath("/", "layout")
@@ -125,10 +127,11 @@ export async function updateTask(
 }
 
 export async function addPerson(formData: FormData) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
-  await prisma.person.create({ data: { name } })
+  await prisma.person.create({ data: { name, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
 }
 

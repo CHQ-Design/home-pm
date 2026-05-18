@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole } from "@/lib/require-auth"
+import { requireRole, getSessionUser } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_STATUSES = ["active", "paused", "done"] as const
@@ -12,11 +12,12 @@ function parseStatus(raw: unknown): Status {
 }
 
 export async function addProject(formData: FormData) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
   const description = (formData.get("description") as string | null)?.trim() || null
-  await prisma.project.create({ data: { name, description } })
+  await prisma.project.create({ data: { name, description, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
 }
 

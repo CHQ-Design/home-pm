@@ -7,11 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Household {
+  id             Int             @id @default(autoincrement())
+  name           String
+  createdAt      DateTime        @default(now())
+  users          User[]
+  people         Person[]
+  tasks          Task[]
+  projects       Project[]
+  notes          Note[]
+  recurringTasks RecurringTask[]
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  name        String?
+  role        String    @default("member")  // "admin" | "member"
+  householdId Int
+  household   Household @relation(fields: [householdId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
 model Project {
   id             Int             @id @default(autoincrement())
   name           String
   description    String?
   status         String          @default("active")
+  householdId    Int
+  household      Household       @relation(fields: [householdId], references: [id])
   createdAt      DateTime        @default(now())
   tasks          Task[]
   notes          Note[]
@@ -23,6 +47,8 @@ model Note {
   title       String
   body        String?
   tags        String?      // comma-separated, normalized to lowercase
+  householdId Int
+  household   Household    @relation(fields: [householdId], references: [id])
   projectId   Int?
   project     Project?     @relation(fields: [projectId], references: [id])
   attachments Attachment[]
@@ -47,27 +73,31 @@ model Person {
   email          String?         @unique
   streakCount    Int             @default(0)
   lastStreakDate DateTime?
+  householdId    Int
+  household      Household       @relation(fields: [householdId], references: [id])
   createdAt      DateTime        @default(now())
   tasks          Task[]
   recurringTasks RecurringTask[]
 }
 
 model RecurringTask {
-  id                   Int       @id @default(autoincrement())
-  title                String
-  notes                String?
-  time                 String?   // "HH:MM" 24-hour, optional
-  intervalValue        Int
-  intervalUnit         String    // "day" | "week" | "month" | "year" | "weekday"
-  nextDue              DateTime
-  lastCompleted        DateTime?
+  id                    Int       @id @default(autoincrement())
+  title                 String
+  notes                 String?
+  time                  String?   // "HH:MM" 24-hour, optional
+  intervalValue         Int
+  intervalUnit          String    // "day" | "week" | "month" | "year" | "weekday"
+  nextDue               DateTime
+  lastCompleted         DateTime?
   reminderMinutesBefore Int?
-  notifiedAt           DateTime?
-  assigneeId           Int?
-  assignee             Person?   @relation(fields: [assigneeId], references: [id])
-  projectId            Int?
-  project              Project?  @relation(fields: [projectId], references: [id])
-  createdAt            DateTime  @default(now())
+  notifiedAt            DateTime?
+  householdId           Int
+  household             Household @relation(fields: [householdId], references: [id])
+  assigneeId            Int?
+  assignee              Person?   @relation(fields: [assigneeId], references: [id])
+  projectId             Int?
+  project               Project?  @relation(fields: [projectId], references: [id])
+  createdAt             DateTime  @default(now())
 }
 
 model PushSubscription {
@@ -89,6 +119,8 @@ model Task {
   completed             Boolean   @default(false)
   reminderMinutesBefore Int?
   notifiedAt            DateTime?
+  householdId           Int
+  household             Household @relation(fields: [householdId], references: [id])
   createdAt             DateTime  @default(now())
   completedAt           DateTime?
   assigneeId            Int?

@@ -2,14 +2,16 @@ export const dynamic = "force-dynamic"
 
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { getSessionRole } from "@/lib/require-auth"
+import { getSessionUser } from "@/lib/require-auth"
 import PeopleManager from "@/app/people-manager"
 
 export default async function SettingsPage() {
-  const role = await getSessionRole()
-  if (role !== "admin") redirect("/")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") redirect("/")
+  const { householdId } = sessionUser
 
   const people = await prisma.person.findMany({
+    where: { householdId },
     include: { _count: { select: { tasks: { where: { completed: false } } } } },
     orderBy: { name: "asc" },
   })

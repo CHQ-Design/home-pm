@@ -1,15 +1,9 @@
 import { NextAuthOptions, Session } from "next-auth"
 import { JWT } from "next-auth/jwt"
 import GoogleProvider from "next-auth/providers/google"
-
-const ALLOWED_EMAILS = (process.env.ALLOWED_EMAILS ?? "").split(",").map(e => e.trim()).filter(Boolean)
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? ""
+import { prisma } from "./prisma"
 
 export type Role = "admin" | "member"
-
-export function getRole(email: string | null | undefined): Role {
-  return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "admin" : "member"
-}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -20,14 +14,28 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user }) {
-      return ALLOWED_EMAILS.includes(user.email ?? "")
+      const email = user.email?.toLowerCase()
+      if (!email) return false
+      const dbUser = await prisma.user.findUnique({ where: { email } })
+      return dbUser !== null
     },
     async jwt({ token }: { token: JWT }) {
-      token.role = getRole(token.email as string | null)
+      const email = (token.email as string | undefined)?.toLowerCase()
+      if (email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email },
+          select: { role: true, householdId: true },
+        })
+        token.role = (dbUser?.role ?? "member") as Role
+        token.householdId = dbUser?.householdId ?? null
+      }
       return token
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      if (session.user) session.user.role = token.role as Role
+      if (session.user) {
+        session.user.role = token.role as Role
+        session.user.householdId = token.householdId as number | null
+      }
       return session
     },
   },

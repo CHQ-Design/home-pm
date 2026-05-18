@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { getSessionRole, getSessionPersonId } from "@/lib/require-auth"
+import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddTaskForm from "@/app/add-task-form"
 import TaskList from "@/app/task-list"
 import RecurringSection from "@/app/recurring-section"
@@ -14,34 +14,29 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const projectId = Number(id)
   if (isNaN(projectId)) notFound()
 
-  const [project, recurringTasks, people, projects, role, sessionPersonId] = await Promise.all([
+  const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
+  const isAdmin = sessionUser?.role === "admin"
+  const householdId = sessionUser?.householdId ?? -1
+  const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
+
+  const [project, recurringTasks, people, projects] = await Promise.all([
     prisma.project.findUnique({
-      where: { id: projectId },
-      include: { tasks: { include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } } },
+      where: { id: projectId, householdId },
+      include: { tasks: { where: assigneeFilter, include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } } },
     }),
     prisma.recurringTask.findMany({
-      where: { projectId },
+      where: { projectId, householdId, ...assigneeFilter },
       include: { assignee: true },
       orderBy: { nextDue: "asc" },
     }),
-    prisma.person.findMany({ orderBy: { name: "asc" } }),
-    prisma.project.findMany({ orderBy: { name: "asc" } }),
-    getSessionRole(),
-    getSessionPersonId(),
+    prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
+    prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
   ])
-
-  const isAdmin = role === "admin"
-  const visibleTasks = isAdmin
-    ? project?.tasks ?? []
-    : (project?.tasks ?? []).filter(t => t.assigneeId === sessionPersonId)
-  const visibleRoutines = isAdmin
-    ? recurringTasks
-    : recurringTasks.filter(t => t.assigneeId === sessionPersonId)
 
   if (!project) notFound()
 
-  const total = project.tasks.length
-  const done  = project.tasks.filter(t => t.completed).length
+  const total = project?.tasks.length ?? 0
+  const done  = project?.tasks.filter(t => t.completed).length ?? 0
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
@@ -61,8 +56,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       />
 
       {isAdmin && <AddTaskForm people={people} projectId={project.id} isAdmin={true} />}
-      <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
-      <RecurringSection tasks={visibleRoutines} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <TaskList tasks={project?.tasks ?? []} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
     </main>
   )
 }

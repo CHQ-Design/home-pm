@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getSessionRole, getSessionPersonId } from "@/lib/require-auth"
+import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddTaskForm from "./add-task-form"
 import TaskList from "./task-list"
 import RecurringSection from "./recurring-section"
@@ -14,23 +14,24 @@ export default async function Home() {
   const in7Days = new Date(now)
   in7Days.setDate(in7Days.getDate() + 7)
 
-  const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
-  const isAdmin = role === "admin"
+  const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
+  const isAdmin = sessionUser?.role === "admin"
+  const householdId = sessionUser?.householdId ?? -1
   const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
 
   const [tasks, people, projects, recurringTasks] = await Promise.all([
-    prisma.task.findMany({ where: assigneeFilter, include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
-    prisma.person.findMany({ orderBy: { name: "asc" } }),
-    prisma.project.findMany({ orderBy: { name: "asc" } }),
+    prisma.task.findMany({ where: { householdId, ...assigneeFilter }, include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
+    prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
+    prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.recurringTask.findMany({
-      where: { nextDue: { lte: in7Days }, ...assigneeFilter },
+      where: { householdId, nextDue: { lte: in7Days }, ...assigneeFilter },
       include: { assignee: true },
       orderBy: { nextDue: "asc" },
     }),
   ])
 
   const memberPerson = !isAdmin && sessionPersonId
-    ? people.find(p => p.id === sessionPersonId)
+    ? people.find(p => p.id === sessionPersonId) ?? null
     : null
   const memberColor = memberPerson ? getPersonColor(people, memberPerson.id) : null
 

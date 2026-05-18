@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole } from "@/lib/require-auth"
+import { requireRole, getSessionUser } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { unlink } from "fs/promises"
 import { join } from "path"
@@ -35,7 +35,8 @@ async function removeFile(filename: string) {
 }
 
 export async function addNote(formData: FormData, attachments: AttachmentInput[]) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
 
@@ -50,6 +51,7 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
       body,
       tags,
       projectId: projectIdRaw ? Number(projectIdRaw) : null,
+      householdId: sessionUser.householdId,
       attachments: safeAttachments.length > 0 ? { create: safeAttachments } : undefined,
     },
   })

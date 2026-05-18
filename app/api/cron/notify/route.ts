@@ -19,7 +19,8 @@ export async function GET(request: Request) {
 
   const now = new Date()
   const windowStart = new Date(now.getTime() - 60 * 60 * 1000)
-  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase() ?? ""
+  const adminUser = await prisma.user.findFirst({ where: { role: "admin" }, select: { email: true } })
+  const adminEmail = adminUser?.email ?? ""
 
   const [tasks, routines] = await Promise.all([
     prisma.task.findMany({

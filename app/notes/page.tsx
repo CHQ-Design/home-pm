@@ -2,20 +2,22 @@ export const dynamic = "force-dynamic"
 
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { getSessionRole } from "@/lib/require-auth"
+import { getSessionUser } from "@/lib/require-auth"
 import AddNoteForm from "./add-note-form"
 import NoteList from "./note-list"
 
 export default async function NotesPage() {
-  const role = await getSessionRole()
-  if (role !== "admin") redirect("/")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") redirect("/")
+  const { householdId } = sessionUser
 
   const [notes, projects] = await Promise.all([
     prisma.note.findMany({
+      where: { householdId },
       include: { attachments: true, project: true },
       orderBy: { updatedAt: "desc" },
     }),
-    prisma.project.findMany({ orderBy: { name: "asc" } }),
+    prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
   ])
 
   return (

@@ -1,25 +1,25 @@
 export const dynamic = "force-dynamic"
 
 import { prisma } from "@/lib/prisma"
-import { getSessionRole, getSessionPersonId } from "@/lib/require-auth"
+import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddRecurringForm from "./add-recurring-form"
 import RecurringTaskList from "./recurring-task-list"
 
 export default async function RecurringPage() {
-  const [tasks, people, projects, role, sessionPersonId] = await Promise.all([
+  const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
+  const isAdmin = sessionUser?.role === "admin"
+  const householdId = sessionUser?.householdId ?? -1
+  const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
+
+  const [tasks, people, projects] = await Promise.all([
     prisma.recurringTask.findMany({
+      where: { householdId, ...assigneeFilter },
       include: { assignee: true, project: true },
       orderBy: { nextDue: "asc" },
     }),
-    prisma.person.findMany({ orderBy: { name: "asc" } }),
-    prisma.project.findMany({ orderBy: { name: "asc" } }),
-    getSessionRole(),
-    getSessionPersonId(),
+    prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
+    prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
   ])
-  const isAdmin = role === "admin"
-  const visibleTasks = isAdmin
-    ? tasks
-    : tasks.filter(t => t.assigneeId === sessionPersonId)
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
@@ -27,7 +27,7 @@ export default async function RecurringPage() {
 
       {(isAdmin || sessionPersonId !== null) && <AddRecurringForm people={people} projects={projects} isAdmin={isAdmin} />}
 
-      <RecurringTaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <RecurringTaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
     </main>
   )
 }
