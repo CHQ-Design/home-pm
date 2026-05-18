@@ -157,7 +157,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
-        <p className="font-serif text-xl text-[#A09080] py-2">
+        <p className="font-serif text-xl text-[#A09080] py-2" suppressHydrationWarning>
           {(["The board's clear. ✦", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
         </p>
       )}
