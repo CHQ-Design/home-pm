@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import Nav from "./nav";
 import AuthSessionProvider from "./session-provider";
+import dynamic from "next/dynamic";
+
+const AutoSubscribe = dynamic(() => import("./auto-subscribe"), { ssr: false })
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -47,6 +50,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-[100dvh] flex flex-col overflow-x-hidden">
         <AuthSessionProvider>
+          <AutoSubscribe />
           <Nav />
           {children}
         </AuthSessionProvider>

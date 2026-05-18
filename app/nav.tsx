@@ -3,9 +3,6 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import dynamic from "next/dynamic"
-
-const PushManager = dynamic(() => import("./push-manager"), { ssr: false })
 
 export default function Nav() {
   const pathname = usePathname()
@@ -22,11 +19,9 @@ export default function Nav() {
         <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>
         <NavLink href="/notes" active={pathname.startsWith("/notes")}>Notes</NavLink>
         {session && (
-          <>
-          <PushManager />
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="text-[#B5A898] hover:text-[#6B5E52] shrink-0 pl-2"
+            className="ml-auto text-[#B5A898] hover:text-[#6B5E52] shrink-0 pl-2"
             aria-label="Sign out"
             title="Sign out"
           >
@@ -36,7 +31,6 @@ export default function Nav() {
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
           </button>
-          </>
         )}
       </div>
     </nav>

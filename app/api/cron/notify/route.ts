@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
       const [tasks, routines] = await Promise.all([
         prisma.task.findMany({
-          where: { completed: false, dueDate: { lte: todayEnd }, ...assigneeFilter },
+          where: { completed: false, reminderSet: true, dueDate: { lte: todayEnd }, ...assigneeFilter },
           select: { title: true },
           orderBy: { dueDate: "asc" },
         }),
