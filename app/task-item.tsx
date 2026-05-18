@@ -208,7 +208,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             <button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
-              aria-label="Edit thing"
+              aria-label="Edit task"
             >
               <IconPencilMinus size={16} aria-hidden="true" />
             </button>
