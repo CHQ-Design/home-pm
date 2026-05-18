@@ -6,6 +6,7 @@ import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLe
 import TaskItem from "./task-item"
 import { todayUTC, todayLocal, utcDateStr } from "@/lib/dates"
 import { getPersonColor } from "@/lib/person-colors"
+import { playCompletionTone } from "@/lib/sounds"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
@@ -69,6 +70,38 @@ function Section({
 }
 
 const DRIFT_COLORS = ["#C8A882", "#91B89A", "#C8899A", "#8891B8", "#B0A87A", "#C8922A", "#D4C9B5"]
+
+const KID_BURST_ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+
+function KidAllDone({ name, personColor }: { name: string; personColor: string }) {
+  const fired = useRef(false)
+  useEffect(() => {
+    if (fired.current) return
+    fired.current = true
+    playCompletionTone(null)
+  }, [])
+  return (
+    <div className="py-10 text-center relative overflow-hidden">
+      <div className="relative inline-block mb-4">
+        <span className="text-6xl" aria-hidden="true">🎉</span>
+        {KID_BURST_ANGLES.map(angle => (
+          <span
+            key={angle}
+            aria-hidden="true"
+            className="absolute h-2.5 w-2.5 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              backgroundColor: personColor,
+              ["--angle" as string]: `${angle}deg`,
+              animation: "particle-burst-kid 1000ms cubic-bezier(0.22,1,0.36,1) both",
+            }}
+          />
+        ))}
+      </div>
+      <p className="font-serif text-3xl font-bold text-[#3A3228] mb-1">You did it, {name}!</p>
+      <p className="text-base text-[#A09080]">All done for today.</p>
+    </div>
+  )
+}
 
 type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid: boolean }
 
@@ -177,6 +210,27 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         </p>
       )}
 
+      {isKid && filtered.length > 0 && !isBoardClear && (
+        <div className="mb-5">
+          <div className="w-full h-4 bg-[#EDE6D8] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#C8922A] rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${Math.round((groups.completed.length / filtered.length) * 100)}%` }}
+            />
+          </div>
+          <p className="text-sm text-[#A09080] mt-1.5">
+            {groups.completed.length} of {filtered.length} done
+          </p>
+        </div>
+      )}
+
+      {isKid && isBoardClear && (
+        <KidAllDone
+          name={activePerson?.name ?? "you"}
+          personColor={activeColors?.border ?? "#6B7A5A"}
+        />
+      )}
+
       {openCount === 0 && groups.completed.length === 0 && (
         <p className="text-[#A09080] text-sm py-4">
           {!isAdmin
@@ -186,7 +240,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
               : "No things yet. Add one above."}
         </p>
       )}
-      {isBoardClear && (
+      {!isKid && isBoardClear && (
         <div className="py-12 text-center relative">
           {showCelebration && (
             <>

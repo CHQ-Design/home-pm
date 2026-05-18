@@ -20,6 +20,7 @@ const PRIORITY_STYLES: Record<Priority, string> = {
 }
 
 const PARTICLE_ANGLES = [0, 60, 120, 180, 240, 300]
+const KID_PARTICLE_ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -83,7 +84,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
     <li className="group">
       <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       <div
-        className="relative rounded-md hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)] border-l-[3px] transition-colors"
+        className={`relative rounded-md border-l-[3px] transition-colors ${isKid && task.completed ? "bg-[#EEF2E8]" : "hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)]"}`}
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
       >
         {/* Title row */}
@@ -113,7 +114,9 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 ${isKid ? "h-7 w-7 rounded-lg border-2" : "h-4 w-4 rounded border"} flex items-center justify-center shrink-0
                 transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
                 ${task.completed
-                  ? "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
+                  ? isKid
+                    ? "bg-[#C8922A] border-[#C8922A] scale-125"
+                    : "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
                   : "bg-transparent border-[#C8BFAD] scale-100 peer-focus-visible:border-accent"
                 }
               `}
@@ -128,14 +131,14 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             {/* Particle burst + star pop */}
             {showParticles && (
               <span aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                {PARTICLE_ANGLES.map(angle => (
+                {(isKid ? KID_PARTICLE_ANGLES : PARTICLE_ANGLES).map(angle => (
                   <span
                     key={angle}
-                    className="absolute h-1.5 w-1.5 rounded-full"
+                    className={`absolute rounded-full ${isKid ? "h-2 w-2" : "h-1.5 w-1.5"}`}
                     style={{
                       backgroundColor: personColor?.border ?? "#6B7A5A",
                       ["--angle" as string]: `${angle}deg`,
-                      animation: "particle-burst 550ms cubic-bezier(0.22,1,0.36,1) forwards",
+                      animation: `${isKid ? "particle-burst-kid 950ms" : "particle-burst 550ms"} cubic-bezier(0.22,1,0.36,1) forwards`,
                     }}
                   />
                 ))}
@@ -177,7 +180,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               }`}
             >
               {task.title}
-              {task.completed && (
+              {task.completed && !isKid && (
                 <span
                   aria-hidden="true"
                   className="absolute left-0 top-1/2 h-px bg-[#C8BFAD] -translate-y-1/2"

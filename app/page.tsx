@@ -40,7 +40,7 @@ export default async function Home() {
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
       <LocalDate />
       {memberPerson && memberColor ? (
-        <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} />
+        <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
       ) : (
         <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       )}
