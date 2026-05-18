@@ -1,0 +1,75 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import type { Prisma, Person, Project } from "@prisma/client"
+import RecurringTaskItem from "./recurring-task-item"
+
+type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
+
+function utcDateStr(date: Date | string): string {
+  return new Date(date).toISOString().slice(0, 10)
+}
+
+function localDateStr(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+function addDays(dateStr: string, n: number): string {
+  const d = new Date(dateStr)
+  d.setUTCDate(d.getUTCDate() + n)
+  return d.toISOString().slice(0, 10)
+}
+
+export default function RecurringTaskList({ tasks, people, projects, isAdmin, sessionPersonId }: {
+  tasks: RecurringTask[]
+  people: Person[]
+  projects: Project[]
+  isAdmin: boolean
+  sessionPersonId: number | null
+}) {
+  // UTC for SSR match; updated to local after mount
+  const [today, setToday] = useState(() => new Date().toISOString().slice(0, 10))
+  useEffect(() => { setToday(localDateStr()) }, [])
+
+  const in7Days = addDays(today, 7)
+
+  const overdue     = tasks.filter(t => utcDateStr(t.nextDue) < today)
+  const dueThisWeek = tasks.filter(t => { const d = utcDateStr(t.nextDue); return d >= today && d <= in7Days })
+  const upcoming    = tasks.filter(t => utcDateStr(t.nextDue) > in7Days)
+
+  if (tasks.length === 0) {
+    return <p className="text-sm text-[#A09080]">No routines yet. Add one above.</p>
+  }
+
+  return (
+    <>
+      {overdue.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-2">Overdue</h2>
+          <div className="space-y-2">
+            {overdue.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
+          </div>
+        </section>
+      )}
+
+      {dueThisWeek.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Due this week</h2>
+          <div className="space-y-2">
+            {dueThisWeek.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
+          </div>
+        </section>
+      )}
+
+      {upcoming.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Upcoming</h2>
+          <div className="space-y-2">
+            {upcoming.map(t => <RecurringTaskItem key={t.id} task={t} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />)}
+          </div>
+        </section>
+      )}
+    </>
+  )
+}
