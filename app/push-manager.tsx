@@ -35,11 +35,14 @@ export default function PushManager() {
     setLoading(true)
     setError(null)
     try {
+      console.log("[push] VAPID key:", VAPID_PUBLIC_KEY?.slice(0, 10))
       const reg = await navigator.serviceWorker.ready
+      console.log("[push] SW ready, subscribing...")
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
+      console.log("[push] browser subscription created, saving to server...")
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,8 +52,10 @@ export default function PushManager() {
         const body = await res.json().catch(() => ({}))
         throw new Error(`${res.status}: ${body.error ?? "unknown"}`)
       }
+      console.log("[push] saved, status subscribed")
       setStatus("subscribed")
     } catch (err) {
+      console.error("[push] subscribe error:", err)
       setError(err instanceof Error ? err.message : "Failed to subscribe")
     } finally {
       setLoading(false)
