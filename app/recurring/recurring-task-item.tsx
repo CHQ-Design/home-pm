@@ -27,7 +27,7 @@ function describeCadence(value: number, unit: string): string {
 }
 
 function formatDate(d: Date | string): string {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
 }
 
 function daysDiff(nextDue: Date | string): number {
