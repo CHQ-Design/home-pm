@@ -31,6 +31,8 @@ export default function TaskEditModal({
     projectId: task.projectId ? String(task.projectId) : "",
   })
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
   // Restore focus to the element that opened the modal when it closes
@@ -62,16 +64,23 @@ export default function TaskEditModal({
   }, [onClose])
 
   async function handleSave() {
-    await updateTask(task.id, {
-      title: form.title.trim() || task.title,
-      notes: form.notes.trim() || null,
-      dueDate: form.dueDate ? new Date(form.dueDate) : null,
-      time: form.time || null,
-      priority: form.priority as "high" | "medium" | "low",
-      assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
-      projectId: form.projectId ? Number(form.projectId) : null,
-    })
-    onClose()
+    setSaving(true)
+    setSaveError(null)
+    try {
+      await updateTask(task.id, {
+        title: form.title.trim() || task.title,
+        notes: form.notes.trim() || null,
+        dueDate: form.dueDate ? new Date(form.dueDate) : null,
+        time: form.time || null,
+        priority: form.priority as "high" | "medium" | "low",
+        assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
+        projectId: form.projectId ? Number(form.projectId) : null,
+      })
+      onClose()
+    } catch {
+      setSaveError("Couldn't save — please try again.")
+      setSaving(false)
+    }
   }
 
   async function handleDelete() {
@@ -170,6 +179,10 @@ export default function TaskEditModal({
           )}
         </div>
 
+        {saveError && (
+          <p className="px-5 pb-2 text-sm text-red-600">{saveError}</p>
+        )}
+
         <div className="flex items-center justify-between px-5 py-3 border-t border-[#D4C9B5]">
           {confirmDelete ? (
             <>
@@ -206,9 +219,10 @@ export default function TaskEditModal({
                 </button>
                 <button
                   onClick={handleSave}
-                  className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148]"
+                  disabled={saving}
+                  className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
                 >
-                  Save
+                  {saving ? "Saving…" : "Save"}
                 </button>
               </div>
             </>

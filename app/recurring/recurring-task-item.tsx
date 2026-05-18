@@ -133,6 +133,7 @@ export default function RecurringTaskItem({
     return (
       <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3 overflow-hidden">
         <input
+          aria-label="Task title"
           value={form.title}
           onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
           onKeyDown={e => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setEditing(false) }}
@@ -140,6 +141,7 @@ export default function RecurringTaskItem({
           autoFocus
         />
         <select
+          aria-label="Cadence"
           value={form.cadence}
           onChange={e => setForm(f => ({ ...f, cadence: e.target.value }))}
           className={inputClass}

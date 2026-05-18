@@ -166,8 +166,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             <span
               onClick={openInline}
               onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
-              role="button"
-              tabIndex={task.completed ? -1 : 0}
+              role={isAdmin && !task.completed ? "button" : undefined}
+              tabIndex={isAdmin && !task.completed ? 0 : -1}
               className={`relative flex-1 text-base font-medium ${
                 task.completed
                   ? "text-[#A09080]"

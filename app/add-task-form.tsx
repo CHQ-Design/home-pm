@@ -29,6 +29,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
   }, [])
   const [submitting, setSubmitting] = useState(false)
   const [titleError, setTitleError] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [titleValue, setTitleValue] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
@@ -60,7 +61,13 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
       return
     }
     setSubmitting(true)
-    await addTask(formData)
+    setSubmitError(null)
+    const result = await addTask(formData)
+    if (result?.error) {
+      setSubmitError(result.error)
+      setSubmitting(false)
+      return
+    }
     formRef.current?.reset()
     setTitleValue("")
     setSubmitting(false)
@@ -101,6 +108,10 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
           {submitting ? "Adding…" : "Add"}
         </button>
       </div>
+
+      {submitError && (
+        <p className="text-sm text-red-600 px-1">{submitError}</p>
+      )}
 
       <button
         type="button"

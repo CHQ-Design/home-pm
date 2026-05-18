@@ -27,8 +27,9 @@ export async function addTask(formData: FormData) {
   const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
   if (!role) throw new Error("Not authenticated")
   const isAdmin = role === "admin"
-  // Members must be linked to a Person record to create tasks
-  if (!isAdmin && !sessionPersonId) return
+  if (!isAdmin && !sessionPersonId) {
+    return { error: "Your account isn't linked to a person yet. Ask your admin." }
+  }
 
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return

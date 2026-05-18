@@ -1,7 +1,9 @@
 export const dynamic = "force-dynamic"
 
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import { getSessionRole } from "@/lib/require-auth"
 import AddProjectForm from "./add-project-form"
 
 const STATUS_STYLES: Record<string, string> = {
@@ -11,6 +13,9 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default async function ProjectsPage() {
+  const role = await getSessionRole()
+  if (role !== "admin") redirect("/")
+
   const projects = await prisma.project.findMany({
     include: { tasks: { select: { completed: true } } },
     orderBy: { createdAt: "desc" },
