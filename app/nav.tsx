@@ -26,7 +26,7 @@ export default function Nav() {
               href="/settings"
               aria-label="Settings"
               title="Settings"
-              className={`flex items-center justify-center min-h-[44px] min-w-[44px] ${
+              className={`flex items-center justify-center min-h-[44px] px-2 ${
                 pathname.startsWith("/settings") ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"
               }`}
             >
@@ -36,7 +36,7 @@ export default function Nav() {
           {session && (
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-[#6B5E52]"
+              className="flex items-center justify-center min-h-[44px] px-2 text-[#B5A898] hover:text-[#6B5E52]"
               aria-label="Sign out"
               title="Sign out"
             >
