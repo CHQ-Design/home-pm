@@ -26,7 +26,7 @@ export default async function Home() {
     prisma.recurringTask.findMany({
       where: { householdId, nextDue: { lte: in7Days }, ...assigneeFilter },
       include: { assignee: true },
-      orderBy: { nextDue: "asc" },
+      orderBy: [{ nextDue: "asc" }, { time: { sort: "asc", nulls: "first" } }],
     }),
   ])
 
