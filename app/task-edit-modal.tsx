@@ -94,7 +94,14 @@ export default function TaskEditModal({
       style={{ backgroundColor: "rgba(44,35,22,0.45)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div ref={modalRef} className="bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="task-edit-title"
+        className="bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto"
+      >
+        <h2 id="task-edit-title" className="sr-only">Edit task</h2>
         <div className="p-5 space-y-4">
           <div>
             <label className={labelClass}>Title</label>
@@ -206,7 +213,7 @@ export default function TaskEditModal({
             <>
               <button
                 onClick={() => setConfirmDelete(true)}
-                className="text-sm text-[#A09080] hover:text-red-700"
+                className="text-sm text-[#A09080] hover:text-red-700 min-h-[44px] inline-flex items-center"
               >
                 Delete task
               </button>

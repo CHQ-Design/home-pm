@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import type { Person, Prisma } from "@prisma/client"
-import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
+import { IconChevronDown, IconChevronRight, IconX } from "@tabler/icons-react"
 import { addPerson, deletePerson, updatePerson } from "./actions"
 
 type PersonWithCount = Prisma.PersonGetPayload<{
@@ -10,7 +10,7 @@ type PersonWithCount = Prisma.PersonGetPayload<{
 }>
 
 const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-1.5 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-1.5 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 export default function PeopleManager({ people }: { people: PersonWithCount[] }) {
   const [open, setOpen] = useState(false)
@@ -134,9 +134,9 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                       <button
                         onClick={() => startDelete(person)}
                         aria-label={`Remove ${person.name}`}
-                        className="text-xs text-[#B5A898] hover:text-red-700"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center text-[#B5A898] hover:text-red-700"
                       >
-                        ✕
+                        <IconX size={14} aria-hidden="true" />
                       </button>
                     </div>
                     {editingEmailId === person.id ? (

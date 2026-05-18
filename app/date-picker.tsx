@@ -49,7 +49,7 @@ const calendarClassNames = {
   day_button:
     "w-9 h-9 rounded-md text-sm text-[#4A3F34] hover:bg-[#EDE6D8] hover:text-[#3A3228] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
   selected:
-    "[&>button]:bg-accent [&>button]:text-stone-900 [&>button]:hover:bg-[#556148] [&>button]:font-medium",
+    "[&>button]:bg-accent [&>button]:text-[#3A3228] [&>button]:hover:bg-[#556148] [&>button]:font-medium",
   today: "[&>button]:text-accent [&>button]:font-medium",
   outside: "[&>button]:text-[#C8BFAD]",
   disabled: "[&>button]:text-[#C8BFAD] [&>button]:cursor-not-allowed",

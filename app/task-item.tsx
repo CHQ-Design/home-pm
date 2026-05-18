@@ -7,7 +7,7 @@ import { IconBell, IconBellOff, IconFeather, IconFlame, IconPencilMinus } from "
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 import { todayLocal, utcDateStr, formatTime } from "@/lib/dates"
-import { PERSON_COLORS, PERSON_COLOR_FALLBACK } from "@/lib/person-colors"
+import { getPersonColor } from "@/lib/person-colors"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type Priority = "high" | "medium" | "low"
@@ -41,7 +41,7 @@ function relativeDateLabel(date: Date): string {
 export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }) {
   const canToggle = isAdmin || task.assigneeId === sessionPersonId
   const personColor = task.assigneeId != null
-    ? (PERSON_COLORS[task.assigneeId] ?? PERSON_COLOR_FALLBACK)
+    ? getPersonColor(people, task.assigneeId)
     : null
   const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")

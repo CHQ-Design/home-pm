@@ -50,7 +50,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`text-xs font-medium px-2 py-1.5 rounded-md transition-colors ${
+      className={`text-sm font-medium px-2 py-1.5 rounded-md transition-colors ${
         active
           ? "bg-accent/10 text-accent"
           : "text-[#8C7D6A] hover:text-[#3A3228]"

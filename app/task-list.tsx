@@ -5,7 +5,7 @@ import type { Person, Project, Prisma } from "@prisma/client"
 import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 import { todayUTC, todayLocal, utcDateStr } from "@/lib/dates"
-import { PERSON_COLORS, PERSON_COLOR_FALLBACK } from "@/lib/person-colors"
+import { getPersonColor } from "@/lib/person-colors"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
@@ -77,7 +77,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
     groups.overdue.length + groups.today.length + groups.upcoming.length + groups.noDate.length
 
   const activePerson   = filterPersonId !== null ? people.find(p => p.id === filterPersonId) : null
-  const activeColors   = filterPersonId !== null ? (PERSON_COLORS[filterPersonId] ?? PERSON_COLOR_FALLBACK) : null
+  const activeColors   = filterPersonId !== null ? getPersonColor(people, filterPersonId) : null
   const doneToday      = groups.completed.filter(t =>
     t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === today
   ).length
@@ -100,7 +100,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           </button>
           {people.map(p => {
             const isActive = filterPersonId === p.id
-            const colors = PERSON_COLORS[p.id] ?? PERSON_COLOR_FALLBACK
+            const colors = getPersonColor(people, p.id)
             return (
               <button
                 key={p.id}
@@ -215,7 +215,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           >
             <span className="inline-flex items-center gap-1">
               {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
-              {groups.completed.length} things done
+              {groups.completed.length} things handled
             </span>
           </button>
           {showCompleted && (

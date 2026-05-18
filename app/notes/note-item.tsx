@@ -242,7 +242,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
       )}
 
       <div className="flex items-center justify-between pt-1">
-        <span className="text-xs text-[#C8BFAD]">{formatDate(note.createdAt)}</span>
+        <span className="text-xs text-[#C8BFAD]">Updated {formatDate(note.updatedAt)}</span>
         <label className={`text-xs cursor-pointer ${uploading ? "text-[#A09080]" : "text-[#B5A898] hover:text-[#6B5E52]"}`}>
           {uploading ? "Uploading…" : "+ Attach"}
           <input

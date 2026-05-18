@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import type { Person, Project } from "@prisma/client"
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
 import { addTask } from "./actions"
+import { inputClass, selectClass } from "@/lib/styles"
 
 type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdmin: boolean }
 
@@ -14,12 +15,6 @@ const PLACEHOLDERS = [
   "Quinn's turn to help?",
   "What would make tomorrow easier?",
 ]
-
-const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
-
-const selectClass =
-  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg pl-3 pr-8 py-2 text-base text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 appearance-none"
 
 export default function AddTaskForm({ people, projects, projectId, isAdmin }: Props) {
   const [showMore, setShowMore] = useState(false)
@@ -83,7 +78,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
             aria-label="Task title"
             value={titleValue}
             onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
-            className={`w-full ${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
+            className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
             style={titleError ? { animation: "shake 0.4s ease-in-out" } : undefined}
             autoComplete="off"
             onFocus={() => setFocused(true)}
@@ -135,7 +130,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
             name="notes"
             placeholder="Notes (optional)"
             rows={2}
-            className={`w-full ${inputClass} resize-none`}
+            className={`${inputClass} resize-none`}
           />
           <div className="flex gap-3 items-center">
             <label className="text-xs text-[#8C7D6A] shrink-0">Due date</label>

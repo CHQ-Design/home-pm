@@ -53,7 +53,7 @@ export default async function ProjectsPage() {
                       Complete ✦
                     </span>
                   ) : (
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_STYLES[project.status] ?? STATUS_STYLES.active}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 capitalize ${STATUS_STYLES[project.status] ?? STATUS_STYLES.active}`}>
                       {project.status}
                     </span>
                   )}
