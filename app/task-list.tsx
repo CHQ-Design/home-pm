@@ -23,6 +23,12 @@ function byDateThenPriority(a: Task, b: Task) {
     const d = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     if (d !== 0) return d
   }
+  // same date — sort by time (nulls last), then priority
+  if (a.time !== b.time) {
+    if (!a.time) return 1
+    if (!b.time) return -1
+    return a.time.localeCompare(b.time)
+  }
   const p = (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
   if (p !== 0) return p
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
