@@ -46,8 +46,12 @@ export async function GET(
     if (!blobRes.ok) return NextResponse.json({ error: "Not found" }, { status: 404 })
     const ext = filename.split(".").pop()?.toLowerCase() ?? ""
     const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
+    const safeName = (att.originalName ?? filename).replace(/"/g, "")
     return new Response(blobRes.body, {
-      headers: { "Content-Type": mimeType },
+      headers: {
+        "Content-Type": mimeType,
+        "Content-Disposition": `attachment; filename="${safeName}"`,
+      },
     })
   }
 

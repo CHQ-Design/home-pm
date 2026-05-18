@@ -4,11 +4,13 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddRecurringForm from "./add-recurring-form"
 import RecurringTaskList from "./recurring-task-list"
+import { redirect } from "next/navigation"
 
 export default async function RecurringPage() {
   const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
-  const isAdmin = sessionUser?.role === "admin"
-  const householdId = sessionUser?.householdId ?? -1
+  if (!sessionUser) redirect("/login")
+  const isAdmin = sessionUser.role === "admin"
+  const householdId = sessionUser.householdId
   const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
 
   const [tasks, people, projects] = await Promise.all([

@@ -8,6 +8,7 @@ import RecurringSection from "./recurring-section"
 import LocalDate from "./local-date"
 import WelcomeHeader from "./welcome-header"
 import { getPersonColor } from "@/lib/person-colors"
+import { redirect } from "next/navigation"
 
 export default async function Home() {
   const now = new Date()
@@ -15,8 +16,9 @@ export default async function Home() {
   in7Days.setDate(in7Days.getDate() + 7)
 
   const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
-  const isAdmin = sessionUser?.role === "admin"
-  const householdId = sessionUser?.householdId ?? -1
+  if (!sessionUser) redirect("/login")
+  const isAdmin = sessionUser.role === "admin"
+  const householdId = sessionUser.householdId
   const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
 
   const [tasks, people, projects, recurringTasks] = await Promise.all([
