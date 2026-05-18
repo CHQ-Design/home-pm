@@ -33,8 +33,13 @@ function formatDate(date: Date) {
   })
 }
 
+function localDateStr() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
 function relativeDateLabel(date: Date): string {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localDateStr()
   const dateStr = new Date(date).toISOString().slice(0, 10)
   const diff = Math.round((new Date(dateStr).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
   if (diff < 0) return "Overdue"
@@ -247,7 +252,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 </span>
               )}
               {task.dueDate && (
-                <span className="text-xs text-[#A09080]">
+                <span className="text-xs text-[#A09080]" suppressHydrationWarning>
                   {isAdmin ? formatDate(task.dueDate) : relativeDateLabel(task.dueDate)}
                 </span>
               )}

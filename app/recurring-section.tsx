@@ -7,8 +7,13 @@ import { completeRecurringTask } from "./recurring/actions"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
 
+function localDateStr() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
 function daysDiff(nextDue: Date | string): number {
-  const todayMs = new Date(new Date().toISOString().slice(0, 10)).getTime()
+  const todayMs = new Date(localDateStr()).getTime()
   const dueMs = new Date(new Date(nextDue).toISOString().slice(0, 10)).getTime()
   return Math.round((dueMs - todayMs) / (1000 * 60 * 60 * 24))
 }
@@ -69,7 +74,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
           >
             <div className="flex-1 min-w-0">
               <span className="text-sm text-[#3A3228]">{task.title}</span>
-              <span className={`ml-2 text-xs ${dueDateClass(task.nextDue)}`}>
+              <span className={`ml-2 text-xs ${dueDateClass(task.nextDue)}`} suppressHydrationWarning>
                 {dueDateLabel(task.nextDue)}
               </span>
               {task.assignee && (

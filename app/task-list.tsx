@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
@@ -30,8 +30,11 @@ function byPriority(a: Task, b: Task) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 }
 
-function groupTasks(tasks: Task[]) {
-  const today = todayUTC()
+function localDateStr(d: Date = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+function groupTasks(tasks: Task[], today: string) {
   const open = tasks.filter(t => !t.completed)
   return {
     overdue:   open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today).sort(byPriority),
@@ -76,19 +79,22 @@ type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: bo
 export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
+  // Start with UTC so SSR and initial client render match; update to local after mount
+  const [today, setToday] = useState(todayUTC())
+  useEffect(() => { setToday(localDateStr()) }, [])
 
   const filtered = filterPersonId === null
     ? tasks
     : tasks.filter(t => t.assigneeId === filterPersonId)
 
-  const groups = groupTasks(filtered)
+  const groups = groupTasks(filtered, today)
   const openCount =
     groups.overdue.length + groups.today.length + groups.upcoming.length + groups.noDate.length
 
   const activePerson   = filterPersonId !== null ? people.find(p => p.id === filterPersonId) : null
   const activeColors   = filterPersonId !== null ? (PERSON_COLORS[filterPersonId] ?? PERSON_COLOR_FALLBACK) : null
   const doneToday      = groups.completed.filter(t =>
-    t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === todayUTC()
+    t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === today
   ).length
 
   return (
