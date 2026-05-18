@@ -47,10 +47,7 @@ export async function GET(
     const ext = filename.split(".").pop()?.toLowerCase() ?? ""
     const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
     return new Response(blobRes.body, {
-      headers: {
-        "Content-Type": mimeType,
-        "Content-Disposition": `attachment; filename="${att.originalName ?? filename}"`,
-      },
+      headers: { "Content-Type": mimeType },
     })
   }
 
