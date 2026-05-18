@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   const mimeType = MIME_MAP[rawExt] ?? "application/octet-stream"
   const filename = `${randomUUID()}.${rawExt}`
 
-  const uploadDir = join(process.cwd(), "public", "uploads")
+  const uploadDir = join(process.cwd(), "uploads")
   await mkdir(uploadDir, { recursive: true })
   await writeFile(join(uploadDir, filename), buffer)
 

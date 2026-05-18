@@ -19,7 +19,7 @@ function normalizeTags(raw: string): string | null {
 }
 
 async function removeFile(filename: string) {
-  const path = join(process.cwd(), "public", "uploads", filename)
+  const path = join(process.cwd(), "uploads", filename)
   await unlink(path).catch(() => {})
 }
 

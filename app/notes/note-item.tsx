@@ -221,7 +221,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           {note.attachments.map(att => (
             <li key={att.id} className="flex items-center justify-between text-xs text-[#6B5E52] bg-[#EDE6D8] rounded px-2 py-1.5">
               <a
-                href={`/uploads/${att.filename}`}
+                href={`/api/uploads/${att.filename}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="truncate hover:text-accent flex-1"

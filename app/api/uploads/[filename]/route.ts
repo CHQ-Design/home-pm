@@ -1,0 +1,43 @@
+import { readFile } from "fs/promises"
+import { join } from "path"
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+
+const MIME_MAP: Record<string, string> = {
+  pdf: "application/pdf",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  txt: "text/plain",
+  md: "text/markdown",
+  csv: "text/csv",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ics: "text/calendar",
+}
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ filename: string }> }
+) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const { filename } = await params
+  if (!filename || filename.includes("..") || filename.includes("/")) {
+    return NextResponse.json({ error: "Bad request" }, { status: 400 })
+  }
+
+  const filepath = join(process.cwd(), "uploads", filename)
+  try {
+    const file = await readFile(filepath)
+    const ext = filename.split(".").pop()?.toLowerCase() ?? ""
+    const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
+    return new Response(file, { headers: { "Content-Type": mimeType } })
+  } catch {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
+}
