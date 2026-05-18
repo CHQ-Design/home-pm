@@ -60,7 +60,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         progress={total > 0 ? { done, total } : null}
       />
 
-      {isAdmin && <AddTaskForm people={people} projectId={project.id} />}
+      {isAdmin && <AddTaskForm people={people} projectId={project.id} isAdmin={true} />}
       <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       <RecurringSection tasks={visibleRoutines} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
     </main>

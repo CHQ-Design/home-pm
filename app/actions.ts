@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, requireAssignedOrAdmin } from "@/lib/require-auth"
+import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
@@ -24,7 +24,12 @@ function parseId(raw: string | null): number | null {
 }
 
 export async function addTask(formData: FormData) {
-  await requireRole("admin")
+  const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
+  if (!role) throw new Error("Not authenticated")
+  const isAdmin = role === "admin"
+  // Members must be linked to a Person record to create tasks
+  if (!isAdmin && !sessionPersonId) return
+
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
   const notes = (formData.get("notes") as string | null)?.trim() || null
@@ -36,8 +41,8 @@ export async function addTask(formData: FormData) {
       notes,
       dueDate: parseDate(formData.get("dueDate") as string),
       priority,
-      assigneeId: parseId(formData.get("assigneeId") as string),
-      projectId: parseId(formData.get("projectId") as string),
+      assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
+      projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
     },
   })
   revalidatePath("/", "layout")

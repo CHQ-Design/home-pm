@@ -25,7 +25,7 @@ function todayString() {
   return `${yyyy}-${mm}-${dd}`
 }
 
-export default function AddRecurringForm({ people, projects }: { people: Person[]; projects: Project[] }) {
+export default function AddRecurringForm({ people, projects, isAdmin }: { people: Person[]; projects: Project[]; isAdmin: boolean }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [showNotes, setShowNotes] = useState(false)
   const [showAssignee, setShowAssignee] = useState(false)
@@ -78,7 +78,7 @@ export default function AddRecurringForm({ people, projects }: { people: Person[
         />
       )}
 
-      {showAssignee && people.length > 0 && (
+      {isAdmin && showAssignee && people.length > 0 && (
         <select name="assigneeId" className={inputClass}>
           <option value="">No assignee</option>
           {people.map(p => (
@@ -87,7 +87,7 @@ export default function AddRecurringForm({ people, projects }: { people: Person[
         </select>
       )}
 
-      {showProject && projects.length > 0 && (
+      {isAdmin && showProject && projects.length > 0 && (
         <select name="projectId" className={inputClass}>
           <option value="">No project</option>
           {projects.map(p => (
@@ -105,7 +105,7 @@ export default function AddRecurringForm({ people, projects }: { people: Person[
           >
             {showNotes ? "− Notes" : "+ Notes"}
           </button>
-          {people.length > 0 && (
+          {isAdmin && people.length > 0 && (
             <button
               type="button"
               onClick={() => setShowAssignee(v => !v)}
@@ -114,7 +114,7 @@ export default function AddRecurringForm({ people, projects }: { people: Person[
               {showAssignee ? "− Assignee" : "+ Assignee"}
             </button>
           )}
-          {projects.length > 0 && (
+          {isAdmin && projects.length > 0 && (
             <button
               type="button"
               onClick={() => setShowProject(v => !v)}

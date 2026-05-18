@@ -5,7 +5,7 @@ import type { Person, Project } from "@prisma/client"
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
 import { addTask } from "./actions"
 
-type Props = { people: Person[]; projects?: Project[]; projectId?: number }
+type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdmin: boolean }
 
 const PLACEHOLDERS = [
   "Add a thing…",
@@ -21,7 +21,7 @@ const inputClass =
 const selectClass =
   "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg pl-3 pr-8 py-2 text-base text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 appearance-none"
 
-export default function AddTaskForm({ people, projects, projectId }: Props) {
+export default function AddTaskForm({ people, projects, projectId, isAdmin }: Props) {
   const [showMore, setShowMore] = useState(false)
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
               </select>
               <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
             </div>
-            {people.length > 0 && (
+            {isAdmin && people.length > 0 && (
               <div className="relative">
                 <label className="block text-xs text-[#8C7D6A] mb-1">Assignee</label>
                 <select name="assigneeId" defaultValue="" className={selectClass}>
@@ -150,7 +150,7 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
                 <IconChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-2.5 bottom-2.5 text-[#8C7D6A]" />
               </div>
             )}
-            {!projectId && projects && projects.length > 0 && (
+            {isAdmin && !projectId && projects && projects.length > 0 && (
               <div className="relative">
                 <label className="block text-xs text-[#8C7D6A] mb-1">Project</label>
                 <select name="projectId" defaultValue="" className={selectClass}>

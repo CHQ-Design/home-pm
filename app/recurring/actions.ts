@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, requireAssignedOrAdmin } from "@/lib/require-auth"
+import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
 const VALID_UNITS = ["day", "week", "month", "year"] as const
@@ -31,7 +31,11 @@ function computeNextDue(from: Date, value: number, unit: Unit): Date {
 }
 
 export async function addRecurringTask(formData: FormData) {
-  await requireRole("admin")
+  const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
+  if (!role) throw new Error("Not authenticated")
+  const isAdmin = role === "admin"
+  if (!isAdmin && !sessionPersonId) return
+
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
 
@@ -53,8 +57,8 @@ export async function addRecurringTask(formData: FormData) {
       intervalValue,
       intervalUnit,
       nextDue,
-      assigneeId: parseId(formData.get("assigneeId") as string),
-      projectId: parseId(formData.get("projectId") as string),
+      assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
+      projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
     },
   })
   revalidatePath("/", "layout")

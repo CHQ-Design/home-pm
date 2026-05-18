@@ -48,7 +48,7 @@ export default async function Home() {
       <h1 className="font-serif text-2xl font-bold mb-6">
         {memberPerson ? `${memberPerson.name}'s Things` : "Things"}
       </h1>
-      {isAdmin && <AddTaskForm people={people} projects={projects} />}
+      {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
       <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       {isAdmin && <PeopleManager people={people} />}

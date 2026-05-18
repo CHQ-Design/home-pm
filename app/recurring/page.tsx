@@ -34,7 +34,7 @@ export default async function RecurringPage() {
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
       <h1 className="font-serif text-2xl font-bold mb-6 text-[#3A3228]">Routines</h1>
 
-      {isAdmin && <AddRecurringForm people={people} projects={projects} />}
+      {(isAdmin || sessionPersonId !== null) && <AddRecurringForm people={people} projects={projects} isAdmin={isAdmin} />}
 
       {visibleTasks.length === 0 && (
         <p className="text-sm text-[#A09080]">No recurring tasks yet. Add one above.</p>
