@@ -19,6 +19,7 @@ export async function createHousehold(formData: FormData) {
 
   const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return { error: "Household name is required" }
+  if (name.length > 100) return { error: "Household name is too long" }
 
   const email = ((formData.get("email") as string) ?? "").trim().toLowerCase()
   if (!email) return { error: "Admin email is required" }

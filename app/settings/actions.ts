@@ -34,7 +34,7 @@ export async function removeUser(id: number) {
   const currentEmail = session?.user?.email?.toLowerCase() ?? ""
 
   const target = await prisma.user.findUnique({ where: { id } })
-  if (!target) return
+  if (!target || target.householdId !== sessionUser.householdId) return
 
   if (target.email === currentEmail) return { error: "You can't remove yourself" }
 
@@ -57,7 +57,7 @@ export async function updateUserRole(id: number, role: "admin" | "member") {
   const currentEmail = session?.user?.email?.toLowerCase() ?? ""
 
   const target = await prisma.user.findUnique({ where: { id } })
-  if (!target) return
+  if (!target || target.householdId !== sessionUser.householdId) return
   if (target.email === currentEmail) return { error: "You can't change your own role" }
 
   if (target.role === "admin" && role === "member") {

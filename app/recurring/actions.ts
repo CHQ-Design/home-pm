@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, requireAssignedOrAdmin, getSessionUser, getSessionPersonId } from "@/lib/require-auth"
+import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import { parseReminder } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 
@@ -79,7 +79,7 @@ export async function addRecurringTask(formData: FormData) {
 export async function completeRecurringTask(id: number) {
   const task = await prisma.recurringTask.findUnique({ where: { id } })
   if (!task) return
-  await requireAssignedOrAdmin(task.assigneeId)
+  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
 
   const now = new Date()
   const nextDue = computeNextDue(now, task.intervalValue, task.intervalUnit as Unit)
@@ -105,19 +105,21 @@ export async function updateRecurringTask(
     reminderMinutesBefore?: number | null
   }
 ) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   if (data.intervalUnit && !VALID_UNITS.includes(data.intervalUnit as Unit)) return
   if (data.intervalValue !== undefined && (!Number.isInteger(data.intervalValue) || data.intervalValue < 1)) return
   if (data.reminderMinutesBefore !== undefined && data.reminderMinutesBefore !== null) {
     const r = data.reminderMinutesBefore
     if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
   }
-  await prisma.recurringTask.update({ where: { id }, data })
+  await prisma.recurringTask.update({ where: { id, householdId: sessionUser.householdId }, data })
   revalidatePath("/", "layout")
 }
 
 export async function deleteRecurringTask(id: number) {
-  await requireRole("admin")
-  await prisma.recurringTask.delete({ where: { id } })
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  await prisma.recurringTask.delete({ where: { id, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
 }

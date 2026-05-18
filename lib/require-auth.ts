@@ -19,10 +19,9 @@ export async function getSessionUser(): Promise<{ role: Role; householdId: numbe
 }
 
 export async function requireRole(minimum: Role): Promise<void> {
-  const session = await getServerSession(authOptions)
-  if (!session) throw new Error("Not authenticated")
   const user = await getDbUser()
-  if (minimum === "admin" && user?.role !== "admin") throw new Error("Not authorized")
+  if (!user) throw new Error("Not authenticated")
+  if (minimum === "admin" && user.role !== "admin") throw new Error("Not authorized")
 }
 
 export async function getSessionRole(): Promise<Role | null> {
@@ -44,12 +43,18 @@ export async function getSessionPersonId(): Promise<number | null> {
   return person?.id ?? null
 }
 
-// Allows action if caller is admin, or if the item is assigned to them.
-export async function requireAssignedOrAdmin(assigneeId: number | null): Promise<void> {
+// Allows action if caller is admin of the same household, or if the item is assigned to them.
+export async function requireAssignedOrAdmin(
+  assigneeId: number | null,
+  recordHouseholdId: number
+): Promise<void> {
   const session = await getServerSession(authOptions)
   if (!session) throw new Error("Not authenticated")
   const user = await getDbUser()
-  if (user?.role === "admin") return
+  if (user?.role === "admin") {
+    if (user.householdId !== recordHouseholdId) throw new Error("Not authorized")
+    return
+  }
   if (!assigneeId) throw new Error("Not authorized")
   const email = session.user?.email?.toLowerCase() ?? ""
   const person = await prisma.person.findFirst({ where: { id: assigneeId, email }, select: { id: true } })

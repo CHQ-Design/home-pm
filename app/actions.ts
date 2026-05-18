@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { requireRole, requireAssignedOrAdmin, getSessionUser, getSessionPersonId } from "@/lib/require-auth"
+import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { todayUTC } from "@/lib/dates"
 import { parseReminder } from "@/lib/parse"
@@ -57,7 +57,7 @@ export async function addTask(formData: FormData) {
 
 export async function toggleTask(id: number) {
   const task = await prisma.task.findUniqueOrThrow({ where: { id } })
-  await requireAssignedOrAdmin(task.assigneeId)
+  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
   const completing = !task.completed
   await prisma.task.update({
     where: { id },
@@ -92,8 +92,9 @@ export async function toggleTask(id: number) {
 }
 
 export async function deleteTask(id: number) {
-  await requireRole("admin")
-  await prisma.task.delete({ where: { id } })
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  await prisma.task.delete({ where: { id, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
 }
 
@@ -110,7 +111,8 @@ export async function updateTask(
     reminderMinutesBefore?: number | null
   }
 ) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   if (data.title !== undefined) {
     data.title = data.title.trim()
     if (!data.title) delete data.title
@@ -122,7 +124,7 @@ export async function updateTask(
     const r = data.reminderMinutesBefore
     if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
   }
-  await prisma.task.update({ where: { id }, data })
+  await prisma.task.update({ where: { id, householdId: sessionUser.householdId }, data })
   revalidatePath("/", "layout")
 }
 
@@ -136,20 +138,30 @@ export async function addPerson(formData: FormData) {
 }
 
 export async function updatePerson(id: number, data: { email?: string | null }) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email
-  await prisma.person.update({ where: { id }, data: { ...data, email } })
+  await prisma.person.update({ where: { id, householdId: sessionUser.householdId }, data: { ...data, email } })
   revalidatePath("/", "layout")
 }
 
 export async function deletePerson(id: number, reassignToId?: number) {
-  await requireRole("admin")
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  const { householdId } = sessionUser
+
+  // Ensure reassignment target belongs to the same household
+  if (reassignToId) {
+    const target = await prisma.person.findFirst({ where: { id: reassignToId, householdId } })
+    if (!target) reassignToId = undefined
+  }
+
   await prisma.$transaction([
     prisma.task.updateMany({
-      where: { assigneeId: id },
+      where: { assigneeId: id, householdId },
       data: { assigneeId: reassignToId ?? null },
     }),
-    prisma.person.delete({ where: { id } }),
+    prisma.person.delete({ where: { id, householdId } }),
   ])
   revalidatePath("/", "layout")
 }
