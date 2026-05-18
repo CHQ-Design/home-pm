@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
 import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
-import { todayUTC, todayLocal, daysDiff } from "@/lib/dates"
+import { todayUTC, todayLocal, daysDiff, formatTime } from "@/lib/dates"
 import { inputClass } from "@/lib/styles"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -90,6 +90,7 @@ export default function RecurringTaskItem({
     notes: task.notes ?? "",
     cadence: `${task.intervalValue}|${task.intervalUnit}`,
     nextDue: localDateString(task.nextDue),
+    time: task.time ?? "",
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",
   })
@@ -110,6 +111,7 @@ export default function RecurringTaskItem({
     await updateRecurringTask(task.id, {
       title,
       notes: form.notes.trim() || null,
+      time: form.time || null,
       intervalValue: Number(ivStr),
       intervalUnit: iu,
       nextDue: new Date(form.nextDue),
@@ -153,6 +155,15 @@ export default function RecurringTaskItem({
             value={form.nextDue}
             onChange={e => setForm(f => ({ ...f, nextDue: e.target.value }))}
             className={inputClass}
+          />
+        </div>
+        <div className="flex gap-3 items-center">
+          <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
+          <input
+            type="time"
+            value={form.time}
+            onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
+            className={`${inputClass} [color-scheme:light]`}
           />
         </div>
         {showNotes && (
@@ -253,6 +264,7 @@ export default function RecurringTaskItem({
         <p className="text-sm font-medium text-[#3A3228]">{task.title}</p>
         <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
           <span className="text-xs text-[#A09080]">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
+          {task.time && <span className="text-xs text-[#A09080]">{formatTime(task.time)}</span>}
           <span className={`text-xs ${dueDateClass(task.nextDue, today)}`}>{dueDateLabel(task.nextDue, today)}</span>
           {task.assignee && (
             <span className="text-xs text-[#B5A898]">{task.assignee.name}</span>

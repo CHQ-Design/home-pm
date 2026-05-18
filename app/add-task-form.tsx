@@ -134,6 +134,14 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
               className={`${inputClass} [color-scheme:light]`}
             />
           </div>
+          <div className="flex gap-3 items-center">
+            <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
+            <input
+              type="time"
+              name="time"
+              className={`${inputClass} [color-scheme:light]`}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="relative">
               <label className="block text-xs text-[#8C7D6A] mb-1">Priority</label>

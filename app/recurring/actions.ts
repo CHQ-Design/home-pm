@@ -59,6 +59,7 @@ export async function addRecurringTask(formData: FormData) {
     data: {
       title,
       notes,
+      time: (formData.get("time") as string | null) || null,
       intervalValue,
       intervalUnit,
       nextDue,
@@ -89,6 +90,7 @@ export async function updateRecurringTask(
   data: {
     title?: string
     notes?: string | null
+    time?: string | null
     intervalValue?: number
     intervalUnit?: string
     nextDue?: Date

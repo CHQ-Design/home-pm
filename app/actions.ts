@@ -40,6 +40,7 @@ export async function addTask(formData: FormData) {
       title,
       notes,
       dueDate: parseDate(formData.get("dueDate") as string),
+      time: (formData.get("time") as string | null) || null,
       priority,
       assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
       projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
@@ -73,6 +74,7 @@ export async function updateTask(
     title?: string
     notes?: string | null
     dueDate?: Date | null
+    time?: string | null
     priority?: Priority
     assigneeId?: number | null
     projectId?: number | null

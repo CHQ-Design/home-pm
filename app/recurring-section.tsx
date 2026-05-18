@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import type { Prisma } from "@prisma/client"
 import { IconRepeat } from "@tabler/icons-react"
 import { completeRecurringTask } from "./recurring/actions"
-import { todayUTC, todayLocal, daysDiff } from "@/lib/dates"
+import { todayUTC, todayLocal, daysDiff, formatTime } from "@/lib/dates"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
 
@@ -75,6 +75,9 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
           >
             <div className="flex-1 min-w-0">
               <span className="text-sm text-[#3A3228]">{task.title}</span>
+              {task.time && (
+                <span className="ml-2 text-xs text-[#A09080]">{formatTime(task.time)}</span>
+              )}
               <span className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
                 {dueDateLabel(task.nextDue, today)}
               </span>

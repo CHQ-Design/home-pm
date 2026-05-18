@@ -54,8 +54,9 @@ model RecurringTask {
   id            Int       @id @default(autoincrement())
   title         String
   notes         String?
+  time          String?   // "HH:MM" 24-hour, optional
   intervalValue Int
-  intervalUnit  String    // "day" | "week" | "month" | "year"
+  intervalUnit  String    // "day" | "week" | "month" | "year" | "weekday"
   nextDue       DateTime
   lastCompleted DateTime?
   assigneeId    Int?
@@ -79,6 +80,7 @@ model Task {
   title       String
   notes       String?
   dueDate     DateTime?
+  time        String?   // "HH:MM" 24-hour, optional
   priority    String    @default("medium")
   completed   Boolean   @default(false)
   reminderSet Boolean   @default(false) // TODO: wire to actual notifications (email/push) before this means anything

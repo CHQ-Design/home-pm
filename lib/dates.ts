@@ -15,3 +15,10 @@ export function daysDiff(date: Date | string, todayStr: string): number {
   const dueStr = utcDateStr(date)
   return Math.round((new Date(dueStr).getTime() - new Date(todayStr).getTime()) / (1000 * 60 * 60 * 24))
 }
+
+export function formatTime(time: string): string {
+  const [h, m] = time.split(":").map(Number)
+  const ampm = h >= 12 ? "PM" : "AM"
+  const hour = h % 12 || 12
+  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`
+}

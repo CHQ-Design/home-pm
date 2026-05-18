@@ -25,6 +25,7 @@ export default function TaskEditModal({
     title: task.title,
     notes: task.notes ?? "",
     dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : "",
+    time: task.time ?? "",
     priority: task.priority,
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",
@@ -65,6 +66,7 @@ export default function TaskEditModal({
       title: form.title.trim() || task.title,
       notes: form.notes.trim() || null,
       dueDate: form.dueDate ? new Date(form.dueDate) : null,
+      time: form.time || null,
       priority: form.priority as "high" | "medium" | "low",
       assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
       projectId: form.projectId ? Number(form.projectId) : null,
@@ -113,6 +115,15 @@ export default function TaskEditModal({
               <DatePicker
                 value={form.dueDate}
                 onChange={dueDate => setForm(f => ({ ...f, dueDate }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Time</label>
+              <input
+                type="time"
+                value={form.time}
+                onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
+                className={`${inputClass} [color-scheme:light]`}
               />
             </div>
             <div>

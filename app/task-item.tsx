@@ -6,7 +6,7 @@ import type { Person, Project, Prisma } from "@prisma/client"
 import { IconBell, IconBellOff, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
-import { todayLocal, utcDateStr } from "@/lib/dates"
+import { todayLocal, utcDateStr, formatTime } from "@/lib/dates"
 import { PERSON_COLORS, PERSON_COLOR_FALLBACK } from "@/lib/person-colors"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -245,6 +245,9 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 <span className="text-xs text-[#A09080]" suppressHydrationWarning>
                   {isAdmin ? formatDate(task.dueDate) : relativeDateLabel(task.dueDate)}
                 </span>
+              )}
+              {task.time && (
+                <span className="text-xs text-[#A09080]">{formatTime(task.time)}</span>
               )}
               {showPriority && (
                 <span

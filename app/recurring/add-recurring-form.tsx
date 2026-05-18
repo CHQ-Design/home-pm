@@ -27,6 +27,7 @@ function todayString() {
 export default function AddRecurringForm({ people, projects, isAdmin }: { people: Person[]; projects: Project[]; isAdmin: boolean }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [showNotes, setShowNotes] = useState(false)
+  const [showTime, setShowTime] = useState(false)
   const [showAssignee, setShowAssignee] = useState(false)
   const [showProject, setShowProject] = useState(false)
 
@@ -36,6 +37,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
     await addRecurringTask(formData)
     formRef.current?.reset()
     setShowNotes(false)
+    setShowTime(false)
     setShowAssignee(false)
     setShowProject(false)
   }
@@ -77,6 +79,17 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         />
       )}
 
+      {showTime && (
+        <div className="flex gap-4 items-center">
+          <label className="text-xs text-[#8C7D6A] shrink-0 mt-2">Time</label>
+          <input
+            type="time"
+            name="time"
+            className={`${inputClass} [color-scheme:light]`}
+          />
+        </div>
+      )}
+
       {isAdmin && showAssignee && people.length > 0 && (
         <select name="assigneeId" className={inputClass}>
           <option value="">No assignee</option>
@@ -103,6 +116,13 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
             className={`text-xs ${showNotes ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
           >
             {showNotes ? "− Notes" : "+ Notes"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowTime(v => !v)}
+            className={`text-xs ${showTime ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+          >
+            {showTime ? "− Time" : "+ Time"}
           </button>
           {isAdmin && people.length > 0 && (
             <button
