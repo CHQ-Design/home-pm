@@ -16,6 +16,12 @@ export function daysDiff(date: Date | string, todayStr: string): number {
   return Math.round((new Date(dueStr).getTime() - new Date(todayStr).getTime()) / (1000 * 60 * 60 * 24))
 }
 
+export function greeting(hour = new Date().getHours()): string {
+  if (hour < 12) return "Good morning"
+  if (hour < 17) return "Good afternoon"
+  return "Good evening"
+}
+
 export function formatTime(time: string): string {
   const [h, m] = time.split(":").map(Number)
   const ampm = h >= 12 ? "PM" : "AM"

@@ -6,6 +6,8 @@ import AddTaskForm from "./add-task-form"
 import TaskList from "./task-list"
 import RecurringSection from "./recurring-section"
 import LocalDate from "./local-date"
+import WelcomeHeader from "./welcome-header"
+import { getPersonColor } from "@/lib/person-colors"
 
 export default async function Home() {
   const now = new Date()
@@ -36,13 +38,16 @@ export default async function Home() {
   const memberPerson = !isAdmin && sessionPersonId
     ? people.find(p => p.id === sessionPersonId)
     : null
+  const memberColor = memberPerson ? getPersonColor(people, memberPerson.id) : null
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
       <LocalDate />
-      <h1 className="font-serif text-2xl font-bold mb-6">
-        {memberPerson ? `${memberPerson.name}'s Things` : "Things"}
-      </h1>
+      {memberPerson && memberColor ? (
+        <WelcomeHeader name={memberPerson.name} color={memberColor.text} />
+      ) : (
+        <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
+      )}
       {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
       <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
