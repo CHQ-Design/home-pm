@@ -93,7 +93,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
 
   return (
     <div>
-      {people.length > 0 && (
+      {isAdmin && people.length > 0 && (
         <div className="flex gap-2 mb-4 flex-wrap">
           <button
             onClick={() => setFilterPersonId(null)}
@@ -135,7 +135,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         </div>
       )}
 
-      {activePerson && activeColors && (
+      {isAdmin && activePerson && activeColors && (
         <div className="mb-4">
           <p className="font-serif text-xl font-bold" style={{ color: activeColors.text }}>
             {activePerson.name}'s Things
@@ -146,6 +146,11 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             </p>
           )}
         </div>
+      )}
+      {!isAdmin && doneToday > 0 && activePerson && activeColors && (
+        <p className="text-sm mb-4" style={{ color: activeColors.text }}>
+          {doneToday} done today ✓
+        </p>
       )}
 
       {openCount === 0 && groups.completed.length === 0 && (

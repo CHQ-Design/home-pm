@@ -36,12 +36,18 @@ export default async function Home() {
     ? recurringTasks
     : recurringTasks.filter(t => t.assigneeId === sessionPersonId)
 
+  const memberPerson = !isAdmin && sessionPersonId
+    ? people.find(p => p.id === sessionPersonId)
+    : null
+
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
       <p className="font-serif text-sm text-[#B5A898] mb-1">
         {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
       </p>
-      <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
+      <h1 className="font-serif text-2xl font-bold mb-6">
+        {memberPerson ? `${memberPerson.name}'s Things` : "Things"}
+      </h1>
       {isAdmin && <AddTaskForm people={people} projects={projects} />}
       <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
       <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
