@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/require-auth"
+import Link from "next/link"
 import PeopleManager from "@/app/people-manager"
 import UserManager from "./user-manager"
 
@@ -33,6 +34,13 @@ export default async function SettingsPage() {
       <h1 className="font-serif text-2xl font-bold mb-6">Settings</h1>
       <UserManager users={users} currentEmail={currentEmail} />
       <PeopleManager people={people} />
+      {currentEmail === process.env.SUPERADMIN_EMAIL?.toLowerCase() && (
+        <div className="mt-10 pt-6 border-t border-[#DDD5C5]">
+          <Link href="/superadmin" className="text-xs text-[#B5A898] hover:text-[#6B5E52]">
+            Super Admin
+          </Link>
+        </div>
+      )}
     </main>
   )
 }
