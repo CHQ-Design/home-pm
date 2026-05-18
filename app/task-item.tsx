@@ -251,7 +251,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 </span>
               )}
               {task.dueDate && isKid && relativeDateLabel(task.dueDate) === "Today" && (
-                <span className="text-xs text-[#8B5E1A]" suppressHydrationWarning>Today</span>
+                <span className="text-xs text-[#9B6020]" suppressHydrationWarning>Today</span>
               )}
               {task.time && (
                 <span className="text-xs text-[#A09080]">{formatTime(task.time)}</span>
