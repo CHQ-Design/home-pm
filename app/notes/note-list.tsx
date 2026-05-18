@@ -77,7 +77,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
 
       {filtered.length === 0 && (
         <p className="text-sm text-[#A09080] py-4">
-          {notes.length === 0 ? "No notes yet. Add one above." : "No notes match your search."}
+          {notes.length === 0 ? "Nothing saved yet. Add a thought above." : "No notes match your search."}
         </p>
       )}
 

@@ -12,7 +12,7 @@ export default function Nav() {
   return (
     <nav className="border-b border-[#DDD5C5]">
       <div className="max-w-2xl mx-auto px-3 flex gap-0.5 h-12 items-center">
-        <Link href="/" className="font-serif text-sm font-bold text-[#3A3228] mr-2 shrink-0">
+        <Link href="/" className="font-serif text-base font-bold text-[#3A3228] mr-2 shrink-0">
           The Board
         </Link>
         <NavLink href="/" active={pathname === "/"}>Things</NavLink>

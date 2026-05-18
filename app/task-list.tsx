@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
@@ -61,6 +61,8 @@ type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: bo
 
 export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
+  const [completedPulse, setCompletedPulse] = useState(false)
+  const hasExpandedCompleted = useRef(false)
   const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
   // Start with UTC so SSR and initial client render match; update to local after mount
   const [today, setToday] = useState(todayUTC())
@@ -130,15 +132,15 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             {activePerson.name}'s Things
           </p>
           {doneToday > 0 && (
-            <p className="text-sm mt-0.5" style={{ color: activeColors.text }}>
-              {doneToday} done today ✓
+            <p className="font-serif text-sm mt-0.5 text-accent">
+              {doneToday} {doneToday === 1 ? "thing" : "things"} handled today.
             </p>
           )}
         </div>
       )}
       {!isAdmin && doneToday > 0 && activePerson && activeColors && (
-        <p className="text-sm mb-4" style={{ color: activeColors.text }}>
-          {doneToday} done today ✓
+        <p className="font-serif text-sm mb-4 text-accent">
+          {doneToday} {doneToday === 1 ? "thing" : "things"} handled today.
         </p>
       )}
 
@@ -152,9 +154,12 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         </p>
       )}
       {openCount === 0 && groups.completed.length > 0 && (
-        <p className="font-serif text-xl text-[#A09080] py-2" suppressHydrationWarning>
-          {(["The board's clear. ✦", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
-        </p>
+        <div className="py-12 text-center" style={{ animation: "fade-in 400ms ease-out both" }}>
+          <span aria-hidden="true" className="block font-serif text-4xl text-[#D4C9B5] mb-4 leading-none">✦</span>
+          <p className="font-serif text-xl text-[#A09080]" suppressHydrationWarning>
+            {(["The board's clear.", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
+          </p>
+        </div>
       )}
 
       <Section
@@ -196,9 +201,17 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
       {groups.completed.length > 0 && (
         <div className="mt-8 border-t border-[#D4C9B5] pt-5">
           <button
-            onClick={() => setShowCompleted(v => !v)}
+            onClick={() => {
+              if (!showCompleted && !hasExpandedCompleted.current) {
+                hasExpandedCompleted.current = true
+                setCompletedPulse(true)
+                setTimeout(() => setCompletedPulse(false), 600)
+              }
+              setShowCompleted(v => !v)
+            }}
             aria-expanded={showCompleted}
-            className="min-h-[44px] inline-flex items-center text-sm text-[#8C7D6A] hover:text-[#3A3228]"
+            className="min-h-[44px] inline-flex items-center text-sm text-[#8C7D6A] hover:text-[#3A3228] rounded-md px-1"
+            style={completedPulse ? { animation: "warm-pulse 600ms ease-out" } : undefined}
           >
             <span className="inline-flex items-center gap-1">
               {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}

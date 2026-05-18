@@ -22,13 +22,14 @@ export default async function ProjectsPage() {
       <AddProjectForm />
 
       {projects.length === 0 && (
-        <p className="text-[#A09080] text-sm py-4">No projects yet. Add one above.</p>
+        <p className="text-[#A09080] text-sm py-4">Nothing on the board yet. Add a project above.</p>
       )}
 
       <ul className="space-y-3">
         {projects.map(project => {
           const total = project.tasks.length
           const done  = project.tasks.filter(t => t.completed).length
+          const isComplete = done === total && total > 0
           return (
             <li key={project.id}>
               <Link
@@ -42,9 +43,15 @@ export default async function ProjectsPage() {
                       <p className="text-sm text-[#8C7D6A] mt-0.5 line-clamp-2">{project.description}</p>
                     )}
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_STYLES[project.status] ?? STATUS_STYLES.active}`}>
-                    {project.status}
-                  </span>
+                  {isComplete ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-[#C8922A]/15 text-[#8A6E4B]">
+                      Complete ✦
+                    </span>
+                  ) : (
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_STYLES[project.status] ?? STATUS_STYLES.active}`}>
+                      {project.status}
+                    </span>
+                  )}
                 </div>
 
                 {total > 0 && (
@@ -55,8 +62,8 @@ export default async function ProjectsPage() {
                     </div>
                     <div className="h-1.5 rounded-full bg-[#E4DDD0] overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-accent transition-all"
-                        style={{ width: `${(done / total) * 100}%` }}
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${(done / total) * 100}%`, backgroundColor: isComplete ? "#C8922A" : "#6B7A5A" }}
                       />
                     </div>
                   </div>

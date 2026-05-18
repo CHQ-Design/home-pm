@@ -78,6 +78,7 @@ export default function RecurringTaskItem({
   const [showNotes, setShowNotes] = useState(!!task.notes)
   const [confirming, setConfirming] = useState(false)
   const [pending, setPending] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({
     title: task.title,
     notes: task.notes ?? "",
@@ -91,6 +92,8 @@ export default function RecurringTaskItem({
     setPending(true)
     await completeRecurringTask(task.id)
     setPending(false)
+    setSuccess(true)
+    setTimeout(() => setSuccess(false), 800)
   }
 
   async function handleSave() {
@@ -277,10 +280,10 @@ export default function RecurringTaskItem({
         {canComplete && (
           <button
             onClick={handleDone}
-            disabled={pending}
+            disabled={pending || success}
             className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
           >
-            {pending ? "…" : "Done"}
+            {pending ? "…" : success ? "✓" : "Done"}
           </button>
         )}
       </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { updateTask, deleteTask } from "./actions"
 import DatePicker from "./date-picker"
@@ -30,10 +30,31 @@ export default function TaskEditModal({
     projectId: task.projectId ? String(task.projectId) : "",
   })
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  // Restore focus to the element that opened the modal when it closes
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null
+    return () => { prev?.focus() }
+  }, [])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose()
+      if (e.key === "Escape") { onClose(); return }
+      if (e.key !== "Tab" || !modalRef.current) return
+      const focusable = Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>(
+          "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])"
+        )
+      )
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus()
+      }
     }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
@@ -62,7 +83,7 @@ export default function TaskEditModal({
       style={{ backgroundColor: "rgba(44,35,22,0.45)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto">
+      <div ref={modalRef} className="bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl w-full max-w-md shadow-2xl overflow-hidden my-auto">
         <div className="p-5 space-y-4">
           <div>
             <label className={labelClass}>Title</label>

@@ -1,150 +1,68 @@
-# Home PM — Full Codebase Security Review
-**Date:** 2026-05-17  
-**Reviewer:** Claude (Cowork)  
-**Scope:** Full codebase review — live site, security emphasis
+# Code Review — The Board
+**Date:** 2026-05-17
+**Scope:** Full codebase audit (no open PRs — reviewed against latest commits)
 
 ---
 
 ## Verdict
 
-**Request changes** — several issues require fixes before this is acceptably secure for a live, internet-facing site. None are catastrophic, but the upload endpoint and missing auth guards on mutation actions are real attack surface that needs to close.
+**Approve with minor changes**
+
+The app has matured significantly and is in solid shape overall. Patterns are consistent, the server/client boundary is handled well, and the auth model is clean. There are two real issues that need fixing before any broader access: an unprotected upload endpoint, and a null-safety ordering bug in `completeRecurringTask`. Beyond those, the main recurring theme is duplication — several small utilities and style constants are copy-pasted across files that should share them.
 
 ---
 
 ## Must Fix
 
-### 1. Upload endpoint has no file size limit
-**File:** `app/api/upload/route.ts`
+### 1. `/api/upload` has no authentication
 
-**Issue:** Any authenticated user can upload files of unlimited size. The entire file is loaded into memory (`arrayBuffer()`) before writing to disk. A 500MB upload would spike memory and potentially crash the process.
+**Issue:** `app/api/upload/route.ts` has no session check.
 
-**Why it matters:** Denial of service from a single bad request (or an automated script from any authenticated household member). Neon/Vercel deployments often have low memory ceilings.
+**Why it matters:** Anyone who can reach the server can POST arbitrary files to `public/uploads`. Files uploaded this way are served publicly from the Next.js static directory with no access control.
 
-**Minimal fix:**
+**Minimal fix:** Add a session check at the top of the handler, exactly like `/api/subscribe` does:
+
 ```ts
-const MAX_BYTES = 10 * 1024 * 1024 // 10 MB
-
-export async function POST(request: Request) {
-  const contentLength = Number(request.headers.get("content-length") ?? 0)
-  if (contentLength > MAX_BYTES) {
-    return NextResponse.json({ error: "File too large" }, { status: 413 })
-  }
-
-  const formData = await request.formData()
-  const file = formData.get("file") as File | null
-  if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 })
-  if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "File too large" }, { status: 413 })
-  }
-  // ...
-}
-```
-Check both `Content-Length` header (early rejection) and `file.size` after parsing (belt-and-suspenders, since Content-Length can be spoofed).
-
----
-
-### 2. Upload endpoint: file extension not validated or allowlisted
-**File:** `app/api/upload/route.ts`
-
-**Issue:** The extension is taken directly from the user-supplied filename with `file.name.split(".").pop()`. No allowlist is applied. An authenticated user can upload a file with any extension — `.html`, `.svg`, `.php`, `.sh` — which gets stored in `public/uploads/` and is served statically.
-
-**Why it matters:** SVG files can contain inline scripts and execute in a browser. HTML files served from the same origin can set cookies or run scripts. While `.php`/`.sh` won't be executed by Next.js static serving, `.html` and `.svg` are genuinely dangerous when served from the same origin.
-
-**Minimal fix:**
-```ts
-const ALLOWED_EXTENSIONS = new Set([
-  "pdf", "png", "jpg", "jpeg", "gif", "webp",
-  "txt", "md", "csv", "xlsx", "docx", "ics"
-])
-
-const rawExt = (file.name.split(".").pop() ?? "").toLowerCase()
-if (!ALLOWED_EXTENSIONS.has(rawExt)) {
-  return NextResponse.json({ error: "File type not allowed" }, { status: 415 })
-}
-const filename = `${randomUUID()}.${rawExt}`
+const session = await getServerSession(authOptions)
+if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 ```
 
 ---
 
-### 3. Upload response stores client-provided `mimeType` and `size` in the DB
-**Files:** `app/api/upload/route.ts`, `app/notes/actions.ts`
+### 2. Null check ordering bug in `completeRecurringTask`
 
-**Issue:** The upload handler returns `file.type` and `file.size` from the browser `File` object — both are client-controlled values. `notes/actions.ts` stores these directly in the DB. A user can claim any MIME type for any file.
-
-**Why it matters:** The stored `mimeType` is used to describe files to users. If the app ever uses this field for conditional behavior (rendering previews, setting Content-Type on downloads), trusting it becomes an injection vector.
-
-**Minimal fix:** After allowlisting the extension, derive mime type server-side from your own extension map rather than trusting `file.type`. Example:
+**Issue:** In `recurring/actions.ts`, `requireAssignedOrAdmin` is called before the null check on `task`:
 
 ```ts
-const MIME_MAP: Record<string, string> = {
-  pdf: "application/pdf", png: "image/png", jpg: "image/jpeg",
-  jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp",
-  txt: "text/plain", md: "text/markdown", csv: "text/csv",
-  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ics: "text/calendar",
-}
-const mimeType = MIME_MAP[rawExt] ?? "application/octet-stream"
+const task = await prisma.recurringTask.findUnique({ where: { id } })
+await requireAssignedOrAdmin(task?.assigneeId ?? null)  // called with null if task doesn't exist
+if (!task) return  // too late
 ```
 
-And get the actual file size from `buffer.byteLength`, not `file.size`.
-
----
-
-### 4. Notes and Projects actions are missing auth guards
-**Files:** `app/notes/actions.ts`, `app/projects/actions.ts`
-
-**Issue:** Every mutation in these two files — `addNote`, `updateNote`, `deleteNote`, `deleteAttachment`, `addProject`, `updateProject`, `deleteProject` — has no `requireRole` call. The middleware protects against unauthenticated access, but any authenticated household member can create, edit, and **delete** notes and projects.
-
-**Why it matters:** Accidental or deliberate destructive mutations by a non-admin member. Deletion especially — there is no recycle bin. Notes store things like warranties and account numbers.
-
-**Decision to make:** Either:
-- Add `await requireRole("admin")` to all destructive mutations (`delete*` functions) in both files — the safer default.
-- Or consciously decide "members can create/edit, only admins can delete" and enforce that split explicitly.
-
-Right now there's no stated or enforced policy. The inconsistency is also confusing: task actions and recurring task actions require admin for all mutations, but notes and projects require nothing.
-
----
-
-### 5. `toggleTask` has no auth guard
-**File:** `app/actions.ts`
-
-**Issue:** `toggleTask` is the only task mutation without `requireRole`. Any authenticated member can check off tasks.
-
-**Why it matters:** Likely intentional (household members marking their own tasks done), but it's undocumented and inconsistent with every other mutation in that file. If intentional, add a comment. If not, add `await requireRole("admin")`.
-
----
-
-### 6. Unvalidated date strings passed to `new Date()`
-**Files:** `app/actions.ts` (`addTask`), `app/recurring/actions.ts` (`addRecurringTask`)
-
-**Issue:** `new Date(dueDateStr)` and `new Date(nextDueRaw)` are called without checking if the string is a valid date. Invalid strings produce `Invalid Date`, which Prisma throws on with an unhandled error — a bare 500 response.
-
-**Why it matters:** A slightly malformed date string from a browser quirk or custom client causes a crash, not a graceful error.
+**Why it matters:** If `id` doesn't match a row, an admin silently passes the auth check and exits on the null guard — succeeding on a phantom task. A non-admin throws an auth error rather than a clean "not found" response.
 
 **Minimal fix:**
+
 ```ts
-function parseDate(raw: string): Date | null {
-  if (!raw) return null
-  const d = new Date(raw)
-  return isNaN(d.getTime()) ? null : d
-}
+const task = await prisma.recurringTask.findUnique({ where: { id } })
+if (!task) return
+await requireAssignedOrAdmin(task.assigneeId)
 ```
-Then use `dueDate: parseDate(dueDateStr)` and return early if a required date parses as null.
 
 ---
 
-### 7. `Number()` without NaN guard on ID fields
-**Files:** `app/actions.ts`, `app/recurring/actions.ts`
+### 3. `updateTask` doesn't validate `title` server-side
 
-**Issue:** `Number(assigneeIdStr)` and `Number(projectIdStr)` return `NaN` for non-numeric strings. Prisma receives `{ assigneeId: NaN }` and throws an unhandled error.
+**Issue:** The `updateTask` action in `app/actions.ts` does not check that `title` is non-empty.
+
+**Why it matters:** `TaskEditModal` guards this client-side with `form.title.trim() || task.title`, but server actions must not trust client input. A direct call to the action could persist an empty title string.
 
 **Minimal fix:**
+
 ```ts
-function parseId(raw: string | null): number | null {
-  if (!raw) return null
-  const n = parseInt(raw, 10)
-  return isNaN(n) || n <= 0 ? null : n
+if (data.title !== undefined) {
+  data.title = data.title.trim()
+  if (!data.title) delete data.title
 }
 ```
 
@@ -152,74 +70,63 @@ function parseId(raw: string | null): number | null {
 
 ## Security
 
-### Critical
-None found. The middleware correctly uses Next.js 16's `proxy.ts` convention with `export const proxy`, so all routes including `/api/upload`, `/api/calendar`, and static files under `/uploads/` are protected behind Google OAuth. This is working as intended — confirmed by checking the Next.js 16 build internals.
+**Critical — Upload endpoint has no auth:** Covered above. Fix before anyone else has server access.
 
-### Important
+**Important — Upload trusts client-supplied extension:** The upload route uses the filename extension to determine MIME type and storage name without validating actual file content (magic bytes). For a Node/Next.js server the risk is limited — uploaded files won't be executed. However, storing `.html` or `.svg` files in `public/uploads/` and rendering them in an `<img>` or `<iframe>` could enable stored XSS. Consider adding `html`, `htm`, and `svg` to a deny-list, or serving uploads from a non-public path with an explicit `Content-Disposition: attachment` header.
 
-- **Upload: file type and size** — see Must Fix items 1–3 above. An authenticated user abusing the upload endpoint is the most realistic attack surface on this site.
-- **Notes/Projects auth gap** — see Must Fix item 4. A member-role user has full write access to notes and projects today with no guards at all.
+**Watch later — VAPID env var assertions:** `lib/web-push.ts` uses `!` non-null assertions on all three VAPID env vars. If any are missing at startup, the error won't surface until the first push attempt. A startup validation check (throw with a clear message if any are undefined) would surface misconfigurations earlier.
 
-### Watch Later
-
-- **`/api/calendar` exposes all task titles, notes, and assignee names** — currently protected by auth (✓), but there's no per-user scoping. Any authenticated user gets the full calendar feed. Fine for a household app; just document the intent.
-- **`public/uploads/` files accessible to all authenticated users** — any authenticated user can access any uploaded file if they know the UUID filename. UUIDs are non-guessable but are visible in the DB and in note attachment links. If notes are visible to all users, their attachments are too. Intentional, but worth being conscious of for sensitive attachments.
-- **`removeFile` uses DB-sourced filename in `path.join`** — safe in practice because the filename is a server-set UUID. But `path.join` doesn't prevent traversal if a malicious value ever reached this from user input. For future-proofing, add a prefix check: `if (!resolvedPath.startsWith(uploadDir)) throw new Error("invalid path")`.
+No other meaningful security concerns for this phase.
 
 ---
 
 ## Simplify
 
-- **`auth.ts` jwt/session callbacks are identity functions** — both callbacks just return the token/session unchanged. They can be removed entirely; next-auth does this by default. Dead code.
+**Duplicated `PERSON_COLORS`:** The full colors record is copy-pasted identically in `task-item.tsx` and `task-list.tsx`. Extract it to `lib/person-colors.ts` and import it in both places.
 
-- **`app/api/upload/route.ts` runs `mkdir` on every request** — `mkdir` with `recursive: true` is a filesystem syscall on every upload. Create the directory once at deploy time (or in a startup hook) instead.
+**Duplicated `urlBase64ToUint8Array`:** Identical function in `auto-subscribe.tsx` and `push-manager.tsx`. Move it to `lib/push-utils.ts` and import from both.
 
-- **`PERSON_COLORS` hardcoded by DB ID** in `task-item.tsx` — IDs 1, 2, 3 are hardcoded. If a person is deleted and recreated, their color silently changes. Consider a `color` field on the `Person` model, or derive from a stable hash of the name. Low priority but will eventually cause confusion.
+**Date string utilities duplicated:** `localDateStr`, `utcDateStr`, `todayUTC`, and "days diff" logic appear in at least five files — `task-item.tsx`, `task-list.tsx`, `recurring-task-list.tsx`, `recurring-task-item.tsx`, and `recurring-section.tsx`. This is the highest-friction duplication in the codebase because timezone-bug fixes have had to be applied in multiple places. Extract a `lib/dates.ts` with three exports:
+
+```ts
+export function todayLocal(): string   // YYYY-MM-DD in local time
+export function todayUTC(): string     // YYYY-MM-DD in UTC
+export function daysDiff(date: Date | string, todayStr: string): number
+```
+
+**Duplicated `inputClass`/`labelClass`:** The same Tailwind class string for form inputs is copy-pasted across `add-task-form.tsx`, `task-edit-modal.tsx`, `recurring-task-item.tsx`, and `recurring/add-recurring-form.tsx`. One shared constant would make a future style change a one-liner.
+
+**Hardcoded person IDs in `PERSON_COLORS`:** `{ 1: "Craig", 2: "Hudson", 3: "Quinn" }` is coupled to the specific auto-increment IDs that exist in the database today. If anyone is deleted and re-added, their ID changes and they silently get the fallback color. Consider driving color assignment from a `colorIndex` field on `Person`, or round-robining from a palette by array position when rendering.
+
+**Placeholder names in `AddTaskForm`:** The `PLACEHOLDERS` array contains hardcoded family member names (`"Something for Hudson to do?"`, `"Quinn's turn to help?"`). Charming, but couples the UI to a specific roster. Fine as-is, just worth knowing when the people list changes.
 
 ---
 
 ## Best-Practice Notes
 
-- **`parsePriority`, `parseStatus`, `VALID_UNITS` patterns** are clean and consistent across all files that use them. The notes/projects files should adopt the same approach for any constrained fields once auth guards are added.
-- **`toggleTask` completedAt** — correctly sets `completedAt: new Date()` on completion and `null` on un-completion. Good.
-- **`normalizeTags`** — correctly lowercases and deduplicates. Clean.
-- **`prisma.ts` global singleton** — the standard Next.js hot-reload pattern is correct. ✓
-- **`requireRole` error ordering** — correctly throws "Not authenticated" before "Not authorized". These are meaningfully different for debugging. ✓
-- **`TaskEditModal` focus trap** — Escape is handled correctly. Tab focus is not trapped within the modal overlay (users can tab behind it). Acceptable for a personal app, but worth noting for accessibility.
+**Enum fields in the schema:** Now that the app is on Postgres, `priority` on `Task`, `intervalUnit` on `RecurringTask`, and `status` on `Project` could all be native Prisma enums rather than unvalidated `String` fields. The server-side validation in actions is solid, but a schema-level enum gives a migration-enforced contract and better TypeScript inference from Prisma. Not urgent, but worth a quick migration pass.
 
----
+**Home page fetches all tasks, then filters in JS:** `page.tsx` loads every task in the database, then narrows by `assigneeId` for member views. For a family with a few hundred tasks this is fine. If the task count ever grows significantly, push the filter into the Prisma query (`where: { assigneeId: sessionPersonId }`).
 
-## Data Model
+**`addTaskShowMore` uses `sessionStorage`:** This means the "more options" toggle resets on every new tab and browser restart. `localStorage` would be more persistent if you want the preference to stick.
 
-The schema has matured well. A few observations:
-
-- **`status`, `priority`, `intervalUnit` are untyped strings in the Prisma schema** — validated correctly at the application layer, but Prisma/PostgreSQL won't reject invalid values from a direct DB write. Worth converting to Prisma enums in a future migration when convenient.
-- **`CLAUDE.md` still says SQLite** — the project is now on Neon PostgreSQL. Update the docs.
-- **No soft deletes** — notes, tasks, and projects all hard-delete with no recovery path. For a notes store containing warranties and account numbers, a `deletedAt` timestamp on `Note` would add meaningful safety with minimal schema change. Not urgent, but worth considering.
+**Duplicate "Done" button logic in `recurring-section.tsx`:** The home page section imports `completeRecurringTask` directly and reimplements its own `DoneButton`. If you add optimistic updates or a confirmation step to `RecurringTaskItem`'s done button later, you'd need to update `recurring-section.tsx` separately. Worth noting, not worth changing today.
 
 ---
 
 ## Phase Alignment
 
-The codebase has grown well beyond the original "task tracker MVP" in `CLAUDE.md` — it now has projects, recurring tasks, notes with attachments, people management, a calendar feed, file uploads, and Google Auth. All of it is clearly in use and none looks speculative. The code quality reflects genuine maturity: consistent patterns, clean components, working auth.
-
-The main gap is that the security posture hasn't fully kept pace with the scope expansion — specifically the notes/projects auth and upload safety. These are easy to fix, just need to happen.
+The app has grown well past the original single-phase MVP scope into a fully functional multi-person household PM tool with projects, notes, recurring tasks, push notifications, and role-based access. That's fine — the codebase has stayed disciplined throughout. No premature abstractions crept in, components stayed small, and each feature built naturally on the previous one. The main debt from this growth is the date utility and style constant duplication noted above.
 
 ---
 
 ## Final Recommendation
 
-Two focused PRs close the meaningful risk:
+**Fix the blockers first** (upload auth, `completeRecurringTask` null ordering, `updateTask` title validation), then tackle the duplication as a small dedicated cleanup commit:
 
-**PR 1 — `harden upload endpoint`**
-- File size limit (content-length check + file.size check)
-- Extension allowlist
-- Server-derived mime type and byte count
+1. Extract `lib/dates.ts`
+2. Extract `lib/person-colors.ts`
+3. Extract a shared `inputClass` constant (or a small `lib/styles.ts`)
+4. Extract `lib/push-utils.ts`
 
-**PR 2 — `auth guards and input validation`**
-- `requireRole` on destructive mutations in `notes/actions.ts` and `projects/actions.ts`
-- `parseDate` helper replacing bare `new Date(raw)`
-- `parseId` helper replacing bare `Number(raw)` on ID fields
-- Comment or enforce intent on `toggleTask`
-
-**Also:** Rotate the Google OAuth client secret and NEXTAUTH_SECRET if the `.env` file has ever been in a shared context (cloud environment variables, clipboard, screen share, etc.). Both are currently in plaintext in the local `.env`.
+Those four changes together will remove the highest-friction parts of the codebase and make the next round of timezone or style fixes a single-file edit instead of a five-file hunt.

@@ -28,6 +28,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
     setShowMore(sessionStorage.getItem("addTaskShowMore") === "true")
   }, [])
   const [submitting, setSubmitting] = useState(false)
+  const [titleError, setTitleError] = useState(false)
   const [titleValue, setTitleValue] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
@@ -53,7 +54,11 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const title = (formData.get("title") as string).trim()
-    if (!title) return
+    if (!title) {
+      setTitleError(true)
+      setTimeout(() => setTitleError(false), 800)
+      return
+    }
     setSubmitting(true)
     await addTask(formData)
     formRef.current?.reset()
@@ -70,8 +75,9 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
             name="title"
             aria-label="Task title"
             value={titleValue}
-            onChange={e => setTitleValue(e.target.value)}
-            className={`w-full ${inputClass} bg-transparent`}
+            onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
+            className={`w-full ${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
+            style={titleError ? { animation: "shake 0.4s ease-in-out" } : undefined}
             autoComplete="off"
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}

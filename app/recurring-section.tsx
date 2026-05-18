@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import type { Prisma } from "@prisma/client"
+import { IconRepeat } from "@tabler/icons-react"
 import { completeRecurringTask } from "./recurring/actions"
 import { todayUTC, todayLocal, daysDiff } from "@/lib/dates"
 
@@ -23,22 +24,26 @@ function dueDateClass(nextDue: Date | string, today: string): string {
   return "text-[#A09080]"
 }
 
-function DoneButton({ taskId }: { taskId: number }) {
+function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }) {
   const [pending, setPending] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   async function handleClick() {
     setPending(true)
     await completeRecurringTask(taskId)
     setPending(false)
+    setSuccess(true)
+    setTimeout(() => setSuccess(false), 800)
   }
 
   return (
     <button
       onClick={handleClick}
-      disabled={pending}
+      disabled={pending || success}
+      aria-label={`Mark ${taskTitle} as done`}
       className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 shrink-0"
     >
-      {pending ? "…" : "Done"}
+      {pending ? "…" : success ? "✓" : "Done"}
     </button>
   )
 }
@@ -52,7 +57,10 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A]">Routines</h2>
+        <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#8C7D6A]">
+          <IconRepeat size={14} aria-hidden="true" />
+          Routines
+        </h2>
         {isAdmin && (
           <Link href="/recurring" className="min-h-[44px] inline-flex items-center text-xs text-[#B5A898] hover:text-[#6B5E52]">
             Manage →
@@ -74,7 +82,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
                 <span className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
               )}
             </div>
-            {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} />}
+            {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} taskTitle={task.title} />}
           </div>
         ))}
       </div>
