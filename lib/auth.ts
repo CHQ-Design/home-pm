@@ -23,9 +23,11 @@ export const authOptions: NextAuthOptions = {
       return ALLOWED_EMAILS.includes(user.email ?? "")
     },
     async jwt({ token }: { token: JWT }) {
+      token.role = getRole(token.email as string | null)
       return token
     },
-    async session({ session }: { session: Session }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user) session.user.role = token.role as Role
       return session
     },
   },

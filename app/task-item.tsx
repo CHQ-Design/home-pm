@@ -33,6 +33,16 @@ function formatDate(date: Date) {
   })
 }
 
+function relativeDateLabel(date: Date): string {
+  const today = new Date().toISOString().slice(0, 10)
+  const dateStr = new Date(date).toISOString().slice(0, 10)
+  const diff = Math.round((new Date(dateStr).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
+  if (diff < 0) return "Overdue"
+  if (diff === 0) return "Today"
+  if (diff === 1) return "Tomorrow"
+  return `In ${diff} days`
+}
+
 export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }) {
   const canToggle = isAdmin || task.assigneeId === sessionPersonId
   const personColor = task.assigneeId != null
@@ -207,46 +217,54 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
         </div>
 
         {/* Metadata row — shown below title, indented to align with title text */}
-        {!isInlineEditing && (task.assignee || task.dueDate || (isAdmin && task.priority !== "medium") || (isAdmin && task.project)) && (
-          <div className="flex flex-wrap gap-1.5 pl-11 pb-2">
-            {isAdmin && task.project && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent">
-                {task.project.name}
-              </span>
-            )}
-            {task.assignee && (
-              <span
-                className="text-xs pl-1 pr-2 py-0.5 rounded-full border flex items-center gap-1"
-                style={personColor
-                  ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
-                  : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
-                }
-              >
-                <span
-                  className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
-                  style={{ backgroundColor: personColor?.border ?? "#C8BFAD", color: "white" }}
-                >
-                  {task.assignee.name[0]}
+        {(() => {
+          const showAssigneeChip = task.assignee && (isAdmin || task.assigneeId !== sessionPersonId)
+          const showPriority = isAdmin && task.priority !== "medium"
+          const showProject = isAdmin && task.project
+          if (isInlineEditing || (!showAssigneeChip && !task.dueDate && !showPriority && !showProject)) return null
+          return (
+            <div className="flex flex-wrap gap-1.5 pl-11 pb-2">
+              {showProject && (
+                <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent">
+                  {task.project!.name}
                 </span>
-                {task.assignee.name}
-              </span>
-            )}
-            {task.dueDate && (
-              <span className="text-xs text-[#A09080]">{formatDate(task.dueDate)}</span>
-            )}
-            {isAdmin && task.priority !== "medium" && (
-              <span
-                className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium ${
-                  PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
-                }`}
-              >
-                {task.priority === "high" && <IconFlame size={10} />}
-                {task.priority === "low" && <IconFeather size={10} />}
-                {task.priority}
-              </span>
-            )}
-          </div>
-        )}
+              )}
+              {showAssigneeChip && (
+                <span
+                  className="text-xs pl-1 pr-2 py-0.5 rounded-full border flex items-center gap-1"
+                  style={personColor
+                    ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
+                    : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
+                  }
+                >
+                  <span
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
+                    style={{ backgroundColor: personColor?.border ?? "#C8BFAD", color: "white" }}
+                  >
+                    {task.assignee!.name[0]}
+                  </span>
+                  {task.assignee!.name}
+                </span>
+              )}
+              {task.dueDate && (
+                <span className="text-xs text-[#A09080]">
+                  {isAdmin ? formatDate(task.dueDate) : relativeDateLabel(task.dueDate)}
+                </span>
+              )}
+              {showPriority && (
+                <span
+                  className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded font-medium ${
+                    PRIORITY_STYLES[task.priority as Priority] ?? PRIORITY_STYLES.low
+                  }`}
+                >
+                  {task.priority === "high" && <IconFlame size={10} />}
+                  {task.priority === "low" && <IconFeather size={10} />}
+                  {task.priority}
+                </span>
+              )}
+            </div>
+          )
+        })()}
       </div>
 
       {isModalOpen && createPortal(

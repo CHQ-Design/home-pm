@@ -191,7 +191,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
       />
       <Section
-        title="Later"
+        title="No rush"
         tasks={groups.noDate}
         titleClass={activePerson ? "" : "text-[#A09080]"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
