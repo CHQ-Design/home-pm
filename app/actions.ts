@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { todayUTC } from "@/lib/dates"
+import { parseReminder } from "@/lib/parse"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
 type Priority = typeof VALID_PRIORITIES[number]
@@ -22,12 +23,6 @@ function parseId(raw: string | null): number | null {
   if (!raw) return null
   const n = parseInt(raw, 10)
   return isNaN(n) || n <= 0 ? null : n
-}
-
-function parseReminder(raw: string | null): number | null {
-  if (!raw || raw === "") return null
-  const n = parseInt(raw, 10)
-  return isNaN(n) || n < 0 ? null : n
 }
 
 export async function addTask(formData: FormData) {
@@ -120,6 +115,10 @@ export async function updateTask(
   }
   if (data.priority !== undefined) {
     data.priority = parsePriority(data.priority)
+  }
+  if (data.reminderMinutesBefore !== undefined && data.reminderMinutesBefore !== null) {
+    const r = data.reminderMinutesBefore
+    if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
   }
   await prisma.task.update({ where: { id }, data })
   revalidatePath("/", "layout")

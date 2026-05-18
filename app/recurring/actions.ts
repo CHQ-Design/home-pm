@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
+import { parseReminder } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 
 const VALID_UNITS = ["day", "week", "month", "year", "weekday"] as const
@@ -55,8 +56,7 @@ export async function addRecurringTask(formData: FormData) {
 
   const notes = ((formData.get("notes") as string) ?? "").trim() || null
 
-  const reminderRaw = formData.get("reminderMinutesBefore") as string | null
-  const reminderMinutesBefore = reminderRaw && reminderRaw !== "" ? parseInt(reminderRaw, 10) : null
+  const reminderMinutesBefore = parseReminder(formData.get("reminderMinutesBefore") as string | null)
 
   await prisma.recurringTask.create({
     data: {
@@ -106,6 +106,10 @@ export async function updateRecurringTask(
   await requireRole("admin")
   if (data.intervalUnit && !VALID_UNITS.includes(data.intervalUnit as Unit)) return
   if (data.intervalValue !== undefined && (!Number.isInteger(data.intervalValue) || data.intervalValue < 1)) return
+  if (data.reminderMinutesBefore !== undefined && data.reminderMinutesBefore !== null) {
+    const r = data.reminderMinutesBefore
+    if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
+  }
   await prisma.recurringTask.update({ where: { id }, data })
   revalidatePath("/", "layout")
 }

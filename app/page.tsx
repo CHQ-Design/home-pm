@@ -14,26 +14,20 @@ export default async function Home() {
   const in7Days = new Date(now)
   in7Days.setDate(in7Days.getDate() + 7)
 
-  const [tasks, people, projects, recurringTasks, role, sessionPersonId] = await Promise.all([
-    prisma.task.findMany({ include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
+  const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
+  const isAdmin = role === "admin"
+  const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
+
+  const [tasks, people, projects, recurringTasks] = await Promise.all([
+    prisma.task.findMany({ where: assigneeFilter, include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({ orderBy: { name: "asc" } }),
     prisma.project.findMany({ orderBy: { name: "asc" } }),
     prisma.recurringTask.findMany({
-      where: { nextDue: { lte: in7Days } },
+      where: { nextDue: { lte: in7Days }, ...assigneeFilter },
       include: { assignee: true },
       orderBy: { nextDue: "asc" },
     }),
-    getSessionRole(),
-    getSessionPersonId(),
   ])
-
-  const isAdmin = role === "admin"
-  const visibleTasks = isAdmin
-    ? tasks
-    : tasks.filter(t => t.assigneeId === sessionPersonId)
-  const visibleRecurringTasks = isAdmin
-    ? recurringTasks
-    : recurringTasks.filter(t => t.assigneeId === sessionPersonId)
 
   const memberPerson = !isAdmin && sessionPersonId
     ? people.find(p => p.id === sessionPersonId)
@@ -49,8 +43,8 @@ export default async function Home() {
         <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       )}
       {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
-      <TaskList tasks={visibleTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
-      <RecurringSection tasks={visibleRecurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
     </main>
   )
 }
