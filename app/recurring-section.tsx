@@ -4,13 +4,9 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import type { Prisma } from "@prisma/client"
 import { completeRecurringTask } from "./recurring/actions"
+import { todayUTC, todayLocal, daysDiff } from "@/lib/dates"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
-
-function daysDiff(nextDue: Date | string, today: string): number {
-  const dueMs = new Date(new Date(nextDue).toISOString().slice(0, 10)).getTime()
-  return Math.round((dueMs - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
-}
 
 function dueDateLabel(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
@@ -48,11 +44,8 @@ function DoneButton({ taskId }: { taskId: number }) {
 }
 
 export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null }) {
-  const [today, setToday] = useState(() => new Date().toISOString().slice(0, 10))
-  useEffect(() => {
-    const d = new Date()
-    setToday(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)
-  }, [])
+  const [today, setToday] = useState(todayUTC)
+  useEffect(() => { setToday(todayLocal()) }, [])
 
   if (tasks.length === 0) return null
 

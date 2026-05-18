@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
 import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
+import { todayUTC, todayLocal, daysDiff } from "@/lib/dates"
+import { inputClass } from "@/lib/styles"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
 
@@ -31,11 +33,6 @@ function formatDate(d: Date | string): string {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
 }
 
-function daysDiff(nextDue: Date | string, today: string): number {
-  const dueStr = new Date(nextDue).toISOString().slice(0, 10)
-  return Math.round((new Date(dueStr).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
-}
-
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600 font-medium"
@@ -60,9 +57,6 @@ function localDateString(d: Date | string): string {
   return `${yyyy}-${mm}-${dd}`
 }
 
-const inputClass =
-  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
-
 export default function RecurringTaskItem({
   task,
   people,
@@ -76,11 +70,8 @@ export default function RecurringTaskItem({
   isAdmin: boolean
   sessionPersonId: number | null
 }) {
-  const [today, setToday] = useState(() => new Date().toISOString().slice(0, 10))
-  useEffect(() => {
-    const d = new Date()
-    setToday(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)
-  }, [])
+  const [today, setToday] = useState(todayUTC)
+  useEffect(() => { setToday(todayLocal()) }, [])
 
   const canComplete = isAdmin || task.assigneeId === sessionPersonId
   const [editing, setEditing] = useState(false)

@@ -6,6 +6,8 @@ import type { Person, Project, Prisma } from "@prisma/client"
 import { IconBell, IconBellOff, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, toggleReminder, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
+import { todayLocal, utcDateStr } from "@/lib/dates"
+import { PERSON_COLORS, PERSON_COLOR_FALLBACK } from "@/lib/person-colors"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type Priority = "high" | "medium" | "low"
@@ -15,13 +17,6 @@ const PRIORITY_STYLES: Record<Priority, string> = {
   medium: "",
   low: "bg-[#EDE6D8] text-[#8C7D6A] border border-[#C8BFAD]",
 }
-
-const PERSON_COLORS: Record<number, { bg: string; text: string; border: string }> = {
-  1: { bg: "#EDE0D0", text: "#6B4C2A", border: "#C8A882" }, // Craig — camel
-  2: { bg: "#D8E6DC", text: "#3A5C44", border: "#91B89A" }, // Hudson — sage
-  3: { bg: "#EDE0E6", text: "#6B3A52", border: "#C8899A" }, // Quinn — dusty rose
-}
-const PERSON_COLOR_FALLBACK = { bg: "#EDE6D8", text: "#8C7D6A", border: "#C8BFAD" }
 
 const PARTICLE_ANGLES = [0, 60, 120, 180, 240, 300]
 
@@ -33,14 +28,9 @@ function formatDate(date: Date) {
   })
 }
 
-function localDateStr() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-}
-
 function relativeDateLabel(date: Date): string {
-  const today = localDateStr()
-  const dateStr = new Date(date).toISOString().slice(0, 10)
+  const today = todayLocal()
+  const dateStr = utcDateStr(date)
   const diff = Math.round((new Date(dateStr).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
   if (diff < 0) return "Overdue"
   if (diff === 0) return "Today"

@@ -4,11 +4,9 @@ import { useEffect, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { updateTask, deleteTask } from "./actions"
 import DatePicker from "./date-picker"
+import { inputClass } from "@/lib/styles"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
-
-const inputClass =
-  "w-full text-base bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 const labelClass = "block text-xs font-medium text-[#8C7D6A] mb-1"
 

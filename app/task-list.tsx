@@ -4,34 +4,17 @@ import { useEffect, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
+import { todayUTC, todayLocal, utcDateStr } from "@/lib/dates"
+import { PERSON_COLORS, PERSON_COLOR_FALLBACK } from "@/lib/person-colors"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
-function utcDateStr(date: Date) {
-  return new Date(date).toISOString().slice(0, 10)
-}
-
-function todayUTC() {
-  return new Date().toISOString().slice(0, 10)
-}
-
 const PRIORITY_ORDER: Record<string, number> = { high: 1, medium: 2, low: 3 }
-
-const PERSON_COLORS: Record<number, { bg: string; text: string; border: string }> = {
-  1: { bg: "#EDE0D0", text: "#6B4C2A", border: "#C8A882" }, // Craig — camel
-  2: { bg: "#D8E6DC", text: "#3A5C44", border: "#91B89A" }, // Hudson — sage
-  3: { bg: "#EDE0E6", text: "#6B3A52", border: "#C8899A" }, // Quinn — dusty rose
-}
-const PERSON_COLOR_FALLBACK = { bg: "#EDE6D8", text: "#6B5E52", border: "#C8BFAD" }
 
 function byPriority(a: Task, b: Task) {
   const p = (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2)
   if (p !== 0) return p
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-}
-
-function localDateStr(d: Date = new Date()) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
 function groupTasks(tasks: Task[], today: string) {
@@ -81,7 +64,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
   const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
   // Start with UTC so SSR and initial client render match; update to local after mount
   const [today, setToday] = useState(todayUTC())
-  useEffect(() => { setToday(localDateStr()) }, [])
+  useEffect(() => { setToday(todayLocal()) }, [])
 
   const filtered = filterPersonId === null
     ? tasks

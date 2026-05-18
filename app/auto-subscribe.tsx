@@ -2,15 +2,9 @@
 
 import { useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { urlBase64ToUint8Array } from "@/lib/push-utils"
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/")
-  const rawData = atob(base64)
-  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
-}
 
 export default function AutoSubscribe() {
   const { data: session } = useSession()

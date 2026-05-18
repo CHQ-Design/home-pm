@@ -2,6 +2,8 @@ import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10 MB
 
@@ -26,6 +28,9 @@ const MIME_MAP: Record<string, string> = {
 }
 
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   const contentLength = Number(request.headers.get("content-length") ?? 0)
   if (contentLength > MAX_BYTES) {
     return NextResponse.json({ error: "File too large" }, { status: 413 })

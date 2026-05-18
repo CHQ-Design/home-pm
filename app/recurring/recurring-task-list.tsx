@@ -3,17 +3,9 @@
 import { useEffect, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
 import RecurringTaskItem from "./recurring-task-item"
+import { todayUTC, todayLocal, utcDateStr } from "@/lib/dates"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
-
-function utcDateStr(date: Date | string): string {
-  return new Date(date).toISOString().slice(0, 10)
-}
-
-function localDateStr(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-}
 
 function addDays(dateStr: string, n: number): string {
   const d = new Date(dateStr)
@@ -28,9 +20,8 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
   isAdmin: boolean
   sessionPersonId: number | null
 }) {
-  // UTC for SSR match; updated to local after mount
-  const [today, setToday] = useState(() => new Date().toISOString().slice(0, 10))
-  useEffect(() => { setToday(localDateStr()) }, [])
+  const [today, setToday] = useState(todayUTC)
+  useEffect(() => { setToday(todayLocal()) }, [])
 
   const in7Days = addDays(today, 7)
 

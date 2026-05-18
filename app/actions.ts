@@ -80,6 +80,10 @@ export async function updateTask(
   }
 ) {
   await requireRole("admin")
+  if (data.title !== undefined) {
+    data.title = data.title.trim()
+    if (!data.title) delete data.title
+  }
   if (data.priority !== undefined) {
     data.priority = parsePriority(data.priority)
   }

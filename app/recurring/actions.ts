@@ -66,8 +66,8 @@ export async function addRecurringTask(formData: FormData) {
 
 export async function completeRecurringTask(id: number) {
   const task = await prisma.recurringTask.findUnique({ where: { id } })
-  await requireAssignedOrAdmin(task?.assigneeId ?? null)
   if (!task) return
+  await requireAssignedOrAdmin(task.assigneeId)
 
   const now = new Date()
   const nextDue = computeNextDue(now, task.intervalValue, task.intervalUnit as Unit)
