@@ -71,3 +71,16 @@ body {
   0%, 100% { background-color: transparent; }
   40%      { background-color: rgba(200, 146, 42, 0.12); }
 }
+
+@keyframes board-clear-wash {
+  0%   { opacity: 0; background-color: rgba(200, 146, 42, 0.08); }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes drift-up {
+  0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.1); }
+}

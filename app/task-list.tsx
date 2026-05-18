@@ -67,6 +67,8 @@ function Section({
   )
 }
 
+const DRIFT_COLORS = ["#C8A882", "#91B89A", "#C8899A", "#8891B8", "#B0A87A", "#C8922A", "#D4C9B5"]
+
 type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }
 
 export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId }: Props) {
@@ -74,6 +76,8 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
   const [completedPulse, setCompletedPulse] = useState(false)
   const hasExpandedCompleted = useRef(false)
   const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
+  const boardClearCelebrated = useRef(false)
+  const [showCelebration, setShowCelebration] = useState(false)
   // Start with UTC so SSR and initial client render match; update to local after mount
   const [today, setToday] = useState(todayUTC())
   useEffect(() => { setToday(todayLocal()) }, [])
@@ -91,6 +95,19 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
   const doneToday      = groups.completed.filter(t =>
     t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === today
   ).length
+  const isBoardClear = openCount === 0 && groups.completed.length > 0
+
+  useEffect(() => {
+    if (isBoardClear && !boardClearCelebrated.current) {
+      boardClearCelebrated.current = true
+      setShowCelebration(true)
+      const t = setTimeout(() => setShowCelebration(false), 1500)
+      return () => clearTimeout(t)
+    }
+    if (!isBoardClear) {
+      boardClearCelebrated.current = false
+    }
+  }, [isBoardClear])
 
   return (
     <div>
@@ -168,10 +185,39 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
               : "No things yet. Add one above."}
         </p>
       )}
-      {openCount === 0 && groups.completed.length > 0 && (
-        <div className="py-12 text-center" style={{ animation: "fade-in 400ms ease-out both" }}>
-          <span aria-hidden="true" className="block font-serif text-4xl text-[#D4C9B5] mb-4 leading-none">✦</span>
-          <p className="font-serif text-xl text-[#A09080]" suppressHydrationWarning>
+      {isBoardClear && (
+        <div className="py-12 text-center relative">
+          {showCelebration && (
+            <>
+              <div
+                className="fixed inset-0 pointer-events-none z-0"
+                style={{ animation: "board-clear-wash 1.5s ease-out both" }}
+              />
+              {DRIFT_COLORS.map((color, i) => (
+                <span
+                  key={i}
+                  aria-hidden="true"
+                  className="fixed font-serif text-4xl pointer-events-none z-10"
+                  style={{
+                    color,
+                    left: `${8 + i * 13}%`,
+                    top: "50%",
+                    animationDelay: `${i * 0.1}s`,
+                    animation: `drift-up 1.5s ease-out ${i * 0.1}s both`,
+                  }}
+                >
+                  ✦
+                </span>
+              ))}
+            </>
+          )}
+          <span
+            aria-hidden="true"
+            className={`block font-serif text-[#D4C9B5] mb-4 leading-none transition-all duration-500 ${showCelebration ? "text-6xl" : "text-4xl"}`}
+          >
+            ✦
+          </span>
+          <p className={`font-serif text-[#A09080] transition-all duration-500 ${showCelebration ? "text-3xl" : "text-xl"}`} suppressHydrationWarning>
             {(["The board's clear.", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
           </p>
         </div>
