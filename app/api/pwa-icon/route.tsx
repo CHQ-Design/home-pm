@@ -4,7 +4,7 @@ import { NextRequest } from "next/server"
 export const runtime = "edge"
 
 export function GET(req: NextRequest) {
-  const size = Number(req.nextUrl.searchParams.get("size") ?? "512")
+  const size = Math.min(Math.max(Number(req.nextUrl.searchParams.get("size") ?? "512") || 512, 16), 1024)
   const radius = Math.round(size * 0.18)
   const starSize = Math.round(size * 0.6)
 

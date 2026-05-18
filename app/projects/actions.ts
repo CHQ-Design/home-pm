@@ -13,7 +13,7 @@ function parseStatus(raw: unknown): Status {
 
 export async function addProject(formData: FormData) {
   await requireRole("admin")
-  const name = (formData.get("name") as string).trim()
+  const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
   const description = (formData.get("description") as string | null)?.trim() || null
   await prisma.project.create({ data: { name, description } })
