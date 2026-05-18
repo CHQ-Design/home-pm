@@ -4,7 +4,6 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { getDownloadUrl } from "@vercel/blob"
 
 const MIME_MAP: Record<string, string> = {
   pdf: "application/pdf",
@@ -39,10 +38,20 @@ export async function GET(
   })
   if (!att) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  // New files: redirect to a signed Vercel Blob download URL
+  // New files: fetch from Vercel Blob using server-side token and proxy
   if (att.blobUrl) {
-    const signedUrl = await getDownloadUrl(att.blobUrl)
-    return NextResponse.redirect(signedUrl.toString())
+    const blobRes = await fetch(att.blobUrl, {
+      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+    })
+    if (!blobRes.ok) return NextResponse.json({ error: "Not found" }, { status: 404 })
+    const ext = filename.split(".").pop()?.toLowerCase() ?? ""
+    const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
+    return new Response(blobRes.body, {
+      headers: {
+        "Content-Type": mimeType,
+        "Content-Disposition": `attachment; filename="${att.originalName ?? filename}"`,
+      },
+    })
   }
 
   // Legacy files: read from local disk
