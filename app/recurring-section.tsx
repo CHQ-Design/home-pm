@@ -8,10 +8,9 @@ import { completeRecurringTask } from "./recurring/actions"
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
 
 function daysDiff(nextDue: Date | string): number {
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const due = new Date(new Date(nextDue).toDateString())
-  return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const todayMs = new Date(new Date().toISOString().slice(0, 10)).getTime()
+  const dueMs = new Date(new Date(nextDue).toISOString().slice(0, 10)).getTime()
+  return Math.round((dueMs - todayMs) / (1000 * 60 * 60 * 24))
 }
 
 function dueDateLabel(nextDue: Date | string): string {

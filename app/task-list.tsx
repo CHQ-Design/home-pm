@@ -11,8 +11,8 @@ function utcDateStr(date: Date) {
   return new Date(date).toISOString().slice(0, 10)
 }
 
-function localTodayStr() {
-  return new Date().toLocaleDateString("en-CA")
+function todayUTC() {
+  return new Date().toISOString().slice(0, 10)
 }
 
 const PRIORITY_ORDER: Record<string, number> = { high: 1, medium: 2, low: 3 }
@@ -31,7 +31,7 @@ function byPriority(a: Task, b: Task) {
 }
 
 function groupTasks(tasks: Task[]) {
-  const today = localTodayStr()
+  const today = todayUTC()
   const open = tasks.filter(t => !t.completed)
   return {
     overdue:   open.filter(t => t.dueDate && utcDateStr(t.dueDate) < today).sort(byPriority),
@@ -88,7 +88,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
   const activePerson   = filterPersonId !== null ? people.find(p => p.id === filterPersonId) : null
   const activeColors   = filterPersonId !== null ? (PERSON_COLORS[filterPersonId] ?? PERSON_COLOR_FALLBACK) : null
   const doneToday      = groups.completed.filter(t =>
-    t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === localTodayStr()
+    t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === todayUTC()
   ).length
 
   return (
