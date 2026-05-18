@@ -43,7 +43,6 @@ export default function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/icon-180.png" />
         <meta name="theme-color" content="#6B7A5A" />
       </head>
       <body className="min-h-[100dvh] flex flex-col overflow-x-hidden">
