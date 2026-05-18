@@ -135,7 +135,8 @@ export async function addPerson(formData: FormData) {
 
 export async function updatePerson(id: number, data: { email?: string | null }) {
   await requireRole("admin")
-  await prisma.person.update({ where: { id }, data })
+  const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email
+  await prisma.person.update({ where: { id }, data: { ...data, email } })
   revalidatePath("/", "layout")
 }
 

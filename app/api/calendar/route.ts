@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getRole } from "@/lib/auth"
 
 function icalDate(date: Date): string {
   return new Date(date).toISOString().slice(0, 10).replace(/-/g, "")
@@ -43,8 +43,18 @@ export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session) return new NextResponse("Unauthorized", { status: 401 })
 
+  const email = session.user?.email?.toLowerCase() ?? ""
+  const isAdmin = getRole(email) === "admin"
+
+  let assigneeFilter: { assigneeId?: number } = {}
+  if (!isAdmin) {
+    const person = await prisma.person.findFirst({ where: { email }, select: { id: true } })
+    if (!person) return new NextResponse("Forbidden", { status: 403 })
+    assigneeFilter = { assigneeId: person.id }
+  }
+
   const tasks = await prisma.task.findMany({
-    where: { dueDate: { not: null }, completed: false },
+    where: { dueDate: { not: null }, completed: false, ...assigneeFilter },
     include: { assignee: true },
     orderBy: { dueDate: "asc" },
   })
