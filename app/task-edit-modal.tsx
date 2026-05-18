@@ -29,6 +29,7 @@ export default function TaskEditModal({
     priority: task.priority,
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",
+    reminderMinutesBefore: task.reminderMinutesBefore != null ? String(task.reminderMinutesBefore) : "",
   })
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -75,6 +76,7 @@ export default function TaskEditModal({
         priority: form.priority as "high" | "medium" | "low",
         assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
         projectId: form.projectId ? Number(form.projectId) : null,
+        reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
       })
       onClose()
     } catch {
@@ -181,6 +183,23 @@ export default function TaskEditModal({
                 {projects.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
+              </select>
+            </div>
+          )}
+
+          {form.dueDate && (
+            <div className="col-span-2 sm:col-span-3">
+              <label className={labelClass}>Remind me</label>
+              <select
+                value={form.reminderMinutesBefore}
+                onChange={e => setForm(f => ({ ...f, reminderMinutesBefore: e.target.value }))}
+                className={inputClass}
+              >
+                <option value="">No reminder</option>
+                <option value="0">At the time</option>
+                <option value="30">30 minutes before</option>
+                <option value="60">1 hour before</option>
+                <option value="1440">1 day before</option>
               </select>
             </div>
           )}

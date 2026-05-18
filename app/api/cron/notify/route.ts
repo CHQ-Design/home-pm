@@ -4,6 +4,13 @@ import { webpush } from "@/lib/web-push"
 
 export const dynamic = "force-dynamic"
 
+function computeNotifyAt(dueDate: Date, time: string | null, minutesBefore: number): Date {
+  const [h, m] = (time ?? "00:00").split(":").map(Number)
+  const due = new Date(dueDate)
+  due.setUTCHours(h, m, 0, 0)
+  return new Date(due.getTime() - minutesBefore * 60 * 1000)
+}
+
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
@@ -11,47 +18,77 @@ export async function GET(request: Request) {
   }
 
   const now = new Date()
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  const windowStart = new Date(now.getTime() - 60 * 60 * 1000)
   const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase() ?? ""
 
-  const subscriptions = await prisma.pushSubscription.findMany()
+  const [tasks, routines] = await Promise.all([
+    prisma.task.findMany({
+      where: { completed: false, reminderMinutesBefore: { not: null }, notifiedAt: null },
+      select: {
+        id: true, title: true, dueDate: true, time: true, reminderMinutesBefore: true,
+        assignee: { select: { email: true } },
+      },
+    }),
+    prisma.recurringTask.findMany({
+      where: { reminderMinutesBefore: { not: null }, notifiedAt: null },
+      select: {
+        id: true, title: true, nextDue: true, time: true, reminderMinutesBefore: true,
+        assignee: { select: { email: true } },
+      },
+    }),
+  ])
 
-  const results = await Promise.allSettled(
+  const byEmail = new Map<string, string[]>()
+  const taskIds: number[] = []
+  const routineIds: number[] = []
+
+  for (const task of tasks) {
+    if (!task.dueDate) continue
+    const fireAt = computeNotifyAt(task.dueDate, task.time, task.reminderMinutesBefore!)
+    if (fireAt < windowStart || fireAt > now) continue
+    const email = task.assignee?.email?.toLowerCase() ?? adminEmail
+    if (!email) continue
+    taskIds.push(task.id)
+    const list = byEmail.get(email) ?? []
+    list.push(task.title)
+    byEmail.set(email, list)
+  }
+
+  for (const routine of routines) {
+    const fireAt = computeNotifyAt(routine.nextDue, routine.time, routine.reminderMinutesBefore!)
+    if (fireAt < windowStart || fireAt > now) continue
+    const email = routine.assignee?.email?.toLowerCase() ?? adminEmail
+    if (!email) continue
+    routineIds.push(routine.id)
+    const list = byEmail.get(email) ?? []
+    list.push(routine.title)
+    byEmail.set(email, list)
+  }
+
+  // Mark as notified before sending so a slow send can't double-fire
+  if (taskIds.length > 0) {
+    await prisma.task.updateMany({ where: { id: { in: taskIds } }, data: { notifiedAt: now } })
+  }
+  if (routineIds.length > 0) {
+    await prisma.recurringTask.updateMany({ where: { id: { in: routineIds } }, data: { notifiedAt: now } })
+  }
+
+  if (byEmail.size === 0) return NextResponse.json({ sent: 0 })
+
+  const subscriptions = await prisma.pushSubscription.findMany({
+    where: { userEmail: { in: Array.from(byEmail.keys()) } },
+  })
+
+  let sent = 0
+  await Promise.allSettled(
     subscriptions.map(async sub => {
-      const isAdmin = sub.userEmail === adminEmail
-
-      const person = isAdmin
-        ? null
-        : await prisma.person.findFirst({ where: { email: sub.userEmail }, select: { id: true } })
-
-      const assigneeFilter = isAdmin ? {} : { assigneeId: person?.id ?? -1 }
-
-      const [tasks, routines] = await Promise.all([
-        prisma.task.findMany({
-          where: { completed: false, reminderSet: true, dueDate: { lte: todayEnd }, ...assigneeFilter },
-          select: { title: true },
-          orderBy: { dueDate: "asc" },
-        }),
-        prisma.recurringTask.findMany({
-          where: { nextDue: { lte: todayEnd }, ...assigneeFilter },
-          select: { title: true },
-          orderBy: { nextDue: "asc" },
-        }),
-      ])
-
-      const items = [...tasks, ...routines]
-      if (items.length === 0) return
-
-      const body =
-        items.length === 1
-          ? items[0].title
-          : `${items[0].title} + ${items.length - 1} more`
-
+      const titles = byEmail.get(sub.userEmail)
+      if (!titles?.length) return
+      const body = titles.length === 1 ? titles[0] : `${titles[0]} + ${titles.length - 1} more`
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
         JSON.stringify({ title: "The Board", body, url: "/" })
-      ).catch(async err => {
-        // Remove stale subscriptions (device unsubscribed)
+      ).then(() => { sent++ }).catch(async err => {
         if (err.statusCode === 410 || err.statusCode === 404) {
           await prisma.pushSubscription.delete({ where: { id: sub.id } })
         }
@@ -59,6 +96,5 @@ export async function GET(request: Request) {
     })
   )
 
-  const failed = results.filter(r => r.status === "rejected").length
-  return NextResponse.json({ sent: subscriptions.length, failed })
+  return NextResponse.json({ sent, tasks: taskIds.length, routines: routineIds.length })
 }

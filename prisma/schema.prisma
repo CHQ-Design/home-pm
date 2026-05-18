@@ -53,19 +53,21 @@ model Person {
 }
 
 model RecurringTask {
-  id            Int       @id @default(autoincrement())
-  title         String
-  notes         String?
-  time          String?   // "HH:MM" 24-hour, optional
-  intervalValue Int
-  intervalUnit  String    // "day" | "week" | "month" | "year" | "weekday"
-  nextDue       DateTime
-  lastCompleted DateTime?
-  assigneeId    Int?
-  assignee      Person?   @relation(fields: [assigneeId], references: [id])
-  projectId     Int?
-  project       Project?  @relation(fields: [projectId], references: [id])
-  createdAt     DateTime  @default(now())
+  id                   Int       @id @default(autoincrement())
+  title                String
+  notes                String?
+  time                 String?   // "HH:MM" 24-hour, optional
+  intervalValue        Int
+  intervalUnit         String    // "day" | "week" | "month" | "year" | "weekday"
+  nextDue              DateTime
+  lastCompleted        DateTime?
+  reminderMinutesBefore Int?
+  notifiedAt           DateTime?
+  assigneeId           Int?
+  assignee             Person?   @relation(fields: [assigneeId], references: [id])
+  projectId            Int?
+  project              Project?  @relation(fields: [projectId], references: [id])
+  createdAt            DateTime  @default(now())
 }
 
 model PushSubscription {
@@ -78,18 +80,19 @@ model PushSubscription {
 }
 
 model Task {
-  id          Int       @id @default(autoincrement())
-  title       String
-  notes       String?
-  dueDate     DateTime?
-  time        String?   // "HH:MM" 24-hour, optional
-  priority    String    @default("medium")
-  completed   Boolean   @default(false)
-  reminderSet Boolean   @default(false) // TODO: wire to actual notifications (email/push) before this means anything
-  createdAt   DateTime  @default(now())
-  completedAt DateTime?
-  assigneeId  Int?
-  assignee    Person?   @relation(fields: [assigneeId], references: [id])
-  projectId   Int?
-  project     Project?  @relation(fields: [projectId], references: [id])
+  id                    Int       @id @default(autoincrement())
+  title                 String
+  notes                 String?
+  dueDate               DateTime?
+  time                  String?   // "HH:MM" 24-hour, optional
+  priority              String    @default("medium")
+  completed             Boolean   @default(false)
+  reminderMinutesBefore Int?
+  notifiedAt            DateTime?
+  createdAt             DateTime  @default(now())
+  completedAt           DateTime?
+  assigneeId            Int?
+  assignee              Person?   @relation(fields: [assigneeId], references: [id])
+  projectId             Int?
+  project               Project?  @relation(fields: [projectId], references: [id])
 }

@@ -24,6 +24,12 @@ function parseId(raw: string | null): number | null {
   return isNaN(n) || n <= 0 ? null : n
 }
 
+function parseReminder(raw: string | null): number | null {
+  if (!raw || raw === "") return null
+  const n = parseInt(raw, 10)
+  return isNaN(n) || n < 0 ? null : n
+}
+
 export async function addTask(formData: FormData) {
   const [role, sessionPersonId] = await Promise.all([getSessionRole(), getSessionPersonId()])
   if (!role) throw new Error("Not authenticated")
@@ -46,6 +52,7 @@ export async function addTask(formData: FormData) {
       priority,
       assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
       projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
+      reminderMinutesBefore: parseReminder(formData.get("reminderMinutesBefore") as string | null),
     },
   })
   revalidatePath("/", "layout")
@@ -103,7 +110,7 @@ export async function updateTask(
     priority?: Priority
     assigneeId?: number | null
     projectId?: number | null
-    reminderSet?: boolean
+    reminderMinutesBefore?: number | null
   }
 ) {
   await requireRole("admin")
@@ -115,13 +122,6 @@ export async function updateTask(
     data.priority = parsePriority(data.priority)
   }
   await prisma.task.update({ where: { id }, data })
-  revalidatePath("/", "layout")
-}
-
-export async function toggleReminder(id: number) {
-  await requireRole("admin")
-  const task = await prisma.task.findUniqueOrThrow({ where: { id } })
-  await prisma.task.update({ where: { id }, data: { reminderSet: !task.reminderSet } })
   revalidatePath("/", "layout")
 }
 

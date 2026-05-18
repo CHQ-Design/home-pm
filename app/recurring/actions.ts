@@ -55,6 +55,9 @@ export async function addRecurringTask(formData: FormData) {
 
   const notes = ((formData.get("notes") as string) ?? "").trim() || null
 
+  const reminderRaw = formData.get("reminderMinutesBefore") as string | null
+  const reminderMinutesBefore = reminderRaw && reminderRaw !== "" ? parseInt(reminderRaw, 10) : null
+
   await prisma.recurringTask.create({
     data: {
       title,
@@ -65,6 +68,7 @@ export async function addRecurringTask(formData: FormData) {
       nextDue,
       assigneeId: isAdmin ? parseId(formData.get("assigneeId") as string) : sessionPersonId,
       projectId: isAdmin ? parseId(formData.get("projectId") as string) : null,
+      reminderMinutesBefore,
     },
   })
   revalidatePath("/", "layout")
@@ -80,7 +84,7 @@ export async function completeRecurringTask(id: number) {
 
   await prisma.recurringTask.update({
     where: { id },
-    data: { lastCompleted: now, nextDue },
+    data: { lastCompleted: now, nextDue, notifiedAt: null },
   })
   revalidatePath("/", "layout")
 }
@@ -96,6 +100,7 @@ export async function updateRecurringTask(
     nextDue?: Date
     assigneeId?: number | null
     projectId?: number | null
+    reminderMinutesBefore?: number | null
   }
 ) {
   await requireRole("admin")

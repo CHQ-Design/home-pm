@@ -93,6 +93,7 @@ export default function RecurringTaskItem({
     time: task.time ?? "",
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",
+    reminderMinutesBefore: task.reminderMinutesBefore != null ? String(task.reminderMinutesBefore) : "",
   })
 
   async function handleDone() {
@@ -117,6 +118,7 @@ export default function RecurringTaskItem({
       nextDue: new Date(form.nextDue),
       assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
       projectId: form.projectId ? Number(form.projectId) : null,
+      reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
     })
     setPending(false)
     setEditing(false)
@@ -167,6 +169,20 @@ export default function RecurringTaskItem({
             onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
             className={`${inputClass} [color-scheme:light]`}
           />
+        </div>
+        <div className="flex gap-3 items-center">
+          <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
+          <select
+            value={form.reminderMinutesBefore}
+            onChange={e => setForm(f => ({ ...f, reminderMinutesBefore: e.target.value }))}
+            className={inputClass}
+          >
+            <option value="">No reminder</option>
+            <option value="0">At the time</option>
+            <option value="30">30 minutes before</option>
+            <option value="60">1 hour before</option>
+            <option value="1440">1 day before</option>
+          </select>
         </div>
         {showNotes && (
           <textarea

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import type { Person, Project, Prisma } from "@prisma/client"
-import { IconBell, IconBellOff, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
-import { toggleTask, toggleReminder, updateTask } from "./actions"
+import { IconBell, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
+import { toggleTask, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 import { todayLocal, utcDateStr, formatTime } from "@/lib/dates"
 import { getPersonColor } from "@/lib/person-colors"
@@ -49,7 +49,6 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [showParticles, setShowParticles] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
-  const [bellRinging, setBellRinging] = useState(false)
   const [announcement, setAnnouncement] = useState("")
   const prevCompleted = useRef(task.completed)
 
@@ -78,14 +77,6 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
     if (trimmed && trimmed !== task.title) {
       await updateTask(task.id, { title: trimmed })
     }
-  }
-
-  async function handleBell() {
-    if (!task.reminderSet) {
-      setBellRinging(true)
-      setTimeout(() => setBellRinging(false), 400)
-    }
-    await toggleReminder(task.id)
   }
 
   return (
@@ -201,16 +192,15 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           {/* Bell and edit — admin only */}
           {isAdmin && <>
             <button
-              onClick={handleBell}
+              onClick={() => setIsModalOpen(true)}
               className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
-                task.reminderSet
+                task.reminderMinutesBefore != null
                   ? "text-accent"
                   : "text-[#B5A898] group-hover:text-[#6B5E52]"
               }`}
-              aria-label={task.reminderSet ? "Edit reminder" : "Add reminder"}
-              style={bellRinging ? { animation: "bell-ring 300ms cubic-bezier(0.34,1.56,0.64,1) forwards" } : undefined}
+              aria-label={task.reminderMinutesBefore != null ? "Edit reminder" : "Set reminder"}
             >
-              {task.reminderSet ? <IconBell size={16} /> : <IconBellOff size={16} />}
+              <IconBell size={16} />
             </button>
             <button
               onClick={() => setIsModalOpen(true)}

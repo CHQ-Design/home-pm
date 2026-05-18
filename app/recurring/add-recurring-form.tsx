@@ -28,6 +28,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
   const formRef = useRef<HTMLFormElement>(null)
   const [showNotes, setShowNotes] = useState(false)
   const [showTime, setShowTime] = useState(false)
+  const [showReminder, setShowReminder] = useState(false)
   const [showAssignee, setShowAssignee] = useState(false)
   const [showProject, setShowProject] = useState(false)
 
@@ -38,6 +39,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
     formRef.current?.reset()
     setShowNotes(false)
     setShowTime(false)
+    setShowReminder(false)
     setShowAssignee(false)
     setShowProject(false)
   }
@@ -90,6 +92,19 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         </div>
       )}
 
+      {showReminder && (
+        <div className="flex gap-4 items-center">
+          <label className="text-xs text-[#8C7D6A] shrink-0 mt-2">Remind me</label>
+          <select name="reminderMinutesBefore" defaultValue="" className={inputClass}>
+            <option value="">No reminder</option>
+            <option value="0">At the time</option>
+            <option value="30">30 minutes before</option>
+            <option value="60">1 hour before</option>
+            <option value="1440">1 day before</option>
+          </select>
+        </div>
+      )}
+
       {isAdmin && showAssignee && people.length > 0 && (
         <select name="assigneeId" className={inputClass}>
           <option value="">No assignee</option>
@@ -123,6 +138,13 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
             className={`text-xs ${showTime ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
           >
             {showTime ? "− Time" : "+ Time"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowReminder(v => !v)}
+            className={`text-xs ${showReminder ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+          >
+            {showReminder ? "− Reminder" : "+ Reminder"}
           </button>
           {isAdmin && people.length > 0 && (
             <button

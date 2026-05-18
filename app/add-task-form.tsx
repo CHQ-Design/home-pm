@@ -26,6 +26,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
   const [titleError, setTitleError] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [titleValue, setTitleValue] = useState("")
+  const [dueDate, setDueDate] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [focused, setFocused] = useState(false)
@@ -65,6 +66,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
     }
     formRef.current?.reset()
     setTitleValue("")
+    setDueDate("")
     setSubmitting(false)
   }
 
@@ -139,6 +141,8 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
             <input
               type="date"
               name="dueDate"
+              value={dueDate}
+              onChange={e => setDueDate(e.target.value)}
               className={`${inputClass} [color-scheme:light]`}
             />
           </div>
@@ -150,6 +154,18 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
               className={`${inputClass} [color-scheme:light]`}
             />
           </div>
+          {dueDate && (
+            <div className="flex gap-3 items-center">
+              <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
+              <select name="reminderMinutesBefore" defaultValue="" className={`${inputClass} appearance-none`}>
+                <option value="">No reminder</option>
+                <option value="0">At the time</option>
+                <option value="30">30 minutes before</option>
+                <option value="60">1 hour before</option>
+                <option value="1440">1 day before</option>
+              </select>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <div className="relative">
               <label className="block text-xs text-[#8C7D6A] mb-1">Priority</label>
