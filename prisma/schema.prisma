@@ -45,6 +45,8 @@ model Person {
   id             Int             @id @default(autoincrement())
   name           String
   email          String?         @unique
+  streakCount    Int             @default(0)
+  lastStreakDate DateTime?
   createdAt      DateTime        @default(now())
   tasks          Task[]
   recurringTasks RecurringTask[]

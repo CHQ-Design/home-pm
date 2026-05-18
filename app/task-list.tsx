@@ -130,6 +130,11 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
                   {p.name[0]}
                 </span>
                 {p.name}
+                {p.streakCount >= 2 && (
+                  <span className="text-[10px] ml-0.5" aria-label={`${p.streakCount} day streak`}>
+                    🔥{p.streakCount}
+                  </span>
+                )}
               </button>
             )
           })}

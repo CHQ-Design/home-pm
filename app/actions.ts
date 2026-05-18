@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
+import { todayUTC } from "@/lib/dates"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
 type Priority = typeof VALID_PRIORITIES[number]
@@ -53,13 +54,36 @@ export async function addTask(formData: FormData) {
 export async function toggleTask(id: number) {
   const task = await prisma.task.findUniqueOrThrow({ where: { id } })
   await requireAssignedOrAdmin(task.assigneeId)
+  const completing = !task.completed
   await prisma.task.update({
     where: { id },
     data: {
-      completed: !task.completed,
-      completedAt: !task.completed ? new Date() : null,
+      completed: completing,
+      completedAt: completing ? new Date() : null,
     },
   })
+  if (completing && task.assigneeId) {
+    const person = await prisma.person.findUnique({ where: { id: task.assigneeId } })
+    if (person) {
+      const today = todayUTC()
+      const last = person.lastStreakDate ? person.lastStreakDate.toISOString().slice(0, 10) : null
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+      let streakCount = person.streakCount
+      if (last === today) {
+        // already counted today — no change
+      } else if (last === yesterday) {
+        streakCount += 1
+      } else {
+        streakCount = 1
+      }
+      if (last !== today) {
+        await prisma.person.update({
+          where: { id: task.assigneeId },
+          data: { streakCount, lastStreakDate: new Date() },
+        })
+      }
+    }
+  }
   revalidatePath("/", "layout")
 }
 
