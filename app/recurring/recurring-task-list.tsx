@@ -55,21 +55,21 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
     <>
       {overdue.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-2">Overdue</h2>
+          <h2 className="text-xs font-medium text-red-600 mb-2">Overdue</h2>
           <div className="space-y-2">{overdue.map(item)}</div>
         </section>
       )}
 
       {dueThisWeek.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Due this week</h2>
+          <h2 className="text-xs font-medium text-[#8C7D6A] mb-2">Due this week</h2>
           <div className="space-y-2">{dueThisWeek.map(item)}</div>
         </section>
       )}
 
       {upcoming.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-[#8C7D6A] mb-2">Upcoming</h2>
+          <h2 className="text-xs font-medium text-[#8C7D6A] mb-2">Upcoming</h2>
           <div className="space-y-2">{upcoming.map(item)}</div>
         </section>
       )}
