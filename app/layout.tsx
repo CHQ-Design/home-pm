@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import Nav from "./nav";
 import AuthSessionProvider from "./session-provider";
-import dynamic from "next/dynamic";
-
-const AutoSubscribe = dynamic(() => import("./auto-subscribe"), { ssr: false })
+import AutoSubscribe from "./auto-subscribe";
 import "./globals.css";
 
 const fraunces = Fraunces({
