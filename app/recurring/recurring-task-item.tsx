@@ -10,6 +10,7 @@ import { inputClass } from "@/lib/styles"
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
 
 const CADENCES = [
+  { label: "Mon–Fri",        value: "1|weekday" },
   { label: "Daily",          value: "1|day" },
   { label: "Weekly",         value: "1|week" },
   { label: "Every 2 weeks",  value: "2|week" },
@@ -20,6 +21,7 @@ const CADENCES = [
 ]
 
 function describeCadence(value: number, unit: string): string {
+  if (unit === "weekday") return "Mon–Fri"
   if (value === 1) {
     if (unit === "day") return "Daily"
     if (unit === "week") return "Weekly"

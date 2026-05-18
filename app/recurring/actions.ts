@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { requireRole, requireAssignedOrAdmin, getSessionRole, getSessionPersonId } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 
-const VALID_UNITS = ["day", "week", "month", "year"] as const
+const VALID_UNITS = ["day", "week", "month", "year", "weekday"] as const
 type Unit = typeof VALID_UNITS[number]
 
 function parseDate(raw: string | null): Date | null {
@@ -26,6 +26,11 @@ function computeNextDue(from: Date, value: number, unit: Unit): Date {
     case "week":  d.setDate(d.getDate() + value * 7); break
     case "month": d.setMonth(d.getMonth() + value); break
     case "year":  d.setFullYear(d.getFullYear() + value); break
+    case "weekday":
+      d.setDate(d.getDate() + 1)
+      if (d.getDay() === 6) d.setDate(d.getDate() + 2) // Sat → Mon
+      if (d.getDay() === 0) d.setDate(d.getDate() + 1) // Sun → Mon
+      break
   }
   return d
 }

@@ -6,6 +6,7 @@ import { addRecurringTask } from "./actions"
 import { inputClass } from "@/lib/styles"
 
 const CADENCES = [
+  { label: "Mon–Fri",        value: "1|weekday" },
   { label: "Daily",          value: "1|day" },
   { label: "Weekly",         value: "1|week" },
   { label: "Every 2 weeks",  value: "2|week" },
