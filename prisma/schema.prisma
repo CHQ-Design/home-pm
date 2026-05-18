@@ -73,6 +73,7 @@ model Person {
   email          String?         @unique
   streakCount    Int             @default(0)
   lastStreakDate DateTime?
+  isKid          Boolean         @default(false)
   householdId    Int
   household      Household       @relation(fields: [householdId], references: [id])
   createdAt      DateTime        @default(now())

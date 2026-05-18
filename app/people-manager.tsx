@@ -125,11 +125,20 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                 ) : (
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#4A3F34]">
+                      <span className="text-sm text-[#4A3F34] flex items-center gap-3">
                         {person.name}
-                        <span className="text-[#B5A898] ml-1.5 text-xs">
+                        <span className="text-[#B5A898] text-xs">
                           {person._count.tasks} task{person._count.tasks !== 1 ? "s" : ""}
                         </span>
+                        <label className="flex items-center gap-1 text-xs text-[#8C7D6A] cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={person.isKid}
+                            onChange={() => updatePerson(person.id, { isKid: !person.isKid })}
+                            className="accent-accent"
+                          />
+                          kid mode
+                        </label>
                       </span>
                       <button
                         onClick={() => startDelete(person)}

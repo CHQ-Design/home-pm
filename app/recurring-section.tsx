@@ -48,7 +48,7 @@ function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }
   )
 }
 
-export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null }) {
+export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKid = false }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean }) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
 
@@ -74,14 +74,20 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId }: { 
             className="flex items-center gap-3 py-2 px-3 bg-[#F2ECE2] rounded-lg border border-[#E4DDD0]"
           >
             <div className="flex-1 min-w-0">
-              <span className="text-sm text-[#3A3228]">{task.title}</span>
-              {task.time && (
+              <span className={`${isKid ? "text-xl" : "text-sm"} text-[#3A3228]`}>{task.title}</span>
+              {task.time && !isKid && (
                 <span className="ml-2 text-xs text-[#A09080]">{formatTime(task.time)}</span>
               )}
-              <span className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
-                {dueDateLabel(task.nextDue, today)}
-              </span>
-              {task.assignee && (
+              {isKid ? (
+                dueDateLabel(task.nextDue, today) === "Today" && (
+                  <span className="ml-2 text-xs text-[#C8922A]">Today</span>
+                )
+              ) : (
+                <span className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
+                  {dueDateLabel(task.nextDue, today)}
+                </span>
+              )}
+              {task.assignee && !isKid && (
                 <span className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
               )}
             </div>

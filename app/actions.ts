@@ -137,7 +137,7 @@ export async function addPerson(formData: FormData) {
   revalidatePath("/", "layout")
 }
 
-export async function updatePerson(id: number, data: { email?: string | null }) {
+export async function updatePerson(id: number, data: { email?: string | null; isKid?: boolean }) {
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email

@@ -56,8 +56,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       />
 
       {isAdmin && <AddTaskForm people={people} projectId={project.id} isAdmin={true} />}
-      <TaskList tasks={project?.tasks ?? []} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
-      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <TaskList tasks={project?.tasks ?? []} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={false} />
+      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={false} />
     </main>
   )
 }

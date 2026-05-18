@@ -39,7 +39,7 @@ function relativeDateLabel(date: Date): string {
   return `In ${diff} days`
 }
 
-export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }) {
+export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId, isKid = false }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean }) {
   const canToggle = isAdmin || task.assigneeId === sessionPersonId
   const personColor = task.assigneeId != null
     ? getPersonColor(people, task.assigneeId)
@@ -87,7 +87,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
       >
         {/* Title row */}
-        <div className="flex items-center gap-2 min-h-[44px]">
+        <div className={`flex items-center gap-2 ${isKid ? "min-h-[56px]" : "min-h-[44px]"}`}>
           {/* Checkbox with 44px touch target */}
           <label className={`shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] relative ${canToggle ? "cursor-pointer" : "cursor-default"}`}>
             <input
@@ -110,7 +110,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             />
             <span
               className={`
-                h-4 w-4 rounded border flex items-center justify-center shrink-0
+                ${isKid ? "h-7 w-7 rounded-lg border-2" : "h-4 w-4 rounded border"} flex items-center justify-center shrink-0
                 transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
                 ${task.completed
                   ? "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
@@ -119,9 +119,9 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               `}
             >
               {task.completed && (
-                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                isKid
+                  ? <svg width="16" height="12" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  : <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
               )}
             </span>
 
@@ -140,7 +140,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   />
                 ))}
                 <span
-                  className="absolute text-base font-bold select-none"
+                  className={`absolute ${isKid ? "text-3xl" : "text-base"} font-bold select-none`}
                   style={{
                     color: personColor?.border ?? "#6B7A5A",
                     animation: "star-pop 700ms ease-out forwards",
@@ -170,7 +170,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
               role={isAdmin && !task.completed ? "button" : undefined}
               tabIndex={isAdmin && !task.completed ? 0 : -1}
-              className={`relative flex-1 text-base font-medium ${
+              className={`relative flex-1 ${isKid ? "text-xl" : "text-base"} font-medium ${
                 task.completed
                   ? "text-[#A09080]"
                   : "cursor-pointer text-[#3A3228] hover:text-[#8A6E4B] focus-visible:outline-none focus-visible:text-[#8A6E4B]"
@@ -242,10 +242,13 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   {task.assignee!.name}
                 </span>
               )}
-              {task.dueDate && (
+              {task.dueDate && !isKid && (
                 <span className="text-xs text-[#A09080]" suppressHydrationWarning>
                   {isAdmin ? formatDate(task.dueDate) : relativeDateLabel(task.dueDate)}
                 </span>
+              )}
+              {task.dueDate && isKid && relativeDateLabel(task.dueDate) === "Today" && (
+                <span className="text-xs text-[#C8922A]" suppressHydrationWarning>Today</span>
               )}
               {task.time && (
                 <span className="text-xs text-[#A09080]">{formatTime(task.time)}</span>

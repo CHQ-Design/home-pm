@@ -15,7 +15,7 @@ export default async function RecurringPage() {
     prisma.recurringTask.findMany({
       where: { householdId, ...assigneeFilter },
       include: { assignee: true, project: true },
-      orderBy: { nextDue: "asc" },
+      orderBy: [{ nextDue: "asc" }, { time: { sort: "asc", nulls: "first" } }],
     }),
     prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),

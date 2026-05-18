@@ -34,6 +34,7 @@ export default async function Home() {
     ? people.find(p => p.id === sessionPersonId) ?? null
     : null
   const memberColor = memberPerson ? getPersonColor(people, memberPerson.id) : null
+  const isKid = memberPerson?.isKid ?? false
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
@@ -44,8 +45,8 @@ export default async function Home() {
         <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       )}
       {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
-      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
-      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
     </main>
   )
 }

@@ -39,7 +39,7 @@ function groupTasks(tasks: Task[], today: string) {
 }
 
 function Section({
-  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId,
+  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid,
 }: {
   title: string
   tasks: Task[]
@@ -50,6 +50,7 @@ function Section({
   icon?: React.ReactNode
   isAdmin: boolean
   sessionPersonId: number | null
+  isKid: boolean
 }) {
   if (tasks.length === 0) return null
   return (
@@ -60,7 +61,7 @@ function Section({
       </h2>
       <ul className="divide-y divide-[#E4DDD0]">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
         ))}
       </ul>
     </section>
@@ -69,9 +70,9 @@ function Section({
 
 const DRIFT_COLORS = ["#C8A882", "#91B89A", "#C8899A", "#8891B8", "#B0A87A", "#C8922A", "#D4C9B5"]
 
-type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null }
+type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid: boolean }
 
-export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId }: Props) {
+export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId, isKid }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [completedPulse, setCompletedPulse] = useState(false)
   const hasExpandedCompleted = useRef(false)
@@ -232,7 +233,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           ? <IconStar size={18} aria-hidden="true" />
           : <IconAlertTriangle size={18} aria-hidden="true" />
         }
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
       />
       <Section
         title="Today"
@@ -240,7 +241,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         titleClass={activePerson ? "" : "text-accent"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconSun size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
       />
       <Section
         title="Coming up"
@@ -248,7 +249,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         titleClass={activePerson ? "" : "text-[#8C7D6A]"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconClock size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
       />
       <Section
         title="No rush"
@@ -256,7 +257,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         titleClass={activePerson ? "" : "text-[#A09080]"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
       />
 
       {groups.completed.length > 0 && (
@@ -282,7 +283,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           {showCompleted && (
             <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
               ))}
             </ul>
           )}
