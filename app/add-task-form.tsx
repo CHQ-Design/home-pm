@@ -68,6 +68,7 @@ export default function AddTaskForm({ people, projects, projectId }: Props) {
         <div className="relative flex-1 min-w-0">
           <input
             name="title"
+            aria-label="Task title"
             value={titleValue}
             onChange={e => setTitleValue(e.target.value)}
             className={`w-full ${inputClass} bg-transparent`}
