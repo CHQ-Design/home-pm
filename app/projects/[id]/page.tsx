@@ -39,7 +39,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const done  = project?.tasks.filter(t => t.completed).length ?? 0
 
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 py-8">
+    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
       <Link
         href="/projects"
         className="text-sm text-text-secondary hover:text-foreground mb-6 inline-block"

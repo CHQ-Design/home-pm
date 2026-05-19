@@ -16,10 +16,12 @@ export default function Nav() {
         <Link href="/" className="font-serif text-base font-bold text-foreground mr-2 shrink-0">
           The Board
         </Link>
-        <NavLink href="/" active={pathname === "/"}>Things</NavLink>
-        <NavLink href="/recurring" active={pathname.startsWith("/recurring")}>Routines</NavLink>
-        {isAdmin && <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>}
-        {isAdmin && <NavLink href="/notes" active={pathname.startsWith("/notes")}>Notes</NavLink>}
+        <div className="hidden sm:flex gap-0.5 items-center">
+          <NavLink href="/" active={pathname === "/"}>Things</NavLink>
+          <NavLink href="/recurring" active={pathname.startsWith("/recurring")}>Routines</NavLink>
+          {isAdmin && <NavLink href="/projects" active={pathname.startsWith("/projects")}>Projects</NavLink>}
+          {isAdmin && <NavLink href="/notes" active={pathname.startsWith("/notes")}>Notes</NavLink>}
+        </div>
         <div className="ml-auto flex items-center shrink-0">
           {isAdmin && (
             <Link

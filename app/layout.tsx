@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import Nav from "./nav";
+import BottomNav from "./bottom-nav";
 import AuthSessionProvider from "./session-provider";
 import AutoSubscribe from "./auto-subscribe";
 import "./globals.css";
@@ -56,6 +57,7 @@ export default function RootLayout({
           <AutoSubscribe />
           <Nav />
           {children}
+          <BottomNav />
         </AuthSessionProvider>
       </body>
     </html>

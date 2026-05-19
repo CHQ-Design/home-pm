@@ -30,7 +30,7 @@ export default async function SettingsPage() {
   ])
 
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 py-8">
+    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
       <h1 className="font-serif text-2xl font-bold mb-6">Settings</h1>
       <UserManager users={users} currentEmail={currentEmail} />
       <PeopleManager people={people} />

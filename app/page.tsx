@@ -43,7 +43,7 @@ export default async function Home() {
 
   return (
     <>
-      <main id="main-content" className={`w-full max-w-2xl mx-auto px-4 py-8 ${showAddForm ? "pb-28" : ""}`}>
+      <main id="main-content" className={`w-full max-w-2xl mx-auto px-4 pt-8 ${showAddForm ? "pb-40 sm:pb-8" : "pb-20 sm:pb-8"}`}>
         <LocalDate />
         {memberPerson && memberColor ? (
           <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
@@ -54,8 +54,8 @@ export default async function Home() {
         <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
       </main>
       {showAddForm && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border">
-          <div className="max-w-2xl mx-auto px-4 pt-3 pb-[max(env(safe-area-inset-bottom),_12px)]">
+        <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] sm:bottom-0 left-0 right-0 z-30 bg-background border-t border-border">
+          <div className="max-w-2xl mx-auto px-4 pt-3 pb-3 sm:pb-[max(env(safe-area-inset-bottom),_12px)]">
             <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} sticky />
           </div>
         </div>
