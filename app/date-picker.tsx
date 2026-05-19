@@ -143,7 +143,7 @@ export default function DatePicker({ value, onChange }: Props) {
         <div className="fixed inset-0 z-[200] overflow-hidden pointer-events-none">
           <div
             ref={calendarRef}
-            className="absolute bg-surface-raised border border-border-card rounded-xl shadow-lg p-3 pointer-events-auto"
+            className="absolute bg-surface-raised border border-border-card rounded-xl p-3 pointer-events-auto"
             style={{ top: calPos.top, left: calPos.left }}
           >
             <DayPicker
