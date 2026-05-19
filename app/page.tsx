@@ -12,8 +12,9 @@ import { redirect } from "next/navigation"
 
 export default async function Home() {
   const now = new Date()
-  const in7Days = new Date(now)
-  in7Days.setDate(in7Days.getDate() + 7)
+  const startOfTomorrow = new Date(now)
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1)
+  startOfTomorrow.setHours(0, 0, 0, 0)
 
   const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
   if (!sessionUser) redirect("/login")
@@ -26,7 +27,7 @@ export default async function Home() {
     prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.recurringTask.findMany({
-      where: { householdId, nextDue: { lte: in7Days }, ...assigneeFilter },
+      where: { householdId, nextDue: { lt: startOfTomorrow }, ...assigneeFilter },
       include: { assignee: true },
       orderBy: [{ nextDue: "asc" }, { time: { sort: "asc", nulls: "first" } }],
     }),
@@ -47,8 +48,8 @@ export default async function Home() {
         <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
       )}
       {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
-      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
       <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
     </main>
   )
 }
