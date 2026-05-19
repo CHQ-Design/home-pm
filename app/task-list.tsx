@@ -63,7 +63,7 @@ function Section({
   const headingId = `heading-${title.toLowerCase().replace(/\s+/g, "-")}`
   return (
     <section className="mt-6 mb-4" aria-labelledby={headingId}>
-      <h2 id={headingId} className={`flex items-center gap-1.5 font-serif text-lg mb-2 ${titleClass}`} style={titleStyle}>
+      <h2 id={headingId} className={`flex items-center gap-1.5 font-serif text-xl mb-2 ${titleClass}`} style={titleStyle}>
         {icon}
         {title}
       </h2>

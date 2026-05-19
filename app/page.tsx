@@ -48,7 +48,7 @@ export default async function Home() {
         {memberPerson && memberColor ? (
           <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
         ) : (
-          <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
+          <h1 className="font-serif text-3xl font-bold mb-6">Things</h1>
         )}
         <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
         <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
