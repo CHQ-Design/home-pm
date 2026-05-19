@@ -191,7 +191,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
                 className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
                 style={isActive
                   ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
-                  : { backgroundColor: "#EDE6D8", color: "#6B5E52", borderColor: "#C8BFAD" }
+                  : { backgroundColor: "var(--color-surface)", color: "var(--color-text-hover)", borderColor: "var(--color-border-chip)" }
                 }
               >
                 <span

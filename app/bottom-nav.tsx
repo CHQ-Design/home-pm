@@ -23,7 +23,7 @@ export default function BottomNav() {
 
   return (
     <div className="sm:hidden fixed bottom-0 left-0 right-0 z-20 bg-background border-t border-border">
-      <div className="max-w-2xl mx-auto flex pb-[env(safe-area-inset-bottom)]">
+      <div className="max-w-2xl mx-auto flex pb-[max(env(safe-area-inset-bottom),_4px)]">
         {tabs.map(({ href, label, Icon, active }) => (
           <Link
             key={href}

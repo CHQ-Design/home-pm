@@ -277,7 +277,7 @@ export default function RecurringTaskItem({
             <span className="text-xs text-text-faint">{task.assignee.name}</span>
           )}
           {task.project && (
-            <span className="text-xs text-text-secondary bg-[#E8E0D0] rounded px-1.5 py-0.5">{task.project.name}</span>
+            <span className="text-xs text-text-secondary bg-surface rounded px-1.5 py-0.5">{task.project.name}</span>
           )}
         </div>
         {task.notes && (

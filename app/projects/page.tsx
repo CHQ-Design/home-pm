@@ -70,7 +70,7 @@ export default async function ProjectsPage() {
                     <div className="h-1.5 rounded-full bg-border-subtle overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
-                        style={{ width: `${(done / total) * 100}%`, backgroundColor: isComplete ? "#C8922A" : "#6B7A5A" }}
+                        style={{ width: `${(done / total) * 100}%`, backgroundColor: isComplete ? "var(--color-warm)" : "var(--color-accent)" }}
                       />
                     </div>
                   </div>

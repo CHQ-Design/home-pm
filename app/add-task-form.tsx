@@ -336,7 +336,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         type="button"
         onClick={toggleShowMore}
         aria-expanded={showMore}
-        className="text-[13px] text-[#7A6A5A] hover:text-foreground min-h-[44px] inline-flex items-center"
+        className="text-[13px] text-text-secondary hover:text-foreground min-h-[44px] inline-flex items-center"
       >
         <span className="inline-flex items-center gap-1">
           {showMore ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
