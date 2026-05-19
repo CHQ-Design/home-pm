@@ -44,8 +44,10 @@ export async function GET() {
   if (!session) return new NextResponse("Unauthorized", { status: 401 })
 
   const email = session.user?.email?.toLowerCase() ?? ""
-  const dbUser = await prisma.user.findUnique({ where: { email }, select: { role: true } })
+  const dbUser = await prisma.user.findUnique({ where: { email }, select: { role: true, householdId: true } })
   const isAdmin = dbUser?.role === "admin"
+  const householdId = dbUser?.householdId
+  if (!householdId) return new NextResponse("Forbidden", { status: 403 })
 
   let assigneeFilter: { assigneeId?: number } = {}
   if (!isAdmin) {
@@ -55,7 +57,7 @@ export async function GET() {
   }
 
   const tasks = await prisma.task.findMany({
-    where: { dueDate: { not: null }, completed: false, ...assigneeFilter },
+    where: { householdId, dueDate: { not: null }, completed: false, ...assigneeFilter },
     include: { assignee: true },
     orderBy: { dueDate: "asc" },
   })
