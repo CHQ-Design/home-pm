@@ -89,12 +89,12 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
       {pendingFiles.length > 0 && (
         <ul className="space-y-1">
           {pendingFiles.map(f => (
-            <li key={f.filename} className="flex items-center justify-between text-xs text-[#6B5E52] bg-[#EDE6D8] rounded px-2 py-1">
+            <li key={f.filename} className="flex items-center justify-between text-xs text-text-hover bg-surface rounded px-2 py-1">
               <span className="truncate">{f.originalName}</span>
               <button
                 type="button"
                 onClick={() => removePending(f.filename)}
-                className="ml-2 text-[#B5A898] hover:text-red-600 shrink-0"
+                className="ml-2 text-text-faint hover:text-red-600 shrink-0"
                 aria-label={`Remove ${f.originalName}`}
               >
                 ✕
@@ -109,11 +109,11 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
           <button
             type="button"
             onClick={() => setShowBody(v => !v)}
-            className={`text-xs ${showBody ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+            className={`text-xs ${showBody ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
           >
             {showBody ? "− Body" : "+ Body"}
           </button>
-          <label className={`text-xs cursor-pointer ${uploading ? "text-[#A09080]" : "text-[#B5A898] hover:text-[#6B5E52]"}`}>
+          <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-faint hover:text-text-hover"}`}>
             {uploading ? "Uploading…" : "+ Attach"}
             <input
               ref={fileInputRef}
@@ -128,7 +128,7 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
             <button
               type="button"
               onClick={() => setShowProject(v => !v)}
-              className={`text-xs ${showProject ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+              className={`text-xs ${showProject ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
             >
               {showProject ? "− Project" : "+ Project"}
             </button>
@@ -137,7 +137,7 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
         <button
           type="submit"
           disabled={uploading}
-          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
         >
           Add note
         </button>

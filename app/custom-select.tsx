@@ -95,10 +95,10 @@ export default function CustomSelect({ value, onChange, options, name, placehold
         aria-expanded={open}
         onClick={() => open ? setOpen(false) : openList()}
         onKeyDown={handleTriggerKeyDown}
-        className="w-full flex items-center justify-between gap-1 bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-sm text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 text-left"
+        className="w-full flex items-center justify-between gap-1 bg-surface-warm border border-border-card rounded-md px-3 py-2 text-sm text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 text-left"
       >
-        <span className={value ? "text-[#3A3228]" : "text-[#A09080]"}>{currentLabel}</span>
-        <IconChevronDown size={14} aria-hidden="true" className="shrink-0 text-[#8C7D6A]" />
+        <span className={value ? "text-foreground" : "text-text-muted"}>{currentLabel}</span>
+        <IconChevronDown size={14} aria-hidden="true" className="shrink-0 text-text-secondary" />
       </button>
 
       {open && typeof document !== "undefined" && createPortal(
@@ -106,7 +106,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
           ref={listRef}
           role="listbox"
           aria-label={ariaLabel}
-          className="fixed z-[200] bg-[#F4EEE3] border border-[#D4C9B5] rounded-lg shadow-md overflow-hidden"
+          className="fixed z-[200] bg-surface-raised border border-border-card rounded-lg shadow-md overflow-hidden"
           style={{ top: listPos.top, left: listPos.left, width: listPos.width }}
         >
           {options.map((opt, i) => (
@@ -120,8 +120,8 @@ export default function CustomSelect({ value, onChange, options, name, placehold
               onClick={() => { onChange(opt.value); setOpen(false); triggerRef.current?.focus() }}
               onKeyDown={e => handleOptionKeyDown(e, i)}
               className={`px-3 py-2.5 text-sm cursor-pointer outline-none min-h-[44px] flex items-center
-                ${opt.value === value ? "text-accent font-medium" : "text-[#3A3228]"}
-                ${focusedIndex === i ? "bg-[#6B7A5A]/10" : "hover:bg-[#6B7A5A]/10"}`}
+                ${opt.value === value ? "text-accent font-medium" : "text-foreground"}
+                ${focusedIndex === i ? "bg-accent/10" : "hover:bg-accent/10"}`}
             >
               {opt.label}
             </li>

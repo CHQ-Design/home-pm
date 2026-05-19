@@ -11,9 +11,9 @@ export default function Nav() {
   const isAdmin = session?.user?.role === "admin"
 
   return (
-    <nav className="border-b border-[#DDD5C5]">
+    <nav className="border-b border-border">
       <div className="max-w-2xl mx-auto px-3 flex gap-0.5 h-12 items-center">
-        <Link href="/" className="font-serif text-base font-bold text-[#3A3228] mr-2 shrink-0">
+        <Link href="/" className="font-serif text-base font-bold text-foreground mr-2 shrink-0">
           The Board
         </Link>
         <NavLink href="/" active={pathname === "/"}>Things</NavLink>
@@ -27,7 +27,7 @@ export default function Nav() {
               aria-label="Settings"
               title="Settings"
               className={`flex items-center justify-center min-h-[44px] px-2 ${
-                pathname.startsWith("/settings") ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"
+                pathname.startsWith("/settings") ? "text-accent" : "text-text-faint hover:text-text-hover"
               }`}
             >
               <IconSettings size={16} aria-hidden="true" />
@@ -36,7 +36,7 @@ export default function Nav() {
           {session && (
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center justify-center min-h-[44px] px-2 text-[#B5A898] hover:text-[#6B5E52]"
+              className="flex items-center justify-center min-h-[44px] px-2 text-text-faint hover:text-text-hover"
               aria-label="Sign out"
               title="Sign out"
             >
@@ -68,7 +68,7 @@ function NavLink({
       className={`text-sm font-medium px-2 py-1.5 rounded-md transition-colors ${
         active
           ? "bg-accent/10 text-accent"
-          : "text-[#8C7D6A] hover:text-[#3A3228]"
+          : "text-text-secondary hover:text-foreground"
       }`}
     >
       {children}

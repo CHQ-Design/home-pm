@@ -14,9 +14,9 @@ type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }
 type Priority = "high" | "medium" | "low"
 
 const PRIORITY_STYLES: Record<Priority, string> = {
-  high: "bg-[#C8922A]/20 text-[#8A6E4B]",
+  high: "bg-warm/20 text-text-hover",
   medium: "",
-  low: "bg-[#EDE6D8] text-[#8C7D6A] border border-[#C8BFAD]",
+  low: "bg-surface text-text-secondary border border-border-chip",
 }
 
 const PARTICLE_ANGLES = [0, 60, 120, 180, 240, 300]
@@ -77,7 +77,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
     <li className="group">
       <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       <div
-        className={`relative rounded-md border-l-[3px] transition-colors ${isKid && task.completed ? "bg-[#EEF2E8]" : "hover:bg-[#F0E9DC] active:bg-[rgba(200,146,42,0.07)]"}`}
+        className={`relative rounded-md border-l-[3px] transition-colors ${isKid && task.completed ? "bg-[#EEF2E8]" : "hover:bg-hover active:bg-[rgba(200,146,42,0.07)]"}`}
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
       >
         {/* Title row */}
@@ -108,9 +108,9 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]
                 ${task.completed
                   ? isKid
-                    ? "bg-[#C8922A] border-[#C8922A] scale-125"
-                    : "bg-[#6B7A5A] border-[#6B7A5A] scale-110"
-                  : "bg-transparent border-[#C8BFAD] scale-100 peer-focus-visible:border-accent"
+                    ? "bg-warm border-warm scale-125"
+                    : "bg-accent border-accent scale-110"
+                  : "bg-transparent border-border-chip scale-100 peer-focus-visible:border-accent"
                 }
               `}
             >
@@ -157,7 +157,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 if (e.key === "Enter") saveInline()
                 if (e.key === "Escape") setIsInlineEditing(false)
               }}
-              className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-[#3A3228]"
+              className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-foreground"
               autoFocus
             />
           ) : (
@@ -169,15 +169,15 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               tabIndex={isAdmin && !task.completed ? 0 : -1}
               className={`relative flex-1 ${isKid ? "text-xl" : "text-base"} font-medium ${
                 task.completed
-                  ? "text-[#A09080]"
-                  : "cursor-pointer text-[#3A3228] hover:text-[#8A6E4B] focus-visible:outline-none focus-visible:text-[#8A6E4B]"
+                  ? "text-text-muted"
+                  : "cursor-pointer text-foreground hover:text-text-hover focus-visible:outline-none focus-visible:text-text-hover"
               }`}
             >
               {task.title}
               {task.completed && !isKid && (
                 <span
                   aria-hidden="true"
-                  className="absolute left-0 top-1/2 h-px bg-[#C8BFAD] -translate-y-1/2"
+                  className="absolute left-0 top-1/2 h-px bg-border-chip -translate-y-1/2"
                   style={justCompleted
                     ? { animation: "strikethrough 350ms ease-out 80ms both" }
                     : { width: "100%" }}
@@ -193,7 +193,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
                 task.reminderMinutesBefore != null
                   ? "text-accent"
-                  : "text-[#B5A898] group-hover:text-[#6B5E52]"
+                  : "text-text-faint group-hover:text-text-hover"
               }`}
               aria-label={task.reminderMinutesBefore != null ? "Edit reminder" : "Set reminder"}
             >
@@ -201,7 +201,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] text-sm leading-none shrink-0 group-hover:text-[#6B5E52] transition-colors"
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint text-sm leading-none shrink-0 group-hover:text-text-hover transition-colors"
               aria-label="Edit task"
             >
               <IconPencilMinus size={16} aria-hidden="true" />
@@ -240,15 +240,15 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 </span>
               )}
               {task.dueDate && !isKid && (
-                <span className="text-xs text-[#A09080]" suppressHydrationWarning>
+                <span className="text-xs text-text-muted" suppressHydrationWarning>
                   {isAdmin ? formatShortDate(task.dueDate) : relativeDateLabel(task.dueDate)}
                 </span>
               )}
               {task.dueDate && isKid && relativeDateLabel(task.dueDate) === "Today" && (
-                <span className="text-xs text-[#8B5318]" suppressHydrationWarning>Today</span>
+                <span className="text-xs text-warm-text" suppressHydrationWarning>Today</span>
               )}
               {task.time && (
-                <span className="text-xs text-[#A09080]">{formatTime(task.time)}</span>
+                <span className="text-xs text-text-muted">{formatTime(task.time)}</span>
               )}
               {showPriority && (
                 <span

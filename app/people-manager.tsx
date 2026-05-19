@@ -11,7 +11,7 @@ type PersonWithCount = Prisma.PersonGetPayload<{
 
 // py-1.5 and no w-full intentional — compact inline input within a flex row
 const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-1.5 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+  "bg-surface-warm border border-border-card rounded-md px-3 py-1.5 text-base text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
 
 export default function PeopleManager({ people }: { people: PersonWithCount[] }) {
   const [open, setOpen] = useState(false)
@@ -63,11 +63,11 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
   }
 
   return (
-    <div className="mt-10 border-t border-[#DDD5C5] pt-6">
+    <div className="mt-10 border-t border-border pt-6">
       <button
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="text-sm text-[#A09080] hover:text-[#3A3228]"
+        className="text-sm text-text-muted hover:text-foreground"
       >
         <span className="inline-flex items-center gap-1">
           {open ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
@@ -78,24 +78,24 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
       {open && (
         <div className="mt-3 space-y-3">
           {people.length === 0 && (
-            <p className="text-sm text-[#A09080]">No people yet.</p>
+            <p className="text-sm text-text-muted">No people yet.</p>
           )}
 
           <ul className="space-y-1">
             {people.map(person => (
               <li key={person.id}>
                 {deletingId === person.id ? (
-                  <div className="p-3 bg-[#EDE6D8] rounded-lg border border-[#D4C9B5] space-y-2">
+                  <div className="p-3 bg-surface rounded-lg border border-border-card space-y-2">
                     {hasTasks ? (
                       <>
-                        <p className="text-sm text-[#4A3F34]">
+                        <p className="text-sm text-foreground">
                           <strong>{person.name}</strong> has {person._count.tasks} task
                           {person._count.tasks !== 1 ? "s" : ""}. Reassign them?
                         </p>
                         <select
                           value={reassignToId}
                           onChange={e => setReassignToId(e.target.value)}
-                          className="text-sm bg-[#F2ECE2] border border-[#D4C9B5] rounded px-2 py-1.5 text-[#3A3228] outline-none focus:border-accent"
+                          className="text-sm bg-surface-warm border border-border-card rounded px-2 py-1.5 text-foreground outline-none focus:border-accent"
                         >
                           <option value="">Leave unassigned</option>
                           {others.map(p => (
@@ -104,7 +104,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                         </select>
                       </>
                     ) : (
-                      <p className="text-sm text-[#4A3F34]">
+                      <p className="text-sm text-foreground">
                         Remove <strong>{person.name}</strong>?
                       </p>
                     )}
@@ -117,7 +117,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                       </button>
                       <button
                         onClick={cancelDelete}
-                        className="text-sm px-3 py-1 text-[#8C7D6A] hover:text-[#3A3228]"
+                        className="text-sm px-3 py-1 text-text-secondary hover:text-foreground"
                       >
                         Cancel
                       </button>
@@ -126,12 +126,12 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                 ) : (
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#4A3F34] flex items-center gap-3">
+                      <span className="text-sm text-foreground flex items-center gap-3">
                         {person.name}
-                        <span className="text-[#B5A898] text-xs">
+                        <span className="text-text-faint text-xs">
                           {person._count.tasks} task{person._count.tasks !== 1 ? "s" : ""}
                         </span>
-                        <label className="flex items-center gap-1 text-xs text-[#8C7D6A] cursor-pointer select-none">
+                        <label className="flex items-center gap-1 text-xs text-text-secondary cursor-pointer select-none">
                           <input
                             type="checkbox"
                             checked={person.isKid}
@@ -144,7 +144,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                       <button
                         onClick={() => startDelete(person)}
                         aria-label={`Remove ${person.name}`}
-                        className="min-h-[44px] min-w-[44px] flex items-center justify-center text-[#B5A898] hover:text-red-700"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center text-text-faint hover:text-red-700"
                       >
                         <IconX size={14} aria-hidden="true" />
                       </button>
@@ -157,16 +157,16 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                           onChange={e => setEmailDraft(e.target.value)}
                           onKeyDown={e => { if (e.key === "Enter") saveEmail(); if (e.key === "Escape") setEditingEmailId(null) }}
                           placeholder="email@example.com"
-                          className="flex-1 text-base bg-[#F2ECE2] border border-[#D4C9B5] rounded px-2 py-1 text-[#3A3228] outline-none focus:border-accent"
+                          className="flex-1 text-base bg-surface-warm border border-border-card rounded px-2 py-1 text-foreground outline-none focus:border-accent"
                           autoFocus
                         />
-                        <button onClick={saveEmail} className="text-xs px-2 py-1 bg-accent text-white rounded hover:bg-[#556148]">Save</button>
-                        <button onClick={() => setEditingEmailId(null)} className="text-xs px-2 py-1 text-[#8C7D6A] hover:text-[#3A3228]">Cancel</button>
+                        <button onClick={saveEmail} className="text-xs px-2 py-1 bg-accent text-white rounded hover:bg-accent-hover">Save</button>
+                        <button onClick={() => setEditingEmailId(null)} className="text-xs px-2 py-1 text-text-secondary hover:text-foreground">Cancel</button>
                       </div>
                     ) : (
                       <button
                         onClick={() => startEditEmail(person)}
-                        className="text-xs text-[#B5A898] hover:text-[#6B5E52] mt-0.5 block"
+                        className="text-xs text-text-faint hover:text-text-hover mt-0.5 block"
                       >
                         {person.email ?? "+ Set Google email"}
                       </button>
@@ -186,7 +186,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
             />
             <button
               type="submit"
-              className="px-3 py-1.5 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148]"
+              className="px-3 py-1.5 bg-accent text-white font-medium text-sm rounded-lg hover:bg-accent-hover"
             >
               Add
             </button>

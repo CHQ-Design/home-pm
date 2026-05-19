@@ -67,7 +67,7 @@ function Section({
         {icon}
         {title}
       </h2>
-      <ul className="divide-y divide-[#E4DDD0]">
+      <ul className="divide-y divide-border-subtle">
         {tasks.map(task => (
           <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
         ))}
@@ -104,8 +104,8 @@ function KidAllDone({ name, personColor }: { name: string; personColor: string }
           />
         ))}
       </div>
-      <p className="font-serif text-3xl font-bold text-[#3A3228] mb-1">You did it, {name}!</p>
-      <p className="text-base text-[#A09080]">All done for today.</p>
+      <p className="font-serif text-3xl font-bold text-foreground mb-1">You did it, {name}!</p>
+      <p className="text-base text-text-muted">All done for today.</p>
     </div>
   )
 }
@@ -161,7 +161,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
               filterPersonId === null
                 ? "bg-accent text-white font-medium"
-                : "bg-[#EDE6D8] text-[#6B5E52] border border-[#C8BFAD] hover:bg-[#E4DBD0] hover:text-[#3A3228]"
+                : "bg-surface text-text-hover border border-border-chip hover:bg-[#E4DBD0] hover:text-foreground"
             }`}
           >
             Everyone
@@ -219,13 +219,13 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
 
       {isKid && filtered.length > 0 && !isBoardClear && (
         <div className="mb-5">
-          <div className="w-full h-4 bg-[#EDE6D8] rounded-full overflow-hidden">
+          <div className="w-full h-4 bg-surface rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#C8922A] rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-warm rounded-full transition-all duration-500 ease-out"
               style={{ width: `${Math.round((groups.completed.length / filtered.length) * 100)}%` }}
             />
           </div>
-          <p className="text-sm text-[#A09080] mt-1.5">
+          <p className="text-sm text-text-muted mt-1.5">
             {groups.completed.length} of {filtered.length} done
           </p>
         </div>
@@ -239,7 +239,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
       )}
 
       {openCount === 0 && groups.completed.length === 0 && (
-        <p className="text-[#A09080] text-sm py-4">
+        <p className="text-text-muted text-sm py-4">
           {!isAdmin
             ? "Nothing on your list right now."
             : filterPersonId !== null
@@ -275,11 +275,11 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           )}
           <span
             aria-hidden="true"
-            className={`block font-serif text-[#D4C9B5] mb-4 leading-none transition-all duration-500 ${showCelebration ? "text-6xl" : "text-4xl"}`}
+            className={`block font-serif text-border-card mb-4 leading-none transition-all duration-500 ${showCelebration ? "text-6xl" : "text-4xl"}`}
           >
             ✦
           </span>
-          <p className={`font-serif text-[#A09080] transition-all duration-500 ${showCelebration ? "text-3xl" : "text-xl"}`} suppressHydrationWarning>
+          <p className={`font-serif text-text-muted transition-all duration-500 ${showCelebration ? "text-3xl" : "text-xl"}`} suppressHydrationWarning>
             {(["The board's clear.", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
           </p>
         </div>
@@ -307,7 +307,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
       <Section
         title="Coming up"
         tasks={groups.upcoming}
-        titleClass={activePerson ? "" : "text-[#8C7D6A]"}
+        titleClass={activePerson ? "" : "text-text-secondary"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconClock size={18} aria-hidden="true" />}
         people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
@@ -315,14 +315,14 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
       <Section
         title="No rush"
         tasks={groups.noDate}
-        titleClass={activePerson ? "" : "text-[#A09080]"}
+        titleClass={activePerson ? "" : "text-text-muted"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
         people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
       />
 
       {groups.completed.length > 0 && (
-        <div className="mt-8 border-t border-[#D4C9B5] pt-5">
+        <div className="mt-8 border-t border-border-card pt-5">
           <button
             onClick={() => {
               if (!showCompleted && !hasExpandedCompleted.current) {
@@ -334,7 +334,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             }}
             aria-expanded={showCompleted}
             aria-label={showCompleted ? `Hide ${groups.completed.length} completed ${groups.completed.length === 1 ? "task" : "tasks"}` : `Show ${groups.completed.length} completed ${groups.completed.length === 1 ? "task" : "tasks"}`}
-            className="min-h-[44px] inline-flex items-center text-sm text-[#8C7D6A] hover:text-[#3A3228] rounded-md px-1"
+            className="min-h-[44px] inline-flex items-center text-sm text-text-secondary hover:text-foreground rounded-md px-1"
             style={completedPulse ? { animation: "warm-pulse 600ms ease-out" } : undefined}
           >
             <span className="inline-flex items-center gap-1">
@@ -343,7 +343,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             </span>
           </button>
           {showCompleted && (
-            <ul className="mt-2 divide-y divide-[#E4DDD0] opacity-75">
+            <ul className="mt-2 divide-y divide-border-subtle opacity-75">
               {groups.completed.map(task => (
                 <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
               ))}

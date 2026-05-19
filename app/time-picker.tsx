@@ -22,7 +22,7 @@ function toHHMM(h: string, m: string, ampm: string): string {
 }
 
 const triggerClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-2 py-2 text-sm text-[#3A3228] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 appearance-none cursor-pointer"
+  "bg-surface-warm border border-border-card rounded-md px-2 py-2 text-sm text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 appearance-none cursor-pointer"
 
 interface Props {
   value: string // HH:MM or ""
@@ -53,7 +53,7 @@ export default function TimePicker({ value, onChange, name }: Props) {
         <option value="">--</option>
         {HOURS.map(hr => <option key={hr} value={hr}>{hr}</option>)}
       </select>
-      <span className="text-[#8C7D6A] text-sm select-none">:</span>
+      <span className="text-text-secondary text-sm select-none">:</span>
       <select
         aria-label="Minute"
         value={m || "00"}
@@ -77,7 +77,7 @@ export default function TimePicker({ value, onChange, name }: Props) {
         <button
           type="button"
           onClick={() => onChange("")}
-          className="text-xs text-[#A09080] hover:text-[#6B5E52] leading-none"
+          className="text-xs text-text-muted hover:text-text-hover leading-none"
           aria-label="Clear time"
         >
           ✕

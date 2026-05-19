@@ -34,25 +34,25 @@ const calendarClassNames = {
   months: "",
   month: "space-y-2",
   month_caption: "flex justify-center items-center relative h-8",
-  caption_label: "text-sm font-medium text-[#3A3228]",
+  caption_label: "text-sm font-medium text-foreground",
   nav: "absolute inset-x-0 top-0 flex justify-between",
   button_previous:
-    "h-8 w-8 flex items-center justify-center rounded-md text-[#8C7D6A] hover:bg-[#E4DDD0] hover:text-[#3A3228] transition-colors",
+    "h-8 w-8 flex items-center justify-center rounded-md text-text-secondary hover:bg-border-subtle hover:text-foreground transition-colors",
   button_next:
-    "h-8 w-8 flex items-center justify-center rounded-md text-[#8C7D6A] hover:bg-[#E4DDD0] hover:text-[#3A3228] transition-colors",
+    "h-8 w-8 flex items-center justify-center rounded-md text-text-secondary hover:bg-border-subtle hover:text-foreground transition-colors",
   month_grid: "w-full border-collapse",
   weekdays: "flex",
-  weekday: "text-[#A09080] text-xs font-normal w-9 h-8 flex items-center justify-center",
+  weekday: "text-text-muted text-xs font-normal w-9 h-8 flex items-center justify-center",
   weeks: "space-y-1 mt-1",
   week: "flex",
   day: "w-9 h-9 p-0 text-center",
   day_button:
-    "w-9 h-9 rounded-md text-sm text-[#4A3F34] hover:bg-[#EDE6D8] hover:text-[#3A3228] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+    "w-9 h-9 rounded-md text-sm text-foreground hover:bg-surface hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
   selected:
-    "[&>button]:bg-accent [&>button]:text-[#3A3228] [&>button]:hover:bg-[#556148] [&>button]:font-medium",
+    "[&>button]:bg-accent [&>button]:text-foreground [&>button]:hover:bg-accent-hover [&>button]:font-medium",
   today: "[&>button]:text-accent [&>button]:font-medium",
-  outside: "[&>button]:text-[#C8BFAD]",
-  disabled: "[&>button]:text-[#C8BFAD] [&>button]:cursor-not-allowed",
+  outside: "[&>button]:text-border-chip",
+  disabled: "[&>button]:text-border-chip [&>button]:cursor-not-allowed",
   hidden: "invisible",
   focused: "",
   chevron: "fill-current",
@@ -120,7 +120,7 @@ export default function DatePicker({ value, onChange }: Props) {
         onClick={openCalendar}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCalendar() } }}
         placeholder="No date"
-        className="w-full text-sm bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent cursor-pointer"
+        className="w-full text-sm bg-surface-warm border border-border-card rounded-md px-3 py-2 text-foreground placeholder-text-muted outline-none focus:border-accent cursor-pointer"
       />
       {value && (
         <button
@@ -130,7 +130,7 @@ export default function DatePicker({ value, onChange }: Props) {
             onChange("")
             setOpen(false)
           }}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#A09080] hover:text-[#6B5E52] text-xs leading-none"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-hover text-xs leading-none"
           aria-label="Clear date"
         >
           ✕
@@ -140,7 +140,7 @@ export default function DatePicker({ value, onChange }: Props) {
       {open && (
         <div
           ref={calendarRef}
-          className="fixed z-[200] bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl shadow-2xl p-3"
+          className="fixed z-[200] bg-surface-raised border border-border-card rounded-xl shadow-2xl p-3"
           style={{ top: calPos.top, left: calPos.left }}
         >
           <DayPicker

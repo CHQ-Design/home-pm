@@ -42,7 +42,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
       <Link
         href="/projects"
-        className="text-sm text-[#8C7D6A] hover:text-[#3A3228] mb-6 inline-block"
+        className="text-sm text-text-secondary hover:text-foreground mb-6 inline-block"
       >
         ← Projects
       </Link>

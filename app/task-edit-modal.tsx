@@ -10,7 +10,7 @@ import { inputClass } from "@/lib/styles"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
-const labelClass = "block text-xs font-medium text-[#8C7D6A] mb-1"
+const labelClass = "block text-xs font-medium text-text-secondary mb-1"
 
 export default function TaskEditModal({
   task,
@@ -103,7 +103,7 @@ export default function TaskEditModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="task-edit-title"
-        className="bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl w-full max-w-md overflow-hidden my-auto"
+        className="bg-surface-raised border border-border-card rounded-xl w-full max-w-md overflow-hidden my-auto"
         style={{ boxShadow: "0 8px 32px rgba(44,35,22,0.14)" }}
       >
         <h2 id="task-edit-title" className="sr-only">Edit task</h2>
@@ -200,14 +200,14 @@ export default function TaskEditModal({
           <p className="px-5 pb-2 text-sm text-red-600">{saveError}</p>
         )}
 
-        <div className="flex items-center justify-between px-5 py-3 border-t border-[#D4C9B5]">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-border-card">
           {confirmDelete ? (
             <>
-              <span className="text-sm text-[#4A3F34]">Delete this task?</span>
+              <span className="text-sm text-foreground">Delete this task?</span>
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => setConfirmDelete(false)}
-                  className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+                  className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
                 >
                   Cancel
                 </button>
@@ -230,14 +230,14 @@ export default function TaskEditModal({
               <div className="flex gap-2">
                 <button
                   onClick={onClose}
-                  className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+                  className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
+                  className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
                 >
                   {saving ? "Saving…" : "Save"}
                 </button>

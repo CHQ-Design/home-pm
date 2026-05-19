@@ -28,7 +28,7 @@ export default function ProjectStatusSelect({
       value={status}
       disabled={isPending}
       onChange={e => handleChange(e.target.value)}
-      className={`text-xs bg-[#EDE6D8] border border-[#D4C9B5] rounded-full px-2 py-0.5 text-[#6B5E52] outline-none focus:border-accent transition-opacity ${
+      className={`text-xs bg-surface border border-border-card rounded-full px-2 py-0.5 text-text-hover outline-none focus:border-accent transition-opacity ${
         isPending ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       }`}
     >

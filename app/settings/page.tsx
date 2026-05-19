@@ -35,8 +35,8 @@ export default async function SettingsPage() {
       <UserManager users={users} currentEmail={currentEmail} />
       <PeopleManager people={people} />
       {currentEmail === process.env.SUPERADMIN_EMAIL?.toLowerCase() && (
-        <div className="mt-10 pt-6 border-t border-[#DDD5C5]">
-          <Link href="/superadmin" className="text-xs text-[#B5A898] hover:text-[#6B5E52]">
+        <div className="mt-10 pt-6 border-t border-border">
+          <Link href="/superadmin" className="text-xs text-text-faint hover:text-text-hover">
             Super Admin
           </Link>
         </div>

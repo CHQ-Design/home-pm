@@ -54,7 +54,7 @@ export default async function Home() {
         <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
       </main>
       {showAddForm && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#F9F5EF] border-t border-[#DDD5C5]">
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border">
           <div className="max-w-2xl mx-auto px-4 pb-[env(safe-area-inset-bottom)]">
             <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} sticky />
           </div>

@@ -38,9 +38,9 @@ function describeCadence(value: number, unit: string): string {
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600 font-medium"
-  if (diff === 0) return "text-[#8B5318] font-medium"
-  if (diff <= 7) return "text-[#8A6E4B]"
-  return "text-[#A09080]"
+  if (diff === 0) return "text-warm-text font-medium"
+  if (diff <= 7) return "text-text-hover"
+  return "text-text-muted"
 }
 
 function dueDateLabel(nextDue: Date | string, today: string): string {
@@ -133,7 +133,7 @@ export default function RecurringTaskItem({
 
   if (editing) {
     return (
-      <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3 overflow-hidden">
+      <div className="p-4 bg-surface rounded-xl border border-border-card space-y-3 overflow-hidden">
         <input
           aria-label="Task title"
           value={form.title}
@@ -149,7 +149,7 @@ export default function RecurringTaskItem({
           options={CADENCES.map(c => ({ label: c.label, value: c.value }))}
         />
         <div className="flex gap-3 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0">Next due</label>
+          <label className="text-xs text-text-secondary shrink-0">Next due</label>
           <div className="flex-1">
             <DatePicker
               value={form.nextDue}
@@ -158,14 +158,14 @@ export default function RecurringTaskItem({
           </div>
         </div>
         <div className="flex gap-3 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
+          <label className="text-xs text-text-secondary shrink-0">Time</label>
           <TimePicker
             value={form.time}
             onChange={time => setForm(f => ({ ...f, time }))}
           />
         </div>
         <div className="flex gap-3 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
+          <label className="text-xs text-text-secondary shrink-0">Remind me</label>
           <div className="flex-1">
             <CustomSelect
               value={form.reminderMinutesBefore}
@@ -214,20 +214,20 @@ export default function RecurringTaskItem({
           <button
             onClick={handleSave}
             disabled={pending}
-            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save"}
           </button>
           <button
             onClick={() => { setEditing(false); onEditEnd?.() }}
-            className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => setShowNotes(v => !v)}
-            className={`text-xs ${showNotes ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+            className={`text-xs ${showNotes ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
           >
             {showNotes ? "− Notes" : "+ Notes"}
           </button>
@@ -244,8 +244,8 @@ export default function RecurringTaskItem({
 
   if (confirming) {
     return (
-      <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3">
-        <p className="text-sm text-[#4A3F34]">Delete <strong>{task.title}</strong>?</p>
+      <div className="p-4 bg-surface rounded-xl border border-border-card space-y-3">
+        <p className="text-sm text-foreground">Delete <strong>{task.title}</strong>?</p>
         <div className="flex gap-2">
           <button
             onClick={handleDelete}
@@ -256,7 +256,7 @@ export default function RecurringTaskItem({
           </button>
           <button
             onClick={() => setConfirming(false)}
-            className="text-sm px-3 py-1 text-[#8C7D6A] hover:text-[#3A3228]"
+            className="text-sm px-3 py-1 text-text-secondary hover:text-foreground"
           >
             Cancel
           </button>
@@ -266,22 +266,22 @@ export default function RecurringTaskItem({
   }
 
   return (
-    <div className="flex items-center gap-3 p-4 bg-[#F2ECE2] rounded-xl border border-[#E4DDD0] group">
+    <div className="flex items-center gap-3 p-4 bg-surface-warm rounded-xl border border-border-subtle group">
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[#3A3228]">{task.title}</p>
+        <p className="text-sm font-medium text-foreground">{task.title}</p>
         <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
-          <span className="text-xs text-[#A09080]">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
-          {task.time && <span className="text-xs text-[#A09080]">{formatTime(task.time)}</span>}
+          <span className="text-xs text-text-muted">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
+          {task.time && <span className="text-xs text-text-muted">{formatTime(task.time)}</span>}
           <span className={`text-xs ${dueDateClass(task.nextDue, today)}`}>{dueDateLabel(task.nextDue, today)}</span>
           {task.assignee && (
-            <span className="text-xs text-[#B5A898]">{task.assignee.name}</span>
+            <span className="text-xs text-text-faint">{task.assignee.name}</span>
           )}
           {task.project && (
-            <span className="text-xs text-[#8C7D6A] bg-[#E8E0D0] rounded px-1.5 py-0.5">{task.project.name}</span>
+            <span className="text-xs text-text-secondary bg-[#E8E0D0] rounded px-1.5 py-0.5">{task.project.name}</span>
           )}
         </div>
         {task.notes && (
-          <p className="text-xs text-[#8C7D6A] mt-1">{task.notes}</p>
+          <p className="text-xs text-text-secondary mt-1">{task.notes}</p>
         )}
       </div>
       <div className="flex items-center shrink-0">
@@ -289,14 +289,14 @@ export default function RecurringTaskItem({
           <>
             <button
               onClick={() => { setEditing(true); onEditStart?.() }}
-              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-[#6B5E52]"
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-text-hover"
               aria-label={`Edit ${task.title}`}
             >
               <IconPencilMinus size={16} aria-hidden="true" />
             </button>
             <button
               onClick={() => setConfirming(true)}
-              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#B5A898] hover:text-red-600"
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-red-600"
               aria-label={`Delete ${task.title}`}
             >
               <IconX size={16} aria-hidden="true" />
@@ -307,7 +307,7 @@ export default function RecurringTaskItem({
           <button
             onClick={handleDone}
             disabled={pending || success}
-            className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 ml-3"
+            className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 ml-3"
           >
             {pending ? "…" : success ? "✓" : "Done"}
           </button>

@@ -31,7 +31,7 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
   const upcoming    = tasks.filter(t => utcDateStr(t.nextDue) > in7Days)
 
   if (tasks.length === 0) {
-    return <p className="text-sm text-[#A09080]">No routines yet. Add one above.</p>
+    return <p className="text-sm text-text-muted">No routines yet. Add one above.</p>
   }
 
   function item(t: RecurringTask) {
@@ -62,14 +62,14 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
 
       {dueThisWeek.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs font-medium text-[#8C7D6A] mb-2">Due this week</h2>
+          <h2 className="text-xs font-medium text-text-secondary mb-2">Due this week</h2>
           <div className="space-y-2">{dueThisWeek.map(item)}</div>
         </section>
       )}
 
       {upcoming.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs font-medium text-[#8C7D6A] mb-2">Upcoming</h2>
+          <h2 className="text-xs font-medium text-text-secondary mb-2">Upcoming</h2>
           <div className="space-y-2">{upcoming.map(item)}</div>
         </section>
       )}

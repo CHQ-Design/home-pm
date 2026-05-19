@@ -58,18 +58,18 @@ export default function AutoSubscribe() {
   if (!showBanner) return null
 
   return (
-    <div className="w-full bg-[#F2ECE2] border-b border-[#D4C9B5] px-4 py-2.5 flex items-center justify-between gap-3">
-      <span className="text-sm text-[#6B5E52]">Get reminders when tasks are due.</span>
+    <div className="w-full bg-surface-warm border-b border-border-card px-4 py-2.5 flex items-center justify-between gap-3">
+      <span className="text-sm text-text-hover">Get reminders when tasks are due.</span>
       <div className="flex items-center gap-4 shrink-0">
         <button
           onClick={handleTurnOn}
-          className="text-sm font-medium text-accent hover:text-[#556148]"
+          className="text-sm font-medium text-accent hover:text-accent-hover"
         >
           Turn on
         </button>
         <button
           onClick={handleDismiss}
-          className="text-sm text-[#B5A898] hover:text-[#6B5E52]"
+          className="text-sm text-text-faint hover:text-text-hover"
           aria-label="Dismiss notification banner"
         >
           ✕

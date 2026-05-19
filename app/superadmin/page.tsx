@@ -14,14 +14,14 @@ async function NewHouseholdForm() {
   }
 
   return (
-    <form action={handleCreate} className="p-4 bg-[#F4EEE3] border border-[#D4C9B5] rounded-xl space-y-3">
-      <p className="text-sm font-medium text-[#3A3228]">New household</p>
+    <form action={handleCreate} className="p-4 bg-surface-raised border border-border-card rounded-xl space-y-3">
+      <p className="text-sm font-medium text-foreground">New household</p>
       <div className="flex gap-2">
         <input
           name="name"
           placeholder="Family name (e.g. Smith Family)"
           autoComplete="off"
-          className="flex-1 bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-[#6B7A5A] focus:ring-1 focus:ring-[#6B7A5A]/20"
+          className="flex-1 bg-surface-warm border border-border-card rounded-md px-3 py-2 text-base text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div className="flex gap-2">
@@ -30,16 +30,16 @@ async function NewHouseholdForm() {
           type="email"
           placeholder="Admin Google email"
           autoComplete="off"
-          className="flex-1 bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-[#6B7A5A] focus:ring-1 focus:ring-[#6B7A5A]/20"
+          className="flex-1 bg-surface-warm border border-border-card rounded-md px-3 py-2 text-base text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-[#6B7A5A] text-white text-sm font-medium rounded-lg hover:bg-[#556148] shrink-0"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover shrink-0"
         >
           Create
         </button>
       </div>
-      <p className="text-xs text-[#A09080]">
+      <p className="text-xs text-text-muted">
         The admin email will be the household owner — they can invite the rest of their family from Settings.
       </p>
     </form>
@@ -58,12 +58,12 @@ export default async function SuperAdminPage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 py-8">
-      <h1 className="font-serif text-2xl font-bold mb-1 text-[#3A3228]">Super Admin</h1>
-      <p className="text-sm text-[#A09080] mb-8">Manage all households on this instance.</p>
+      <h1 className="font-serif text-2xl font-bold mb-1 text-foreground">Super Admin</h1>
+      <p className="text-sm text-text-muted mb-8">Manage all households on this instance.</p>
 
       <div className="space-y-3 mb-8">
         {households.length === 0 && (
-          <p className="text-sm text-[#A09080]">No households yet.</p>
+          <p className="text-sm text-text-muted">No households yet.</p>
         )}
         {households.map(h => (
           <HouseholdCard key={h.id} household={h} />

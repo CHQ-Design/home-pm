@@ -121,19 +121,19 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         className={`${inputClass} resize-none`}
       />
       <div className="flex gap-3 items-center">
-        <label className="text-xs text-[#8C7D6A] shrink-0">Due date</label>
+        <label className="text-xs text-text-secondary shrink-0">Due date</label>
         <div className="flex-1">
           <input type="hidden" name="dueDate" value={dueDate} />
           <DatePicker value={dueDate} onChange={setDueDate} />
         </div>
       </div>
       <div className="flex gap-3 items-center">
-        <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
+        <label className="text-xs text-text-secondary shrink-0">Time</label>
         <TimePicker value={time} onChange={setTime} name="time" />
       </div>
       {dueDate && (
         <div className="flex gap-3 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
+          <label className="text-xs text-text-secondary shrink-0">Remind me</label>
           <div className="flex-1">
             <CustomSelect
               name="reminderMinutesBefore"
@@ -153,7 +153,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       )}
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-xs text-[#8C7D6A] mb-1">Priority</label>
+          <label className="block text-xs text-text-secondary mb-1">Priority</label>
           <CustomSelect
             name="priority"
             value={priority}
@@ -164,7 +164,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         </div>
         {isAdmin && people.length > 0 && (
           <div>
-            <label className="block text-xs text-[#8C7D6A] mb-1">Assignee</label>
+            <label className="block text-xs text-text-secondary mb-1">Assignee</label>
             <CustomSelect
               name="assigneeId"
               value={assigneeId}
@@ -176,7 +176,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         )}
         {isAdmin && !projectId && projects && projects.length > 0 && (
           <div>
-            <label className="block text-xs text-[#8C7D6A] mb-1">Project</label>
+            <label className="block text-xs text-text-secondary mb-1">Project</label>
             <CustomSelect
               name="projectId"
               value={selectedProjectId}
@@ -191,7 +191,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? "Adding…" : "Add"}
         </button>
@@ -227,7 +227,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               {!focused && !titleValue && (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-[#A09080] transition-opacity duration-300"
+                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
                   {PLACEHOLDERS[placeholderIndex]}
@@ -259,7 +259,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               {!focused && !titleValue && (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-[#A09080] transition-opacity duration-300"
+                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
                   {PLACEHOLDERS[placeholderIndex]}
@@ -273,7 +273,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
             onClick={showMore ? closePanel : toggleShowMore}
             aria-expanded={showMore}
             aria-label={showMore ? "Close options" : "More options"}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-[#8C7D6A] hover:text-[#3A3228] shrink-0"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-text-secondary hover:text-foreground shrink-0"
           >
             {showMore
               ? <IconChevronDown size={16} aria-hidden="true" />
@@ -282,7 +282,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           <button
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            className="px-4 py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             {submitting ? "Adding…" : "Add"}
           </button>
@@ -310,7 +310,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           {!focused && !titleValue && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-[#A09080] transition-opacity duration-300"
+              className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
               style={{ opacity: placeholderVisible ? 1 : 0 }}
             >
               {PLACEHOLDERS[placeholderIndex]}
@@ -321,7 +321,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           <button
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? "Adding…" : "Add"}
           </button>
@@ -336,7 +336,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         type="button"
         onClick={toggleShowMore}
         aria-expanded={showMore}
-        className="text-[13px] text-[#7A6A5A] hover:text-[#3A3228] min-h-[44px] inline-flex items-center"
+        className="text-[13px] text-[#7A6A5A] hover:text-foreground min-h-[44px] inline-flex items-center"
       >
         <span className="inline-flex items-center gap-1">
           {showMore ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}

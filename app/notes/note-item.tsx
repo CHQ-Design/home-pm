@@ -83,7 +83,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
 
   if (editing) {
     return (
-      <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3">
+      <div className="p-4 bg-surface rounded-xl border border-border-card space-y-3">
         <input
           value={form.title}
           onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -118,13 +118,13 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           <button
             onClick={handleSave}
             disabled={pending}
-            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save"}
           </button>
           <button
             onClick={() => setEditing(false)}
-            className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
           >
             Cancel
           </button>
@@ -135,8 +135,8 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
 
   if (confirming) {
     return (
-      <div className="p-4 bg-[#EDE6D8] rounded-xl border border-[#D4C9B5] space-y-3">
-        <p className="text-sm text-[#4A3F34]">Delete <strong>{note.title}</strong> and all its attachments?</p>
+      <div className="p-4 bg-surface rounded-xl border border-border-card space-y-3">
+        <p className="text-sm text-foreground">Delete <strong>{note.title}</strong> and all its attachments?</p>
         <div className="flex gap-2">
           <button
             onClick={handleDelete}
@@ -147,7 +147,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           </button>
           <button
             onClick={() => setConfirming(false)}
-            className="text-sm px-3 py-1 text-[#8C7D6A] hover:text-[#3A3228]"
+            className="text-sm px-3 py-1 text-text-secondary hover:text-foreground"
           >
             Cancel
           </button>
@@ -157,10 +157,10 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
   }
 
   return (
-    <div className="p-4 bg-[#F2ECE2] rounded-xl border border-[#E4DDD0] group space-y-2">
+    <div className="p-4 bg-surface-warm rounded-xl border border-border-subtle group space-y-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-base font-medium text-[#3A3228]">{note.title}</p>
+          <p className="text-base font-medium text-foreground">{note.title}</p>
           {note.project && (
             <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent mt-1 inline-block">
               {note.project.name}
@@ -170,14 +170,14 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#C8BFAD] hover:text-[#6B5E52] active:text-[#3A3228]"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-border-chip hover:text-text-hover active:text-foreground"
             aria-label={`Edit ${note.title}`}
           >
             <IconPencilMinus size={15} aria-hidden="true" />
           </button>
           <button
             onClick={() => setConfirming(true)}
-            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-[#C8BFAD] hover:text-red-600 active:text-red-700"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-border-chip hover:text-red-600 active:text-red-700"
             aria-label={`Delete ${note.title}`}
           >
             <IconX size={15} aria-hidden="true" />
@@ -187,13 +187,13 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
 
       {note.body && (
         <div>
-          <p className="text-sm text-[#6B5E52] whitespace-pre-wrap">
+          <p className="text-sm text-text-hover whitespace-pre-wrap">
             {bodyTruncated ? `${note.body.slice(0, 200)}…` : note.body}
           </p>
           {note.body.length > 200 && (
             <button
               onClick={() => setExpanded(v => !v)}
-              className="text-xs text-[#B5A898] hover:text-[#6B5E52] mt-1"
+              className="text-xs text-text-faint hover:text-text-hover mt-1"
             >
               {expanded ? "Show less" : "Show more"}
             </button>
@@ -206,7 +206,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           {tags.map(tag => (
             <span
               key={tag}
-              className="text-xs px-2 py-0.5 rounded-full bg-[#EDE6D8] text-[#8C7D6A] border border-[#D4C9B5]"
+              className="text-xs px-2 py-0.5 rounded-full bg-surface text-text-secondary border border-border-card"
             >
               {tag}
             </span>
@@ -217,7 +217,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
       {note.attachments.length > 0 && (
         <ul className="space-y-1 pt-1">
           {note.attachments.map(att => (
-            <li key={att.id} className="flex items-center justify-between text-xs text-[#6B5E52] bg-[#EDE6D8] rounded px-2 py-1.5">
+            <li key={att.id} className="flex items-center justify-between text-xs text-text-hover bg-surface rounded px-2 py-1.5">
               <a
                 href={`/api/uploads/${att.filename}`}
                 target="_blank"
@@ -225,11 +225,11 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
                 className="truncate hover:text-accent flex-1"
               >
                 {att.originalName}
-                <span className="ml-1.5 text-[#B5A898]">{formatSize(att.size)}</span>
+                <span className="ml-1.5 text-text-faint">{formatSize(att.size)}</span>
               </a>
               <button
                 onClick={() => handleDeleteAttachment(att.id)}
-                className="ml-2 text-[#B5A898] hover:text-red-600 shrink-0"
+                className="ml-2 text-text-faint hover:text-red-600 shrink-0"
                 aria-label={`Remove ${att.originalName}`}
               >
                 ✕
@@ -240,8 +240,8 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
       )}
 
       <div className="flex items-center justify-between pt-1">
-        <span className="text-xs text-[#C8BFAD]">Updated {formatTimestamp(note.updatedAt)}</span>
-        <label className={`text-xs cursor-pointer ${uploading ? "text-[#A09080]" : "text-[#B5A898] hover:text-[#6B5E52]"}`}>
+        <span className="text-xs text-border-chip">Updated {formatTimestamp(note.updatedAt)}</span>
+        <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-faint hover:text-text-hover"}`}>
           {uploading ? "Uploading…" : "+ Attach"}
           <input
             type="file"

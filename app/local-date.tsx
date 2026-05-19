@@ -10,5 +10,5 @@ export default function LocalDate() {
   useEffect(() => {
     setText(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }))
   }, [])
-  return <p className="font-serif text-sm text-[#8C7D6A] mb-1">{text}</p>
+  return <p className="font-serif text-sm text-text-secondary mb-1">{text}</p>
 }

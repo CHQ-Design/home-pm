@@ -20,8 +20,8 @@ function dueDateLabel(nextDue: Date | string, today: string): string {
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600"
-  if (diff === 0) return "text-[#8B5318]"
-  return "text-[#A09080]"
+  if (diff === 0) return "text-warm-text"
+  return "text-text-muted"
 }
 
 function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }) {
@@ -41,7 +41,7 @@ function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }
       onClick={handleClick}
       disabled={pending || success}
       aria-label={`Mark ${taskTitle} as done`}
-      className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50 shrink-0"
+      className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 shrink-0"
     >
       {pending ? "…" : success ? "✓" : "Done"}
     </button>
@@ -61,12 +61,12 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
   return (
     <section className="mb-8" aria-labelledby="heading-routines">
       <div className="flex items-center justify-between mb-3">
-        <h2 id="heading-routines" className="flex items-center gap-1.5 text-xs font-medium text-[#8C7D6A]">
+        <h2 id="heading-routines" className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
           <IconRepeat size={14} aria-hidden="true" />
           Routines
         </h2>
         {isAdmin && (
-          <Link href="/recurring" className="min-h-[44px] inline-flex items-center text-xs text-[#B5A898] hover:text-[#6B5E52]">
+          <Link href="/recurring" className="min-h-[44px] inline-flex items-center text-xs text-text-faint hover:text-text-hover">
             Manage →
           </Link>
         )}
@@ -81,19 +81,19 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
           return (
             <li
               key={task.id}
-              className="flex items-center gap-3 py-2 px-3 bg-[#F2ECE2] rounded-lg border border-[#E4DDD0]"
+              className="flex items-center gap-3 py-2 px-3 bg-surface-warm rounded-lg border border-border-subtle"
             >
               <div className="flex-1 min-w-0">
-                <span className={`${isKid ? "text-xl" : "text-sm"} text-[#3A3228]`}>{task.title}</span>
+                <span className={`${isKid ? "text-xl" : "text-sm"} text-foreground`}>{task.title}</span>
                 {metaParts.length > 0 && (
                   <span className="sr-only">{metaParts.join(" · ")}</span>
                 )}
                 {task.time && !isKid && (
-                  <span aria-hidden="true" className="ml-2 text-xs text-[#A09080]">{formatTime(task.time)}</span>
+                  <span aria-hidden="true" className="ml-2 text-xs text-text-muted">{formatTime(task.time)}</span>
                 )}
                 {isKid ? (
                   dueDateLabel(task.nextDue, today) === "Today" && (
-                    <span aria-hidden="true" className="ml-2 text-xs text-[#8B5318]">Today</span>
+                    <span aria-hidden="true" className="ml-2 text-xs text-warm-text">Today</span>
                   )
                 ) : (
                   <span aria-hidden="true" className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
@@ -101,7 +101,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
                   </span>
                 )}
                 {task.assignee && !isKid && (
-                  <span aria-hidden="true" className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
+                  <span aria-hidden="true" className="ml-2 text-xs text-text-faint">{task.assignee.name}</span>
                 )}
               </div>
               {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} taskTitle={task.title} />}

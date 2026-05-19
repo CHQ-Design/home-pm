@@ -46,7 +46,7 @@ export default function ProjectHeader({
           value={form.name}
           onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
           onKeyDown={e => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") handleCancel() }}
-          className="w-full font-serif text-2xl font-bold bg-transparent border-b-2 border-accent outline-none text-[#3A3228] pb-1"
+          className="w-full font-serif text-2xl font-bold bg-transparent border-b-2 border-accent outline-none text-foreground pb-1"
           autoFocus
         />
         <textarea
@@ -60,13 +60,13 @@ export default function ProjectHeader({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-[#556148] disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
           </button>
           <button
             onClick={handleCancel}
-            className="text-sm px-4 py-1.5 text-[#8C7D6A] hover:text-[#3A3228]"
+            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
           >
             Cancel
           </button>
@@ -78,12 +78,12 @@ export default function ProjectHeader({
   return (
     <div className="mb-6">
       <div className="flex items-start justify-between gap-3">
-        <h1 className="font-serif text-2xl font-bold text-[#3A3228]">{name}</h1>
+        <h1 className="font-serif text-2xl font-bold text-foreground">{name}</h1>
         <div className="flex items-center gap-2 shrink-0">
           <ProjectStatusSelect projectId={projectId} status={status} />
           <button
             onClick={() => setEditing(true)}
-            className="text-sm text-[#B5A898] hover:text-[#6B5E52] transition-colors"
+            className="text-sm text-text-faint hover:text-text-hover transition-colors"
             aria-label="Edit project"
           >
             ✎
@@ -92,16 +92,16 @@ export default function ProjectHeader({
       </div>
 
       {description && (
-        <p className="text-sm text-[#8C7D6A] mt-1">{description}</p>
+        <p className="text-sm text-text-secondary mt-1">{description}</p>
       )}
 
       {progress && progress.total > 0 && (
         <div className="mt-4">
-          <div className="flex items-center justify-between text-xs text-[#A09080] mb-1">
+          <div className="flex items-center justify-between text-xs text-text-muted mb-1">
             <span>{progress.done} of {progress.total} thing{progress.total !== 1 ? "s" : ""} done</span>
             <span>{Math.round((progress.done / progress.total) * 100)}%</span>
           </div>
-          <div className="h-1.5 rounded-full bg-[#E4DDD0] overflow-hidden">
+          <div className="h-1.5 rounded-full bg-border-subtle overflow-hidden">
             <div
               className="h-full rounded-full bg-accent transition-all"
               style={{ width: `${(progress.done / progress.total) * 100}%` }}

@@ -69,7 +69,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         required
       />
       <div className="flex gap-4 items-center">
-        <label className="text-xs text-[#8C7D6A] shrink-0">Cadence</label>
+        <label className="text-xs text-text-secondary shrink-0">Cadence</label>
         <div className="flex-1">
           <CustomSelect
             name="cadence"
@@ -81,7 +81,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         </div>
       </div>
       <div className="flex gap-4 items-center">
-        <label className="text-xs text-[#8C7D6A] shrink-0">First due</label>
+        <label className="text-xs text-text-secondary shrink-0">First due</label>
         <div className="flex-1">
           <input type="hidden" name="nextDue" value={nextDue} />
           <DatePicker value={nextDue} onChange={setNextDue} />
@@ -99,14 +99,14 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
 
       {showTime && (
         <div className="flex gap-4 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0">Time</label>
+          <label className="text-xs text-text-secondary shrink-0">Time</label>
           <TimePicker value={time} onChange={setTime} name="time" />
         </div>
       )}
 
       {showReminder && (
         <div className="flex gap-4 items-center">
-          <label className="text-xs text-[#8C7D6A] shrink-0">Remind me</label>
+          <label className="text-xs text-text-secondary shrink-0">Remind me</label>
           <div className="flex-1">
             <CustomSelect
               name="reminderMinutesBefore"
@@ -150,21 +150,21 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
           <button
             type="button"
             onClick={() => setShowNotes(v => !v)}
-            className={`text-xs ${showNotes ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+            className={`text-xs ${showNotes ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
           >
             {showNotes ? "− Notes" : "+ Notes"}
           </button>
           <button
             type="button"
             onClick={() => setShowTime(v => !v)}
-            className={`text-xs ${showTime ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+            className={`text-xs ${showTime ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
           >
             {showTime ? "− Time" : "+ Time"}
           </button>
           <button
             type="button"
             onClick={() => setShowReminder(v => !v)}
-            className={`text-xs ${showReminder ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+            className={`text-xs ${showReminder ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
           >
             {showReminder ? "− Reminder" : "+ Reminder"}
           </button>
@@ -172,7 +172,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
             <button
               type="button"
               onClick={() => setShowAssignee(v => !v)}
-              className={`text-xs ${showAssignee ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+              className={`text-xs ${showAssignee ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
             >
               {showAssignee ? "− Assignee" : "+ Assignee"}
             </button>
@@ -181,7 +181,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
             <button
               type="button"
               onClick={() => setShowProject(v => !v)}
-              className={`text-xs ${showProject ? "text-accent" : "text-[#B5A898] hover:text-[#6B5E52]"}`}
+              className={`text-xs ${showProject ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
             >
               {showProject ? "− Project" : "+ Project"}
             </button>
@@ -189,7 +189,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-[#556148]"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover"
         >
           Add routine
         </button>

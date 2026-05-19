@@ -42,7 +42,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
         value={search}
         onChange={e => setSearch(e.target.value)}
         placeholder="Search notes…"
-        className="w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20 mb-4"
+        className="w-full bg-surface-warm border border-border-card rounded-md px-3 py-2 text-sm text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 mb-4"
       />
 
       {allTags.length > 0 && (
@@ -53,7 +53,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
             className={`text-xs px-3 py-1.5 rounded-full transition-colors border font-medium ${
               activeTag === null
                 ? "bg-accent text-white border-accent"
-                : "bg-[#EDE6D8] text-[#6B5E52] border-[#C8BFAD] hover:bg-[#E4DBD0]"
+                : "bg-surface text-text-hover border-border-chip hover:bg-[#E4DBD0]"
             }`}
           >
             All
@@ -66,7 +66,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
               className={`text-xs px-3 py-1.5 rounded-full transition-colors border font-medium ${
                 activeTag === tag
                   ? "bg-accent text-white border-accent"
-                  : "bg-[#EDE6D8] text-[#6B5E52] border-[#C8BFAD] hover:bg-[#E4DBD0]"
+                  : "bg-surface text-text-hover border-border-chip hover:bg-[#E4DBD0]"
               }`}
             >
               {tag}
@@ -76,7 +76,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
       )}
 
       {filtered.length === 0 && (
-        <p className="text-sm text-[#A09080] py-4">
+        <p className="text-sm text-text-muted py-4">
           {notes.length === 0 ? "Nothing saved yet. Add a thought above." : "No notes match your search."}
         </p>
       )}
