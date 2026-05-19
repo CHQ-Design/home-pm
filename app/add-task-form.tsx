@@ -110,6 +110,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
     setSelectedProjectId("")
     setReminderMinutesBefore("")
     setSubmitting(false)
+    if (sticky) closePanel()
   }
 
   const extraFields = (
