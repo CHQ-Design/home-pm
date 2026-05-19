@@ -3,28 +3,9 @@ import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { ALLOWED_EXTENSIONS, MIME_MAP } from "@/lib/upload"
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10 MB
-
-const ALLOWED_EXTENSIONS = new Set([
-  "pdf", "png", "jpg", "jpeg", "gif", "webp",
-  "txt", "md", "csv", "xlsx", "docx", "ics",
-])
-
-const MIME_MAP: Record<string, string> = {
-  pdf: "application/pdf",
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  gif: "image/gif",
-  webp: "image/webp",
-  txt: "text/plain",
-  md: "text/markdown",
-  csv: "text/csv",
-  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ics: "text/calendar",
-}
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)

@@ -4,21 +4,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-
-const MIME_MAP: Record<string, string> = {
-  pdf: "application/pdf",
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  gif: "image/gif",
-  webp: "image/webp",
-  txt: "text/plain",
-  md: "text/markdown",
-  csv: "text/csv",
-  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ics: "text/calendar",
-}
+import { MIME_MAP } from "@/lib/upload"
 
 export async function GET(
   _request: Request,
@@ -63,10 +49,11 @@ export async function GET(
     const file = await readFile(filepath)
     const ext = filename.split(".").pop()?.toLowerCase() ?? ""
     const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
+    const safeName = (att.originalName ?? filename).replace(/"/g, "")
     return new Response(file, {
       headers: {
         "Content-Type": mimeType,
-        "Content-Disposition": `attachment; filename="${att.originalName ?? filename}"`,
+        "Content-Disposition": `attachment; filename="${safeName}"`,
       },
     })
   } catch {

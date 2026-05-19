@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { todayUTC } from "@/lib/dates"
-import { parseReminder, parseId, parseTime, TIME_RE } from "@/lib/parse"
+import { parseReminder, parseId, parseTime, parseDate, TIME_RE } from "@/lib/parse"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
 type Priority = typeof VALID_PRIORITIES[number]
@@ -13,11 +13,6 @@ function parsePriority(raw: unknown): Priority {
   return VALID_PRIORITIES.includes(raw as Priority) ? (raw as Priority) : "medium"
 }
 
-function parseDate(raw: string | null): Date | null {
-  if (!raw) return null
-  const d = new Date(raw)
-  return isNaN(d.getTime()) ? null : d
-}
 
 
 export async function addTask(formData: FormData) {

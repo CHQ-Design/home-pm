@@ -2,17 +2,12 @@
 
 import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
-import { parseReminder, parseId, parseTime, TIME_RE } from "@/lib/parse"
+import { parseReminder, parseId, parseTime, parseDate, TIME_RE } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 
 const VALID_UNITS = ["day", "week", "month", "year", "weekday"] as const
 type Unit = typeof VALID_UNITS[number]
 
-function parseDate(raw: string | null): Date | null {
-  if (!raw) return null
-  const d = new Date(raw)
-  return isNaN(d.getTime()) ? null : d
-}
 
 
 function computeNextDue(from: Date, value: number, unit: Unit): Date {

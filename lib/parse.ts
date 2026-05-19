@@ -16,3 +16,9 @@ export function parseTime(raw: string | null | undefined): string | null {
   if (!raw) return null
   return TIME_RE.test(raw) ? raw : null
 }
+
+export function parseDate(raw: string | null | undefined): Date | null {
+  if (!raw) return null
+  const d = new Date(raw)
+  return isNaN(d.getTime()) ? null : d
+}
