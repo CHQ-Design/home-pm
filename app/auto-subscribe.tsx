@@ -42,6 +42,7 @@ export default function AutoSubscribe() {
   }, [session])
 
   async function handleTurnOn() {
+    localStorage.setItem("notif-banner-dismissed", "1")
     setShowBanner(false)
     try {
       await registerAndSubscribe()
