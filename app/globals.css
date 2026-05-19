@@ -37,6 +37,7 @@
 html {
   background: var(--background);
   scrollbar-gutter: stable both-edges;
+  overflow-x: hidden;
 }
 
 body {

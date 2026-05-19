@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { DayPicker } from "react-day-picker"
 
 interface Props {
@@ -137,7 +138,7 @@ export default function DatePicker({ value, onChange }: Props) {
         </button>
       )}
 
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <div
           ref={calendarRef}
           className="fixed z-[200] bg-surface-raised border border-border-card rounded-xl shadow-2xl p-3"
@@ -151,7 +152,8 @@ export default function DatePicker({ value, onChange }: Props) {
             defaultMonth={selected ?? new Date()}
             classNames={calendarClassNames}
           />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
