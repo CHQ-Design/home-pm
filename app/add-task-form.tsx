@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import type { Person, Project } from "@prisma/client"
-import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
+import { IconChevronDown, IconChevronRight, IconDots } from "@tabler/icons-react"
 import { addTask } from "./actions"
 import { inputClass } from "@/lib/styles"
 import DatePicker from "./date-picker"
@@ -40,6 +41,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [focused, setFocused] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
+  const panelTitleRef = useRef<HTMLInputElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -63,6 +65,10 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
     }
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
+  }, [sticky, showMore])
+
+  useEffect(() => {
+    if (sticky && showMore) panelTitleRef.current?.focus()
   }, [sticky, showMore])
 
   function closePanel() {
@@ -181,86 +187,106 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           </div>
         )}
       </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {submitting ? "Adding…" : "Add"}
-      </button>
+      {!sticky && (
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting ? "Adding…" : "Add"}
+        </button>
+      )}
     </div>
   )
 
   if (sticky) {
     return (
-      <form ref={formRef} onSubmit={handleSubmit} className="relative">
+      <form ref={formRef} onSubmit={handleSubmit}>
         {projectId && <input type="hidden" name="projectId" value={projectId} />}
 
+        {showMore && createPortal(
+          <div className="fixed inset-0 z-20 bg-foreground/10" onClick={closePanel} aria-hidden="true" />,
+          document.body
+        )}
+
         {showMore && (
-          <div className="absolute bottom-full left-0 right-0 bg-[#F9F5EF] border-t border-[#DDD5C5] shadow-[0_-8px_24px_rgba(58,50,40,0.12)] max-h-[70vh] overflow-y-auto">
-            <div className="py-3 px-0 space-y-2">
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={closePanel}
-                  aria-label="Close options"
-                  className="min-h-[44px] min-w-[44px] flex items-center justify-center text-[#8C7D6A] hover:text-[#3A3228]"
+          <div className="max-h-[60vh] overflow-y-auto pt-3 pb-2 space-y-3">
+            <div className="relative">
+              <input
+                ref={panelTitleRef}
+                name="title"
+                aria-label="Task title"
+                value={titleValue}
+                onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
+                className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
+                style={titleError ? { animation: "shake 0.4s ease-in-out" } : undefined}
+                autoComplete="off"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+              />
+              {!focused && !titleValue && (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-[#A09080] transition-opacity duration-300"
+                  style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
-                  <IconChevronDown size={16} aria-hidden="true" />
-                </button>
-              </div>
-              {extraFields}
+                  {PLACEHOLDERS[placeholderIndex]}
+                </span>
+              )}
             </div>
+            {extraFields}
           </div>
         )}
 
         {submitError && (
-          <p className="text-sm text-red-600 px-1 pb-1">{submitError}</p>
+          <p className="text-sm text-red-600 px-1 pt-2">{submitError}</p>
         )}
 
-        <div className="flex gap-2 relative pt-3 pb-1">
-          <div className="relative flex-1 min-w-0">
-            <input
-              name="title"
-              aria-label="Task title"
-              value={titleValue}
-              onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
-              className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
-              style={titleError ? { animation: "shake 0.4s ease-in-out" } : undefined}
-              autoComplete="off"
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-            />
-            {!focused && !titleValue && (
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-[#A09080] transition-opacity duration-300"
-                style={{ opacity: placeholderVisible ? 1 : 0 }}
-              >
-                {PLACEHOLDERS[placeholderIndex]}
-              </span>
-            )}
-          </div>
+        <div className="flex gap-2 items-center py-3">
+          {!showMore && (
+            <div className="relative flex-1 min-w-0">
+              <input
+                name="title"
+                aria-label="Task title"
+                value={titleValue}
+                onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
+                className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
+                style={titleError ? { animation: "shake 0.4s ease-in-out" } : undefined}
+                autoComplete="off"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+              />
+              {!focused && !titleValue && (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-[#A09080] transition-opacity duration-300"
+                  style={{ opacity: placeholderVisible ? 1 : 0 }}
+                >
+                  {PLACEHOLDERS[placeholderIndex]}
+                </span>
+              )}
+            </div>
+          )}
+          {showMore && <div className="flex-1" />}
+          <button
+            type="button"
+            onClick={showMore ? closePanel : toggleShowMore}
+            aria-expanded={showMore}
+            aria-label={showMore ? "Close options" : "More options"}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-[#8C7D6A] hover:text-[#3A3228] shrink-0"
+          >
+            {showMore
+              ? <IconChevronDown size={16} aria-hidden="true" />
+              : <IconDots size={16} aria-hidden="true" />}
+          </button>
           <button
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-accent text-white font-medium text-sm rounded-lg hover:bg-[#556148] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
           >
             {submitting ? "Adding…" : "Add"}
           </button>
         </div>
-
-        <button
-          type="button"
-          onClick={toggleShowMore}
-          aria-expanded={showMore}
-          className="text-[13px] text-[#7A6A5A] hover:text-[#3A3228] min-h-[44px] inline-flex items-center"
-        >
-          <span className="inline-flex items-center gap-1">
-            {showMore ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
-            {showMore ? "fewer options" : "more options"}
-          </span>
-        </button>
       </form>
     )
   }
