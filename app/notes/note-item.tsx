@@ -4,6 +4,7 @@ import { useState } from "react"
 import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import type { Prisma, Project } from "@prisma/client"
 import { updateNote, deleteNote, deleteAttachment } from "./actions"
+import { formatTimestamp } from "@/lib/dates"
 
 type Note = Prisma.NoteGetPayload<{ include: { attachments: true; project: true } }>
 
@@ -24,9 +25,6 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function formatDate(d: Date | string): string {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
 
 export default function NoteItem({ note, projects }: { note: Note; projects: Project[] }) {
   const [editing, setEditing] = useState(false)
@@ -243,7 +241,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
       )}
 
       <div className="flex items-center justify-between pt-1">
-        <span className="text-xs text-[#C8BFAD]">Updated {formatDate(note.updatedAt)}</span>
+        <span className="text-xs text-[#C8BFAD]">Updated {formatTimestamp(note.updatedAt)}</span>
         <label className={`text-xs cursor-pointer ${uploading ? "text-[#A09080]" : "text-[#B5A898] hover:text-[#6B5E52]"}`}>
           {uploading ? "Uploading…" : "+ Attach"}
           <input
