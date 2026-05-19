@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { parseId } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
-import { unlink } from "fs/promises"
-import { join } from "path"
 import { del } from "@vercel/blob"
 
 type AttachmentInput = {
@@ -32,12 +30,8 @@ function normalizeTags(raw: string): string | null {
   return tags.length > 0 ? tags.join(", ") : null
 }
 
-async function removeFile(filename: string, blobUrl?: string | null) {
-  if (blobUrl) {
-    await del(blobUrl).catch(() => {})
-  } else {
-    await unlink(join(process.cwd(), "uploads", filename)).catch(() => {})
-  }
+async function removeFile(_filename: string, blobUrl?: string | null) {
+  if (blobUrl) await del(blobUrl).catch(() => {})
 }
 
 export async function addNote(formData: FormData, attachments: AttachmentInput[]) {

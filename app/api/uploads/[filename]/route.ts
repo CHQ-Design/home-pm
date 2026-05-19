@@ -1,5 +1,3 @@
-import { readFile } from "fs/promises"
-import { join } from "path"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -43,20 +41,5 @@ export async function GET(
     })
   }
 
-  // Legacy files: read from local disk
-  const filepath = join(process.cwd(), "uploads", filename)
-  try {
-    const file = await readFile(filepath)
-    const ext = filename.split(".").pop()?.toLowerCase() ?? ""
-    const mimeType = MIME_MAP[ext] ?? "application/octet-stream"
-    const safeName = (att.originalName ?? filename).replace(/"/g, "")
-    return new Response(file, {
-      headers: {
-        "Content-Type": mimeType,
-        "Content-Disposition": `attachment; filename="${safeName}"`,
-      },
-    })
-  } catch {
-    return NextResponse.json({ error: "Not found" }, { status: 404 })
-  }
+  return NextResponse.json({ error: "Not found" }, { status: 404 })
 }
