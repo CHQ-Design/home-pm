@@ -140,19 +140,21 @@ export default function DatePicker({ value, onChange }: Props) {
       )}
 
       {open && typeof document !== "undefined" && createPortal(
-        <div
-          ref={calendarRef}
-          className="fixed z-[200] bg-surface-raised border border-border-card rounded-xl shadow-2xl p-3"
-          style={{ top: calPos.top, left: calPos.left }}
-        >
-          <DayPicker
-            mode="single"
-            selected={selected}
-            onSelect={handleSelect}
-            onDayClick={() => setOpen(false)}
-            defaultMonth={selected ?? new Date()}
-            classNames={calendarClassNames}
-          />
+        <div className="fixed inset-0 z-[200] overflow-hidden pointer-events-none">
+          <div
+            ref={calendarRef}
+            className="absolute bg-surface-raised border border-border-card rounded-xl shadow-lg p-3 pointer-events-auto"
+            style={{ top: calPos.top, left: calPos.left }}
+          >
+            <DayPicker
+              mode="single"
+              selected={selected}
+              onSelect={handleSelect}
+              onDayClick={() => setOpen(false)}
+              defaultMonth={selected ?? new Date()}
+              classNames={calendarClassNames}
+            />
+          </div>
         </div>,
         document.body
       )}
