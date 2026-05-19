@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
 import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
-import { todayUTC, todayLocal, daysDiff, formatTime } from "@/lib/dates"
+import { todayUTC, todayLocal, daysDiff, formatTime, formatDate } from "@/lib/dates"
 import { inputClass } from "@/lib/styles"
 import DatePicker from "../date-picker"
 import TimePicker from "../time-picker"
@@ -34,9 +34,6 @@ function describeCadence(value: number, unit: string): string {
   return `Every ${value} ${unit}s`
 }
 
-function formatDate(d: Date | string): string {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
-}
 
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)

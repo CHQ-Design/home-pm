@@ -19,8 +19,6 @@ export async function GET(request: Request) {
 
   const now = new Date()
   const windowStart = new Date(now.getTime() - 60 * 60 * 1000)
-  const adminUser = await prisma.user.findFirst({ where: { role: "admin" }, select: { email: true } })
-  const adminEmail = adminUser?.email ?? ""
 
   const [tasks, routines] = await Promise.all([
     prisma.task.findMany({
@@ -47,7 +45,7 @@ export async function GET(request: Request) {
     if (!task.dueDate) continue
     const fireAt = computeNotifyAt(task.dueDate, task.time, task.reminderMinutesBefore!)
     if (fireAt < windowStart || fireAt > now) continue
-    const email = task.assignee?.email?.toLowerCase() ?? adminEmail
+    const email = task.assignee?.email?.toLowerCase()
     if (!email) continue
     taskIds.push(task.id)
     const list = byEmail.get(email) ?? []
@@ -58,7 +56,7 @@ export async function GET(request: Request) {
   for (const routine of routines) {
     const fireAt = computeNotifyAt(routine.nextDue, routine.time, routine.reminderMinutesBefore!)
     if (fireAt < windowStart || fireAt > now) continue
-    const email = routine.assignee?.email?.toLowerCase() ?? adminEmail
+    const email = routine.assignee?.email?.toLowerCase()
     if (!email) continue
     routineIds.push(routine.id)
     const list = byEmail.get(email) ?? []

@@ -26,6 +26,8 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const householdId = session.user.householdId
+  if (!householdId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { filename } = await params
   if (!filename || filename.includes("..") || filename.includes("/")) {
@@ -34,9 +36,9 @@ export async function GET(
 
   const att = await prisma.attachment.findFirst({
     where: { filename },
-    select: { id: true, originalName: true, blobUrl: true },
+    select: { id: true, originalName: true, blobUrl: true, note: { select: { householdId: true } } },
   })
-  if (!att) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  if (!att || att.note.householdId !== householdId) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
   // New files: fetch from Vercel Blob using server-side token and proxy
   if (att.blobUrl) {

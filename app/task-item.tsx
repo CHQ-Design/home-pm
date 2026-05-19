@@ -6,7 +6,7 @@ import type { Person, Project, Prisma } from "@prisma/client"
 import { IconBell, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
-import { todayLocal, utcDateStr, formatTime } from "@/lib/dates"
+import { todayLocal, utcDateStr, formatTime, formatShortDate } from "@/lib/dates"
 import { getPersonColor } from "@/lib/person-colors"
 import { playCompletionTone } from "@/lib/sounds"
 
@@ -22,13 +22,6 @@ const PRIORITY_STYLES: Record<Priority, string> = {
 const PARTICLE_ANGLES = [0, 60, 120, 180, 240, 300]
 const KID_PARTICLE_ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
 
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  })
-}
 
 function relativeDateLabel(date: Date): string {
   const today = todayLocal()
@@ -248,7 +241,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               )}
               {task.dueDate && !isKid && (
                 <span className="text-xs text-[#A09080]" suppressHydrationWarning>
-                  {isAdmin ? formatDate(task.dueDate) : relativeDateLabel(task.dueDate)}
+                  {isAdmin ? formatShortDate(task.dueDate) : relativeDateLabel(task.dueDate)}
                 </span>
               )}
               {task.dueDate && isKid && relativeDateLabel(task.dueDate) === "Today" && (

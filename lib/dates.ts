@@ -28,3 +28,11 @@ export function formatTime(time: string): string {
   const hour = h % 12 || 12
   return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`
 }
+
+export function formatDate(d: Date | string): string {
+  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
+}
+
+export function formatShortDate(d: Date | string): string {
+  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
+}

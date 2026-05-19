@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { getSessionUser, verifyBelongsToHousehold } from "@/lib/require-auth"
+import { parseId } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 import { unlink } from "fs/promises"
 import { join } from "path"
@@ -48,7 +49,7 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
   const body = ((formData.get("body") as string) ?? "").trim() || null
   const tags = normalizeTags((formData.get("tags") as string) ?? "")
   const projectIdRaw = formData.get("projectId") as string
-  const projectId = projectIdRaw ? await verifyBelongsToHousehold("project", Number(projectIdRaw), sessionUser.householdId) : null
+  const projectId = projectIdRaw ? await verifyBelongsToHousehold("project", parseId(projectIdRaw), sessionUser.householdId) : null
   const safeAttachments = sanitizeAttachments(attachments)
 
   await prisma.note.create({

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
-import { parseReminder } from "@/lib/parse"
+import { parseReminder, parseId, parseTime, TIME_RE } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 
 const VALID_UNITS = ["day", "week", "month", "year", "weekday"] as const
@@ -14,17 +14,6 @@ function parseDate(raw: string | null): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
-function parseId(raw: string | null): number | null {
-  if (!raw) return null
-  const n = parseInt(raw, 10)
-  return isNaN(n) || n <= 0 ? null : n
-}
-
-const TIME_RE = /^\d{2}:\d{2}$/
-function parseTime(raw: string | null): string | null {
-  if (!raw) return null
-  return TIME_RE.test(raw) ? raw : null
-}
 
 function computeNextDue(from: Date, value: number, unit: Unit): Date {
   const d = new Date(from)
