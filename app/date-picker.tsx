@@ -134,14 +134,24 @@ export default function DatePicker({ value, onChange }: Props) {
 
   return (
     <div ref={inputRef} className="relative">
-      <input
-        readOnly
-        value={formatDisplay(value)}
+      {/*
+        Use a button, not a readOnly input. iOS Safari auto-zooms (scales the
+        viewport) when any input with font-size < 16px is focused — even readonly
+        ones. That zoom is what causes the "screen expanding outside the viewport"
+        bug. Buttons never trigger keyboard, zoom, or focus-scroll on iOS.
+      */}
+      <button
+        type="button"
         onClick={openCalendar}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCalendar() } }}
-        placeholder="No date"
-        className="w-full text-sm bg-surface-warm border border-border-card rounded-md px-3 py-2 text-foreground placeholder-text-muted outline-none focus:border-accent cursor-pointer"
-      />
+        className="w-full text-sm text-left bg-surface-warm border border-border-card rounded-md px-3 py-2 text-foreground outline-none focus-visible:border-accent cursor-pointer"
+        style={{ touchAction: "manipulation" }}
+      >
+        {value
+          ? formatDisplay(value)
+          : <span className="text-text-muted">No date</span>
+        }
+      </button>
       {value && (
         <button
           type="button"
