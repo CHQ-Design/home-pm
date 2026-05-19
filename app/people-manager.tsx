@@ -9,6 +9,7 @@ type PersonWithCount = Prisma.PersonGetPayload<{
   include: { _count: { select: { tasks: { where: { completed: false } } } } }
 }>
 
+// py-1.5 and no w-full intentional — compact inline input within a flex row
 const inputClass =
   "bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-1.5 text-base text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
