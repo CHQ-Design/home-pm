@@ -4,8 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+import { EMAIL_RE } from "@/lib/parse"
 
 async function requireSuperAdmin() {
   const superEmail = process.env.SUPERADMIN_EMAIL?.toLowerCase()

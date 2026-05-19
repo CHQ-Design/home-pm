@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { todayUTC } from "@/lib/dates"
-import { parseReminder, parseId, parseTime, parseDate, TIME_RE } from "@/lib/parse"
+import { parseReminder, parseId, parseTime, parseDate, TIME_RE, EMAIL_RE } from "@/lib/parse"
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
 type Priority = typeof VALID_PRIORITIES[number]
@@ -147,6 +147,7 @@ export async function updatePerson(id: number, data: { email?: string | null; is
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email
+  if (email && !EMAIL_RE.test(email)) return { error: "Invalid email address" }
   await prisma.person.update({ where: { id, householdId: sessionUser.householdId }, data: { ...data, email } })
   revalidatePath("/", "layout")
 }

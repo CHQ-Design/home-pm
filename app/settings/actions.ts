@@ -5,8 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+import { EMAIL_RE } from "@/lib/parse"
 
 export async function inviteUser(formData: FormData) {
   const sessionUser = await getSessionUser()
@@ -52,6 +51,7 @@ export async function removeUser(id: number) {
 export async function updateUserRole(id: number, role: "admin" | "member") {
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  if (role !== "admin" && role !== "member") return { error: "Invalid role" }
 
   const session = await getServerSession(authOptions)
   const currentEmail = session?.user?.email?.toLowerCase() ?? ""

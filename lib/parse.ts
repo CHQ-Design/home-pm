@@ -1,3 +1,4 @@
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export const TIME_RE = /^\d{2}:\d{2}$/
 
 export function parseReminder(raw: string | null | undefined): number | null {
