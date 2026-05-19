@@ -59,7 +59,8 @@ const calendarClassNames = {
   chevron: "fill-current",
 }
 
-const CAL_WIDTH = 256
+// container is w-64 (256px) + p-3 (12px × 2) + border (1px × 2) = 282px
+const CAL_WIDTH = 282
 const CAL_HEIGHT = 300
 const MARGIN = 8
 
@@ -81,7 +82,7 @@ export default function DatePicker({ value, onChange }: Props) {
         : rect.bottom + MARGIN
 
     const rawLeft = rect.left
-    const left = Math.min(rawLeft, window.innerWidth - CAL_WIDTH - MARGIN)
+    const left = Math.max(MARGIN, Math.min(rawLeft, window.innerWidth - CAL_WIDTH - MARGIN))
 
     setCalPos({ top, left })
     setOpen(v => !v)
