@@ -35,6 +35,7 @@ export async function addRecurringTask(formData: FormData) {
 
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
+  if (title.length > 500) return { error: "Title is too long" }
 
   const cadence = (formData.get("cadence") as string) ?? ""
   const [ivStr, iu] = cadence.split("|")
@@ -46,6 +47,7 @@ export async function addRecurringTask(formData: FormData) {
   if (!nextDue) return
 
   const notes = ((formData.get("notes") as string) ?? "").trim() || null
+  if (notes && notes.length > 10000) return { error: "Notes are too long" }
 
   const reminderMinutesBefore = parseReminder(formData.get("reminderMinutesBefore") as string | null)
 

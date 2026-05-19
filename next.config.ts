@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
             "font-src 'self'",
             "img-src 'self' data:",
             "connect-src 'self'",
+            "object-src 'none'",
           ].join("; "),
         },
       ],

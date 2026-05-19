@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { MIME_MAP } from "@/lib/upload"
+import { getSessionUser } from "@/lib/require-auth"
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ filename: string }> }
 ) {
-  const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  const householdId = session.user.householdId
-  if (!householdId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const householdId = sessionUser.householdId
 
   const { filename } = await params
   if (!filename || filename.includes("..") || filename.includes("/")) {

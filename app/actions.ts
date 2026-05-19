@@ -26,7 +26,9 @@ export async function addTask(formData: FormData) {
 
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
+  if (title.length > 500) return { error: "Title is too long" }
   const notes = (formData.get("notes") as string | null)?.trim() || null
+  if (notes && notes.length > 10000) return { error: "Notes are too long" }
   const priority = parsePriority(formData.get("priority"))
 
   const [assigneeId, projectId] = isAdmin
@@ -113,6 +115,7 @@ export async function updateTask(
   if (data.title !== undefined) {
     data.title = data.title.trim()
     if (!data.title) delete data.title
+    else if (data.title.length > 500) return { error: "Title is too long" }
   }
   if (data.priority !== undefined) {
     data.priority = parsePriority(data.priority)
@@ -139,6 +142,7 @@ export async function addPerson(formData: FormData) {
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const name = ((formData.get("name") as string) ?? "").trim()
   if (!name) return
+  if (name.length > 100) return { error: "Name is too long" }
   await prisma.person.create({ data: { name, householdId: sessionUser.householdId } })
   revalidatePath("/", "layout")
 }

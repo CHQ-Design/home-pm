@@ -21,7 +21,12 @@ function sanitizeAttachments(atts: AttachmentInput[]): AttachmentInput[] {
     UUID_FILENAME_RE.test(att.filename) &&
     typeof att.originalName === "string" && att.originalName.length > 0 &&
     typeof att.mimeType === "string" &&
-    typeof att.size === "number" && att.size > 0
+    typeof att.size === "number" && att.size > 0 &&
+    (att.blobUrl === undefined || (
+      typeof att.blobUrl === "string" &&
+      att.blobUrl.startsWith("https://") &&
+      att.blobUrl.includes(".blob.vercel-storage.com/")
+    ))
   )
 }
 
@@ -39,9 +44,13 @@ export async function addNote(formData: FormData, attachments: AttachmentInput[]
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
   const title = ((formData.get("title") as string) ?? "").trim()
   if (!title) return
+  if (title.length > 500) return { error: "Title is too long" }
 
   const body = ((formData.get("body") as string) ?? "").trim() || null
-  const tags = normalizeTags((formData.get("tags") as string) ?? "")
+  if (body && body.length > 10000) return { error: "Body is too long" }
+  const rawTags = (formData.get("tags") as string) ?? ""
+  if (rawTags.length > 200) return { error: "Tags are too long" }
+  const tags = normalizeTags(rawTags)
   const projectIdRaw = formData.get("projectId") as string
   const projectId = projectIdRaw ? await verifyBelongsToHousehold("project", parseId(projectIdRaw), sessionUser.householdId) : null
   const safeAttachments = sanitizeAttachments(attachments)
@@ -69,8 +78,11 @@ export async function updateNote(
   if (data.title !== undefined) {
     data.title = data.title.trim()
     if (!data.title) delete data.title
+    else if (data.title.length > 500) return { error: "Title is too long" }
   }
+  if (data.body !== undefined && data.body !== null && data.body.length > 10000) return { error: "Body is too long" }
   if (data.tags !== undefined && data.tags !== null) {
+    if (data.tags.length > 200) return { error: "Tags are too long" }
     data = { ...data, tags: normalizeTags(data.tags) }
   }
   if (data.projectId !== undefined && data.projectId !== null) {
