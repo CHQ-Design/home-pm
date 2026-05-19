@@ -46,6 +46,9 @@ export default function RootLayout({
         <meta name="theme-color" content="#6B7A5A" />
       </head>
       <body className="min-h-[100dvh] flex flex-col overflow-x-hidden">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-[#3A3228] focus:rounded-md focus:shadow-md">
+          Skip to main content
+        </a>
         <AuthSessionProvider>
           <AutoSubscribe />
           <Nav />

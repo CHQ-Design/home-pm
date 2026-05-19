@@ -106,7 +106,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 toggleTask(task.id)
               }}
               disabled={!canToggle}
-              aria-label={task.title}
+              aria-label={`Mark ${task.title} as ${task.completed ? "incomplete" : "complete"}`}
               className="peer sr-only"
             />
             <span
@@ -172,6 +172,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               onClick={openInline}
               onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
               role={isAdmin && !task.completed ? "button" : undefined}
+              aria-label={isAdmin && !task.completed ? `${task.title} – edit` : undefined}
               tabIndex={isAdmin && !task.completed ? 0 : -1}
               className={`relative flex-1 ${isKid ? "text-xl" : "text-base"} font-medium ${
                 task.completed

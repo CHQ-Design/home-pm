@@ -39,7 +39,7 @@ export default async function Home() {
   const isKid = memberPerson?.isKid ?? false
 
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 py-8">
+    <main id="main-content" className="w-full max-w-2xl mx-auto px-4 py-8">
       <LocalDate />
       {memberPerson && memberColor ? (
         <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />

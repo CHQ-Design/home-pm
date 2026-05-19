@@ -60,9 +60,10 @@ function Section({
   isKid: boolean
 }) {
   if (tasks.length === 0) return null
+  const headingId = `heading-${title.toLowerCase().replace(/\s+/g, "-")}`
   return (
-    <section className="mt-6 mb-4">
-      <h2 className={`flex items-center gap-1.5 font-serif text-lg mb-2 ${titleClass}`} style={titleStyle}>
+    <section className="mt-6 mb-4" aria-labelledby={headingId}>
+      <h2 id={headingId} className={`flex items-center gap-1.5 font-serif text-lg mb-2 ${titleClass}`} style={titleStyle}>
         {icon}
         {title}
       </h2>
@@ -332,6 +333,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
               setShowCompleted(v => !v)
             }}
             aria-expanded={showCompleted}
+            aria-label={showCompleted ? `Hide ${groups.completed.length} completed ${groups.completed.length === 1 ? "task" : "tasks"}` : `Show ${groups.completed.length} completed ${groups.completed.length === 1 ? "task" : "tasks"}`}
             className="min-h-[44px] inline-flex items-center text-sm text-[#8C7D6A] hover:text-[#3A3228] rounded-md px-1"
             style={completedPulse ? { animation: "warm-pulse 600ms ease-out" } : undefined}
           >

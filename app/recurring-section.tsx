@@ -55,9 +55,9 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
   if (tasks.length === 0) return null
 
   return (
-    <section className="mb-8">
+    <section className="mb-8" aria-labelledby="heading-routines">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="flex items-center gap-1.5 text-xs font-medium text-[#8C7D6A]">
+        <h2 id="heading-routines" className="flex items-center gap-1.5 text-xs font-medium text-[#8C7D6A]">
           <IconRepeat size={14} aria-hidden="true" />
           Routines
         </h2>
@@ -67,34 +67,44 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
           </Link>
         )}
       </div>
-      <div className="space-y-1.5">
-        {tasks.map(task => (
-          <div
-            key={task.id}
-            className="flex items-center gap-3 py-2 px-3 bg-[#F2ECE2] rounded-lg border border-[#E4DDD0]"
-          >
-            <div className="flex-1 min-w-0">
-              <span className={`${isKid ? "text-xl" : "text-sm"} text-[#3A3228]`}>{task.title}</span>
-              {task.time && !isKid && (
-                <span className="ml-2 text-xs text-[#A09080]">{formatTime(task.time)}</span>
-              )}
-              {isKid ? (
-                dueDateLabel(task.nextDue, today) === "Today" && (
-                  <span className="ml-2 text-xs text-[#8B5318]">Today</span>
-                )
-              ) : (
-                <span className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
-                  {dueDateLabel(task.nextDue, today)}
-                </span>
-              )}
-              {task.assignee && !isKid && (
-                <span className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
-              )}
-            </div>
-            {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} taskTitle={task.title} />}
-          </div>
-        ))}
-      </div>
+      <ul className="space-y-1.5">
+        {tasks.map(task => {
+          const metaParts = [
+            task.time && !isKid ? formatTime(task.time) : null,
+            isKid ? (dueDateLabel(task.nextDue, today) === "Today" ? "Today" : null) : dueDateLabel(task.nextDue, today),
+            task.assignee && !isKid ? task.assignee.name : null,
+          ].filter(Boolean)
+          return (
+            <li
+              key={task.id}
+              className="flex items-center gap-3 py-2 px-3 bg-[#F2ECE2] rounded-lg border border-[#E4DDD0]"
+            >
+              <div className="flex-1 min-w-0">
+                <span className={`${isKid ? "text-xl" : "text-sm"} text-[#3A3228]`}>{task.title}</span>
+                {metaParts.length > 0 && (
+                  <span className="sr-only">{metaParts.join(" · ")}</span>
+                )}
+                {task.time && !isKid && (
+                  <span aria-hidden="true" className="ml-2 text-xs text-[#A09080]">{formatTime(task.time)}</span>
+                )}
+                {isKid ? (
+                  dueDateLabel(task.nextDue, today) === "Today" && (
+                    <span aria-hidden="true" className="ml-2 text-xs text-[#8B5318]">Today</span>
+                  )
+                ) : (
+                  <span aria-hidden="true" className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
+                    {dueDateLabel(task.nextDue, today)}
+                  </span>
+                )}
+                {task.assignee && !isKid && (
+                  <span aria-hidden="true" className="ml-2 text-xs text-[#B5A898]">{task.assignee.name}</span>
+                )}
+              </div>
+              {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} taskTitle={task.title} />}
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }
