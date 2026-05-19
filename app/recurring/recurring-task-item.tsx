@@ -41,7 +41,7 @@ function formatDate(d: Date | string): string {
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600 font-medium"
-  if (diff === 0) return "text-[#9B6020] font-medium"
+  if (diff === 0) return "text-[#8B5318] font-medium"
   if (diff <= 7) return "text-[#8A6E4B]"
   return "text-[#A09080]"
 }

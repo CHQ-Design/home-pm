@@ -133,7 +133,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin }: Pr
           return next
         })}
         aria-expanded={showMore}
-        className="text-[13px] text-[#8A7A6A] hover:text-[#3A3228] min-h-[44px] inline-flex items-center"
+        className="text-[13px] text-[#7A6A5A] hover:text-[#3A3228] min-h-[44px] inline-flex items-center"
       >
         <span className="inline-flex items-center gap-1">
           {showMore ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}

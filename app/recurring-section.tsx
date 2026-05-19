@@ -20,7 +20,7 @@ function dueDateLabel(nextDue: Date | string, today: string): string {
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600"
-  if (diff === 0) return "text-[#9B6020]"
+  if (diff === 0) return "text-[#8B5318]"
   return "text-[#A09080]"
 }
 
@@ -80,7 +80,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
               )}
               {isKid ? (
                 dueDateLabel(task.nextDue, today) === "Today" && (
-                  <span className="ml-2 text-xs text-[#9B6020]">Today</span>
+                  <span className="ml-2 text-xs text-[#8B5318]">Today</span>
                 )
               ) : (
                 <span className={`ml-2 text-xs ${dueDateClass(task.nextDue, today)}`}>
