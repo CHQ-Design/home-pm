@@ -79,12 +79,15 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
       <div
         className={`relative rounded-lg border border-border-subtle border-l-[3px] transition-all ${
           isKid && task.completed
-            ? "bg-[#EEF2E8]"
+            ? ""
             : task.completed
               ? "bg-background opacity-60"
               : "bg-background hover:bg-hover hover:shadow-[0_2px_8px_rgba(58,50,40,0.06)] active:bg-[rgba(200,146,42,0.07)]"
         }`}
-        style={{ borderLeftColor: personColor?.border ?? "transparent" }}
+        style={{
+          borderLeftColor: personColor?.border ?? "transparent",
+          ...(isKid && task.completed ? { backgroundColor: personColor?.bg ?? "#EEF2E8" } : {}),
+        }}
       >
         {/* Title row */}
         <div className={`flex items-center gap-2 ${isKid ? "min-h-[56px]" : "min-h-[44px]"}`}>

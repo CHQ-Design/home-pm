@@ -35,6 +35,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const [time, setTime] = useState("")
   const [priority, setPriority] = useState("medium")
   const [assigneeId, setAssigneeId] = useState("")
+  const selectedAssigneeIsKid = isAdmin && assigneeId !== "" && (people.find(p => String(p.id) === assigneeId)?.isKid ?? false)
   const [selectedProjectId, setSelectedProjectId] = useState("")
   const [reminderMinutesBefore, setReminderMinutesBefore] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
@@ -231,7 +232,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
                   className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
-                  {PLACEHOLDERS[placeholderIndex]}
+                  {selectedAssigneeIsKid ? "🎯 Try an emoji + description" : PLACEHOLDERS[placeholderIndex]}
                 </span>
               )}
             </div>
@@ -263,7 +264,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
                   className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
-                  {PLACEHOLDERS[placeholderIndex]}
+                  {selectedAssigneeIsKid ? "🎯 Try an emoji + description" : PLACEHOLDERS[placeholderIndex]}
                 </span>
               )}
             </div>
@@ -314,7 +315,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
               style={{ opacity: placeholderVisible ? 1 : 0 }}
             >
-              {PLACEHOLDERS[placeholderIndex]}
+              {selectedAssigneeIsKid ? "🎯 Try an emoji + description" : PLACEHOLDERS[placeholderIndex]}
             </span>
           )}
         </div>
