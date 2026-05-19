@@ -77,7 +77,13 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
     <li className="group">
       <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       <div
-        className={`relative rounded-md border-l-[3px] transition-colors ${isKid && task.completed ? "bg-[#EEF2E8]" : "hover:bg-hover active:bg-[rgba(200,146,42,0.07)]"}`}
+        className={`relative rounded-lg border border-border-subtle border-l-[3px] transition-all ${
+          isKid && task.completed
+            ? "bg-[#EEF2E8]"
+            : task.completed
+              ? "bg-background opacity-60"
+              : "bg-background hover:bg-hover hover:shadow-[0_2px_8px_rgba(58,50,40,0.06)] active:bg-[rgba(200,146,42,0.07)]"
+        }`}
         style={{ borderLeftColor: personColor?.border ?? "transparent" }}
       >
         {/* Title row */}

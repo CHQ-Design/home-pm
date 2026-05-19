@@ -67,7 +67,7 @@ function Section({
         {icon}
         {title}
       </h2>
-      <ul className="divide-y divide-border-subtle">
+      <ul className="space-y-1">
         {tasks.map(task => (
           <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
         ))}
@@ -368,7 +368,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             </span>
           </button>
           {showCompleted && (
-            <ul className="mt-2 divide-y divide-border-subtle opacity-75">
+            <ul className="mt-2 space-y-1">
               {groups.completed.map(task => (
                 <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
               ))}
