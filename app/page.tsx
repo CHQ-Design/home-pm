@@ -39,17 +39,27 @@ export default async function Home() {
   const memberColor = memberPerson ? getPersonColor(people, memberPerson.id) : null
   const isKid = memberPerson?.isKid ?? false
 
+  const showAddForm = isAdmin || (sessionPersonId !== null && !isKid)
+
   return (
-    <main id="main-content" className="w-full max-w-2xl mx-auto px-4 py-8">
-      <LocalDate />
-      {memberPerson && memberColor ? (
-        <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
-      ) : (
-        <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
+    <>
+      <main id="main-content" className={`w-full max-w-2xl mx-auto px-4 py-8 ${showAddForm ? "pb-28" : ""}`}>
+        <LocalDate />
+        {memberPerson && memberColor ? (
+          <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
+        ) : (
+          <h1 className="font-serif text-2xl font-bold mb-6">Things</h1>
+        )}
+        <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+        <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+      </main>
+      {showAddForm && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#F9F5EF] border-t border-[#DDD5C5]">
+          <div className="max-w-2xl mx-auto px-4 pb-[env(safe-area-inset-bottom)]">
+            <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} sticky />
+          </div>
+        </div>
       )}
-      {(isAdmin || sessionPersonId !== null) && <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} />}
-      <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
-      <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
-    </main>
+    </>
   )
 }
