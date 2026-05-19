@@ -145,55 +145,53 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         />
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => setShowNotes(v => !v)}
-            className={`text-xs ${showNotes ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
-          >
-            {showNotes ? "− Notes" : "+ Notes"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowTime(v => !v)}
-            className={`text-xs ${showTime ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
-          >
-            {showTime ? "− Time" : "+ Time"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowReminder(v => !v)}
-            className={`text-xs ${showReminder ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
-          >
-            {showReminder ? "− Reminder" : "+ Reminder"}
-          </button>
-          {isAdmin && people.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowAssignee(v => !v)}
-              className={`text-xs ${showAssignee ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
-            >
-              {showAssignee ? "− Assignee" : "+ Assignee"}
-            </button>
-          )}
-          {isAdmin && projects.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowProject(v => !v)}
-              className={`text-xs ${showProject ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
-            >
-              {showProject ? "− Project" : "+ Project"}
-            </button>
-          )}
-        </div>
+      <div className="flex gap-3 flex-wrap">
         <button
-          type="submit"
-          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover"
+          type="button"
+          onClick={() => setShowNotes(v => !v)}
+          className={`text-xs ${showNotes ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
         >
-          Add routine
+          {showNotes ? "− Notes" : "+ Notes"}
         </button>
+        <button
+          type="button"
+          onClick={() => setShowTime(v => !v)}
+          className={`text-xs ${showTime ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+        >
+          {showTime ? "− Time" : "+ Time"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowReminder(v => !v)}
+          className={`text-xs ${showReminder ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+        >
+          {showReminder ? "− Reminder" : "+ Reminder"}
+        </button>
+        {isAdmin && people.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowAssignee(v => !v)}
+            className={`text-xs ${showAssignee ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+          >
+            {showAssignee ? "− Assignee" : "+ Assignee"}
+          </button>
+        )}
+        {isAdmin && projects.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowProject(v => !v)}
+            className={`text-xs ${showProject ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+          >
+            {showProject ? "− Project" : "+ Project"}
+          </button>
+        )}
       </div>
+      <button
+        type="submit"
+        className="w-full py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover"
+      >
+        Add routine
+      </button>
     </form>
   )
 }
