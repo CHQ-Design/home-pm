@@ -52,7 +52,11 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
 
-  if (tasks.length === 0) return null
+  // After hydration, filter to local today/overdue only (server query uses UTC midnight,
+  // which can include "tomorrow" for US timezone users between midnight UTC and local midnight)
+  const visibleTasks = tasks.filter(t => daysDiff(t.nextDue, today) <= 0)
+
+  if (visibleTasks.length === 0) return null
 
   return (
     <section className="mb-8" aria-labelledby="heading-routines">
@@ -68,7 +72,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
         )}
       </div>
       <ul className="space-y-1.5">
-        {tasks.map(task => {
+        {visibleTasks.map(task => {
           const metaParts = [
             task.time && !isKid ? formatTime(task.time) : null,
             isKid ? (dueDateLabel(task.nextDue, today) === "Today" ? "Today" : null) : dueDateLabel(task.nextDue, today),
