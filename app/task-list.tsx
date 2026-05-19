@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
@@ -123,6 +123,18 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
   const [today, setToday] = useState(todayUTC())
   useEffect(() => { setToday(todayLocal()) }, [])
 
+  const personStats = useMemo(() => {
+    const map = new Map<number, { open: number; overdue: number }>()
+    for (const person of people) {
+      const personTasks = tasks.filter(t => t.assigneeId === person.id && !t.completed)
+      const overdue = personTasks.filter(t => t.dueDate && utcDateStr(t.dueDate) < today).length
+      map.set(person.id, { open: personTasks.length, overdue })
+    }
+    return map
+  }, [tasks, people, today])
+
+  const totalOpen = useMemo(() => tasks.filter(t => !t.completed).length, [tasks])
+
   const filtered = filterPersonId === null
     ? tasks
     : tasks.filter(t => t.assigneeId === filterPersonId)
@@ -158,13 +170,14 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             onClick={() => setFilterPersonId(null)}
             aria-pressed={filterPersonId === null}
             aria-label="Show everyone's things"
-            className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
+            className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 ${
               filterPersonId === null
                 ? "bg-accent text-white font-medium"
                 : "bg-surface text-text-hover border border-border-chip hover:bg-[#E4DBD0] hover:text-foreground"
             }`}
           >
             Everyone
+            {totalOpen > 0 && <span className="text-[10px] opacity-70">{totalOpen}</span>}
           </button>
           {people.map(p => {
             const isActive = filterPersonId === p.id
@@ -188,6 +201,18 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
                   {p.name[0]}
                 </span>
                 {p.name}
+                {(() => {
+                  const stats = personStats.get(p.id)
+                  if (!stats || stats.open === 0) return null
+                  return (
+                    <>
+                      <span className="text-[10px] opacity-70">{stats.open}</span>
+                      {stats.overdue > 0 && (
+                        <span className="text-[10px] text-warm-text">{stats.overdue} late</span>
+                      )}
+                    </>
+                  )
+                })()}
                 {p.streakCount >= 2 && (
                   <span className="text-[10px] ml-0.5" aria-label={`${p.streakCount} day streak`}>
                     🔥{p.streakCount}
