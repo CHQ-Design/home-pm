@@ -2,9 +2,7 @@
 
 import { useRef, useState } from "react"
 import { addProject } from "./actions"
-
-const inputClass =
-  "bg-[#F2ECE2] border border-[#D4C9B5] rounded-lg px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
+import { inputClassSm as inputClass } from "@/lib/styles"
 
 export default function AddProjectForm() {
   const [showDesc, setShowDesc] = useState(false)
@@ -55,7 +53,7 @@ export default function AddProjectForm() {
           name="description"
           placeholder="What's this project about? (optional)"
           rows={2}
-          className={`w-full ${inputClass} resize-none`}
+          className={`${inputClass} resize-none`}
         />
       )}
     </form>

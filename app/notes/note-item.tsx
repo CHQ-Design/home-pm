@@ -5,6 +5,7 @@ import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import type { Prisma, Project } from "@prisma/client"
 import { updateNote, deleteNote, deleteAttachment } from "./actions"
 import { formatTimestamp } from "@/lib/dates"
+import { inputClassSm as inputClass } from "@/lib/styles"
 
 type Note = Prisma.NoteGetPayload<{ include: { attachments: true; project: true } }>
 
@@ -16,8 +17,6 @@ type UploadedFile = {
   blobUrl?: string
 }
 
-const inputClass =
-  "w-full bg-[#F2ECE2] border border-[#D4C9B5] rounded-md px-3 py-2 text-sm text-[#3A3228] placeholder-[#A09080] outline-none focus:border-accent focus:ring-1 focus:ring-[#6B7A5A]/20"
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
