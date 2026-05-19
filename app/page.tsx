@@ -55,7 +55,7 @@ export default async function Home() {
       </main>
       {showAddForm && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border">
-          <div className="max-w-2xl mx-auto px-4 pb-[env(safe-area-inset-bottom)]">
+          <div className="max-w-2xl mx-auto px-4 pt-3 pb-[max(env(safe-area-inset-bottom),_12px)]">
             <AddTaskForm people={people} projects={projects} isAdmin={isAdmin} sticky />
           </div>
         </div>
