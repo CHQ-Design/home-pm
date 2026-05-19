@@ -9,7 +9,7 @@ function LoginContent() {
   const accessDenied = params.get("error") === "AccessDenied"
 
   return (
-    <main className="min-h-[100dvh] flex items-center justify-center bg-[#F9F5EF]">
+    <main className="flex-1 flex items-center justify-center bg-[#F9F5EF]">
       <div className="text-center space-y-6">
         <h1 className="font-serif text-3xl font-bold text-[#3A3228]">The Board</h1>
         <p className="text-sm text-[#8C7D6A]">Sign in to continue</p>
