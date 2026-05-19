@@ -61,7 +61,9 @@ const calendarClassNames = {
 
 // container is w-64 (256px) + p-3 (12px × 2) + border (1px × 2) = 282px
 const CAL_WIDTH = 282
-const CAL_HEIGHT = 300
+// Actual rendered height is ~330–340px (header + weekday row + 6 week rows + padding).
+// Use 350 so the above/below decision and the bottom clamp both stay safe.
+const CAL_HEIGHT = 350
 const MARGIN = 8
 
 export default function DatePicker({ value, onChange }: Props) {
@@ -74,13 +76,28 @@ export default function DatePicker({ value, onChange }: Props) {
   function openCalendar() {
     if (!inputRef.current) return
     const rect = inputRef.current.getBoundingClientRect()
-    const vw = window.visualViewport?.width ?? window.innerWidth
+    const vp = window.visualViewport
+    const vw = vp?.width ?? window.innerWidth
+    const vh = vp?.height ?? window.innerHeight
 
     const spaceAbove = rect.top - MARGIN
-    const top =
-      spaceAbove >= CAL_HEIGHT
-        ? rect.top - CAL_HEIGHT - MARGIN
-        : rect.bottom + MARGIN
+    const spaceBelow = vh - rect.bottom - MARGIN
+
+    // Prefer above when there's room; fall back to below; otherwise pick the larger side.
+    let top: number
+    if (spaceAbove >= CAL_HEIGHT) {
+      top = rect.top - CAL_HEIGHT - MARGIN
+    } else if (spaceBelow >= CAL_HEIGHT) {
+      top = rect.bottom + MARGIN
+    } else {
+      top = spaceAbove >= spaceBelow
+        ? MARGIN
+        : Math.max(MARGIN, vh - CAL_HEIGHT - MARGIN)
+    }
+
+    // Hard clamp: never let the calendar extend past either edge of the viewport.
+    // This is what prevents iOS Safari from expanding the page to accommodate it.
+    top = Math.max(MARGIN, Math.min(top, vh - CAL_HEIGHT - MARGIN))
 
     const rawLeft = rect.left
     const left = Math.max(MARGIN, Math.min(rawLeft, vw - CAL_WIDTH - MARGIN))
