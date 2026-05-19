@@ -210,7 +210,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         )}
 
         {showMore && (
-          <div className="max-h-[60vh] overflow-y-auto pt-3 pb-2 space-y-3">
+          <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden pt-3 pb-2 space-y-3">
             <div className="relative">
               <input
                 ref={panelTitleRef}

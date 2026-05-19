@@ -74,6 +74,7 @@ export default function DatePicker({ value, onChange }: Props) {
   function openCalendar() {
     if (!inputRef.current) return
     const rect = inputRef.current.getBoundingClientRect()
+    const vw = window.visualViewport?.width ?? window.innerWidth
 
     const spaceAbove = rect.top - MARGIN
     const top =
@@ -82,7 +83,7 @@ export default function DatePicker({ value, onChange }: Props) {
         : rect.bottom + MARGIN
 
     const rawLeft = rect.left
-    const left = Math.max(MARGIN, Math.min(rawLeft, window.innerWidth - CAL_WIDTH - MARGIN))
+    const left = Math.max(MARGIN, Math.min(rawLeft, vw - CAL_WIDTH - MARGIN))
 
     setCalPos({ top, left })
     setOpen(v => !v)
@@ -140,21 +141,19 @@ export default function DatePicker({ value, onChange }: Props) {
       )}
 
       {open && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[200] overflow-hidden pointer-events-none">
-          <div
-            ref={calendarRef}
-            className="absolute bg-surface-raised border border-border-card rounded-xl p-3 pointer-events-auto"
-            style={{ top: calPos.top, left: calPos.left }}
-          >
-            <DayPicker
-              mode="single"
-              selected={selected}
-              onSelect={handleSelect}
-              onDayClick={() => setOpen(false)}
-              defaultMonth={selected ?? new Date()}
-              classNames={calendarClassNames}
-            />
-          </div>
+        <div
+          ref={calendarRef}
+          className="fixed z-[200] bg-surface-raised border border-border-card rounded-xl p-3 overflow-hidden w-[282px]"
+          style={{ top: calPos.top, left: calPos.left }}
+        >
+          <DayPicker
+            mode="single"
+            selected={selected}
+            onSelect={handleSelect}
+            onDayClick={() => setOpen(false)}
+            defaultMonth={selected ?? new Date()}
+            classNames={calendarClassNames}
+          />
         </div>,
         document.body
       )}
