@@ -61,8 +61,8 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
   return (
     <section className="mb-8" aria-labelledby="heading-routines">
       <div className="flex items-center justify-between mb-3">
-        <h2 id="heading-routines" className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
-          <IconRepeat size={14} aria-hidden="true" />
+        <h2 id="heading-routines" className="flex items-center gap-1.5 font-serif text-xl text-warm-text">
+          <IconRepeat size={18} aria-hidden="true" />
           Routines
         </h2>
         {isAdmin && (

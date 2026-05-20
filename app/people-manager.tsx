@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import type { Person, Prisma } from "@prisma/client"
 import { IconChevronDown, IconChevronRight, IconX } from "@tabler/icons-react"
 import { addPerson, deletePerson, updatePerson } from "./actions"
+import CustomSelect from "./custom-select"
 
 type PersonWithCount = Prisma.PersonGetPayload<{
   include: { _count: { select: { tasks: { where: { completed: false } } } } }
@@ -92,16 +93,15 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                           <strong>{person.name}</strong> has {person._count.tasks} task
                           {person._count.tasks !== 1 ? "s" : ""}. Reassign them?
                         </p>
-                        <select
+                        <CustomSelect
                           value={reassignToId}
-                          onChange={e => setReassignToId(e.target.value)}
-                          className="text-sm bg-surface-warm border border-border-card rounded px-2 py-1.5 text-foreground outline-none focus:border-accent"
-                        >
-                          <option value="">Leave unassigned</option>
-                          {others.map(p => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                        </select>
+                          onChange={setReassignToId}
+                          options={[
+                            { value: "", label: "Leave unassigned" },
+                            ...others.map(p => ({ value: String(p.id), label: p.name })),
+                          ]}
+                          aria-label="Reassign tasks to"
+                        />
                       </>
                     ) : (
                       <p className="text-sm text-foreground">

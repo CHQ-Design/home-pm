@@ -6,6 +6,7 @@ import type { Prisma, Project } from "@prisma/client"
 import { updateNote, deleteNote, deleteAttachment } from "./actions"
 import { formatTimestamp } from "@/lib/dates"
 import { inputClassSm as inputClass } from "@/lib/styles"
+import CustomSelect from "../custom-select"
 
 type Note = Prisma.NoteGetPayload<{ include: { attachments: true; project: true } }>
 
@@ -105,14 +106,15 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           className={inputClass}
         />
         {projects.length > 0 && (
-          <select
+          <CustomSelect
             value={form.projectId}
-            onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}
-            className={inputClass}
-          >
-            <option value="">No project</option>
-            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+            onChange={v => setForm(f => ({ ...f, projectId: v }))}
+            options={[
+              { value: "", label: "No project" },
+              ...projects.map(p => ({ value: String(p.id), label: p.name })),
+            ]}
+            aria-label="Project"
+          />
         )}
         <div className="flex gap-2">
           <button

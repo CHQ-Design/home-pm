@@ -4,7 +4,8 @@ import { useRef, useState } from "react"
 import type { User } from "@prisma/client"
 import { IconX } from "@tabler/icons-react"
 import { inviteUser, removeUser, updateUserRole } from "./actions"
-import { inputClass, selectClass } from "@/lib/styles"
+import { inputClass } from "@/lib/styles"
+import CustomSelect from "../custom-select"
 
 const labelClass = "block text-xs font-medium text-text-secondary mb-1"
 
@@ -13,6 +14,7 @@ export default function UserManager({ users, currentEmail }: { users: User[]; cu
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
   const [inviteError, setInviteError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [inviteRole, setInviteRole] = useState("member")
 
   async function handleInvite(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -24,6 +26,7 @@ export default function UserManager({ users, currentEmail }: { users: User[]; cu
       setInviteError(result.error)
     } else {
       formRef.current?.reset()
+      setInviteRole("member")
     }
   }
 
@@ -73,15 +76,18 @@ export default function UserManager({ users, currentEmail }: { users: User[]; cu
                     {user.email}
                     {isSelf && <span className="ml-1.5 text-xs text-text-faint">(you)</span>}
                   </span>
-                  <select
-                    value={user.role}
-                    onChange={e => handleRoleChange(user.id, e.target.value as "admin" | "member")}
-                    disabled={isSelf}
-                    className="text-xs bg-surface-warm border border-border-card rounded px-2 py-1 text-foreground outline-none focus:border-accent disabled:opacity-50 disabled:cursor-default"
-                  >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                  {isSelf ? (
+                    <span className="text-xs text-text-secondary capitalize px-2 py-1">{user.role}</span>
+                  ) : (
+                    <div className="w-24">
+                      <CustomSelect
+                        value={user.role}
+                        onChange={v => handleRoleChange(user.id, v as "admin" | "member")}
+                        options={[{ value: "member", label: "Member" }, { value: "admin", label: "Admin" }]}
+                        aria-label={`Role for ${user.email}`}
+                      />
+                    </div>
+                  )}
                   {!isSelf && (
                     <button
                       onClick={() => setConfirmingId(user.id)}
@@ -112,13 +118,14 @@ export default function UserManager({ users, currentEmail }: { users: User[]; cu
             />
           </div>
           <div className="w-28 shrink-0">
-            <label className={labelClass}>Role</label>
-            <div className="relative">
-              <select name="role" defaultValue="member" className={selectClass}>
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            <label className={labelClass} id="invite-role-label">Role</label>
+            <CustomSelect
+              name="role"
+              value={inviteRole}
+              onChange={setInviteRole}
+              options={[{ value: "member", label: "Member" }, { value: "admin", label: "Admin" }]}
+              aria-label="Invite role"
+            />
           </div>
         </div>
         {inviteError && <p className="text-sm text-red-600">{inviteError}</p>}

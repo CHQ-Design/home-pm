@@ -213,19 +213,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               <IconNote size={16} aria-hidden="true" />
             </button>
           )}
-          {/* Bell and edit — admin only */}
-          {isAdmin && <>
-            <button
-              onClick={e => { e.stopPropagation(); setIsModalOpen(true) }}
-              className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
-                task.reminderMinutesBefore != null
-                  ? "text-accent"
-                  : "text-text-faint group-hover:text-text-hover"
-              }`}
-              aria-label={task.reminderMinutesBefore != null ? "Edit reminder" : "Set reminder"}
-            >
-              <IconBell size={16} />
-            </button>
+          {/* Edit — admin only */}
+          {isAdmin && (
             <button
               onClick={e => { e.stopPropagation(); setIsModalOpen(true) }}
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint text-sm leading-none shrink-0 group-hover:text-text-hover transition-colors"
@@ -233,7 +222,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             >
               <IconPencilMinus size={16} aria-hidden="true" />
             </button>
-          </>}
+          )}
         </div>
 
         {/* Metadata row — shown below title, indented to align with title text */}
@@ -241,7 +230,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           const showAssigneeChip = task.assignee && (isAdmin || task.assigneeId !== sessionPersonId)
           const showPriority = isAdmin && task.priority !== "medium"
           const showProject = isAdmin && task.project
-          if (isInlineEditing || (!showAssigneeChip && !task.dueDate && !showPriority && !showProject)) return null
+          const showBell = isAdmin && task.reminderMinutesBefore != null
+          if (isInlineEditing || (!showAssigneeChip && !task.dueDate && !showPriority && !showProject && !showBell)) return null
           return (
             <div className="flex flex-wrap gap-1.5 pl-11 pb-2">
               {showProject && (
@@ -286,6 +276,12 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   {task.priority === "high" && <IconFlame size={10} />}
                   {task.priority === "low" && <IconFeather size={10} />}
                   {task.priority}
+                </span>
+              )}
+              {showBell && (
+                <span className="inline-flex items-center text-accent">
+                  <IconBell size={12} aria-hidden="true" />
+                  <span className="sr-only">Reminder set</span>
                 </span>
               )}
             </div>

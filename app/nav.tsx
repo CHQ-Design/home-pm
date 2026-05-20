@@ -28,7 +28,7 @@ export default function Nav() {
               href="/settings"
               aria-label="Settings"
               title="Settings"
-              className={`flex items-center justify-center min-h-[44px] px-2 ${
+              className={`flex items-center justify-center min-h-[44px] px-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
                 pathname.startsWith("/settings") ? "text-accent" : "text-text-faint hover:text-text-hover"
               }`}
             >
@@ -67,7 +67,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`text-sm font-medium px-2 py-1.5 rounded-md transition-colors ${
+      className={`text-sm font-medium px-2 py-1.5 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
         active
           ? "bg-accent/10 text-accent"
           : "text-text-secondary hover:text-foreground"

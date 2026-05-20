@@ -2,6 +2,13 @@
 
 import { useState } from "react"
 import { updateProject } from "../actions"
+import CustomSelect from "../../custom-select"
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Active" },
+  { value: "paused", label: "Paused" },
+  { value: "done", label: "Done" },
+]
 
 export default function ProjectStatusSelect({
   projectId,
@@ -24,17 +31,13 @@ export default function ProjectStatusSelect({
   }
 
   return (
-    <select
-      value={status}
-      disabled={isPending}
-      onChange={e => handleChange(e.target.value)}
-      className={`text-xs bg-surface border border-border-card rounded-full px-2 py-0.5 text-text-hover outline-none focus:border-accent transition-opacity ${
-        isPending ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      }`}
-    >
-      <option value="active">Active</option>
-      <option value="paused">Paused</option>
-      <option value="done">Done</option>
-    </select>
+    <div className={`w-28 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      <CustomSelect
+        value={status}
+        onChange={handleChange}
+        options={STATUS_OPTIONS}
+        aria-label="Project status"
+      />
+    </div>
   )
 }

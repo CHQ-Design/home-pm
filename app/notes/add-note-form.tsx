@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import type { Project } from "@prisma/client"
 import { addNote } from "./actions"
 import { inputClass } from "@/lib/styles"
+import CustomSelect from "../custom-select"
 
 type UploadedFile = {
   filename: string
@@ -18,6 +19,7 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showBody, setShowBody] = useState(false)
   const [showProject, setShowProject] = useState(false)
+  const [projectId, setProjectId] = useState("")
   const [uploading, setUploading] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([])
 
@@ -49,6 +51,7 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
     setPendingFiles([])
     setShowBody(false)
     setShowProject(false)
+    setProjectId("")
   }
 
   return (
@@ -78,12 +81,16 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
       />
 
       {showProject && projects.length > 0 && (
-        <select name="projectId" className={inputClass}>
-          <option value="">No project</option>
-          {projects.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <CustomSelect
+          name="projectId"
+          value={projectId}
+          onChange={setProjectId}
+          options={[
+            { value: "", label: "No project" },
+            ...projects.map(p => ({ value: String(p.id), label: p.name })),
+          ]}
+          aria-label="Project"
+        />
       )}
 
       {pendingFiles.length > 0 && (
