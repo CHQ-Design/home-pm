@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { updateProject } from "../actions"
+import { useRouter } from "next/navigation"
+import { updateProject, deleteProject } from "../actions"
 import ProjectStatusSelect from "./project-status-select"
 import { inputClassSm as inputClass } from "@/lib/styles"
 
@@ -18,9 +19,12 @@ export default function ProjectHeader({
   status: string
   progress: { done: number; total: number } | null
 }) {
+  const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name, description: description ?? "" })
   const [saving, setSaving] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   async function handleSave() {
     const trimmedName = form.name.trim()
@@ -37,6 +41,12 @@ export default function ProjectHeader({
   function handleCancel() {
     setForm({ name, description: description ?? "" })
     setEditing(false)
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    await deleteProject(projectId)
+    router.push("/projects")
   }
 
   if (editing) {
@@ -108,6 +118,32 @@ export default function ProjectHeader({
             />
           </div>
         </div>
+      )}
+
+      {showDeleteConfirm ? (
+        <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border-subtle">
+          <span className="text-sm text-text-secondary">Delete this project? Its tasks will be kept.</span>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50 shrink-0"
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+          <button
+            onClick={() => setShowDeleteConfirm(false)}
+            className="text-sm text-text-faint hover:text-text-hover shrink-0"
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="mt-4 text-xs text-text-faint hover:text-red-600 transition-colors"
+        >
+          Delete project
+        </button>
       )}
     </div>
   )
