@@ -46,7 +46,7 @@ function groupTasks(tasks: Task[], today: string) {
 }
 
 function Section({
-  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid,
+  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId,
 }: {
   title: string
   tasks: Task[]
@@ -58,6 +58,7 @@ function Section({
   isAdmin: boolean
   sessionPersonId: number | null
   isKid: boolean
+  currentProjectId?: number
 }) {
   if (tasks.length === 0) return null
   const headingId = `heading-${title.toLowerCase().replace(/\s+/g, "-")}`
@@ -69,7 +70,7 @@ function Section({
       </h2>
       <ul className="space-y-1">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} />
         ))}
       </ul>
     </section>
@@ -110,15 +111,16 @@ function KidAllDone({ name, personColor }: { name: string; personColor: string }
   )
 }
 
-type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid: boolean }
+type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid: boolean; currentProjectId?: number }
 
-export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId, isKid }: Props) {
+export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId, isKid, currentProjectId }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [completedPulse, setCompletedPulse] = useState(false)
   const hasExpandedCompleted = useRef(false)
   const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
   const boardClearCelebrated = useRef(false)
   const [showCelebration, setShowCelebration] = useState(false)
+  const [boardClearAnnouncement, setBoardClearAnnouncement] = useState("")
   // Start with UTC so SSR and initial client render match; update to local after mount
   const [today, setToday] = useState(todayUTC())
   useEffect(() => { setToday(todayLocal()) }, [])
@@ -154,8 +156,10 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
     if (isBoardClear && !boardClearCelebrated.current) {
       boardClearCelebrated.current = true
       setShowCelebration(true)
+      setBoardClearAnnouncement("All clear")
       const t = setTimeout(() => setShowCelebration(false), 1500)
-      return () => clearTimeout(t)
+      const a = setTimeout(() => setBoardClearAnnouncement(""), 3000)
+      return () => { clearTimeout(t); clearTimeout(a) }
     }
     if (!isBoardClear) {
       boardClearCelebrated.current = false
@@ -164,6 +168,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
 
   return (
     <div>
+      <span className="sr-only" aria-live="polite" aria-atomic="true">{boardClearAnnouncement}</span>
       {isAdmin && people.length > 0 && (
         <div className="flex gap-2 mb-4 flex-wrap">
           <button
@@ -335,7 +340,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           ? <IconStar size={18} aria-hidden="true" />
           : <IconAlertTriangle size={18} aria-hidden="true" />
         }
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
       />
       <Section
         title="Today"
@@ -343,7 +348,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         titleClass={activePerson ? "" : "text-accent"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconSun size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
       />
       <Section
         title="Coming up"
@@ -351,7 +356,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         titleClass={activePerson ? "" : "text-text-secondary"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconClock size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
       />
       <Section
         title="No rush"
@@ -359,7 +364,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
         titleClass={activePerson ? "" : "text-text-muted"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
       />
 
       {groups.completed.length > 0 && (
@@ -386,7 +391,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           {showCompleted && (
             <ul className="mt-2 space-y-1">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} />
               ))}
             </ul>
           )}

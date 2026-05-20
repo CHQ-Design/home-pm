@@ -38,12 +38,24 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
 
   return (
     <div>
-      <input
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        placeholder="Search notes…"
-        className="w-full bg-surface-warm border border-border-card rounded-md px-3 py-2 text-sm text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 mb-4"
-      />
+      <div className="relative mb-4">
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search notes…"
+          className="w-full bg-surface-warm border border-border-card rounded-md px-3 py-2 text-sm text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Clear search"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-hover text-xs leading-none"
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
       {allTags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-5">

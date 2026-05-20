@@ -28,7 +28,7 @@ export default function BottomNav() {
           <Link
             key={href}
             href={href}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] text-xs font-medium transition-colors ${
+            className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
               active ? "text-accent" : "text-text-faint hover:text-text-secondary"
             }`}
           >

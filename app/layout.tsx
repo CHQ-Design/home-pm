@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import Nav from "./nav";
 import BottomNav from "./bottom-nav";
 import AuthSessionProvider from "./session-provider";
@@ -12,9 +12,10 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT", "WONK"],
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -46,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${fraunces.variable} ${jakartaSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
