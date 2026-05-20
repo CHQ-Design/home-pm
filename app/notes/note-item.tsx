@@ -170,14 +170,14 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-border-chip hover:text-text-hover active:text-foreground"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-text-hover active:text-foreground"
             aria-label={`Edit ${note.title}`}
           >
             <IconPencilMinus size={15} aria-hidden="true" />
           </button>
           <button
             onClick={() => setConfirming(true)}
-            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-border-chip hover:text-red-600 active:text-red-700"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-red-600 active:text-red-700"
             aria-label={`Delete ${note.title}`}
           >
             <IconX size={15} aria-hidden="true" />
@@ -240,7 +240,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
       )}
 
       <div className="flex items-center justify-between pt-1">
-        <span className="text-xs text-border-chip">Updated {formatTimestamp(note.updatedAt)}</span>
+        <span className="text-xs text-text-muted">Updated {formatTimestamp(note.updatedAt)}</span>
         <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-faint hover:text-text-hover"}`}>
           {uploading ? "Uploading…" : "+ Attach"}
           <input

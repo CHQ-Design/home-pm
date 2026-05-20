@@ -19,9 +19,9 @@ export default function WelcomeHeader({ name, color, streakCount = 0, isKid = fa
 
   return (
     <div className="mb-6">
-      <p className={`font-serif font-bold ${isKid ? "text-4xl" : "text-3xl"}`} style={{ color }}>
+      <h1 className={`font-serif font-bold ${isKid ? "text-4xl" : "text-3xl"}`} style={{ color }}>
         {greet}, {name}!
-      </p>
+      </h1>
       {!isKid && streakCount >= 2 && (
         <p className="text-sm mt-1 text-accent">🔥 {streakCount}-day streak</p>
       )}

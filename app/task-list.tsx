@@ -266,7 +266,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
       {!isKid && openCount === 0 && groups.completed.length === 0 && (
         !isAdmin ? (
           <div className="py-10 text-center">
-            <span className="block font-serif text-4xl text-border-chip mb-3" aria-hidden="true">✦</span>
+            <span className="block font-serif text-4xl text-text-faint mb-3" aria-hidden="true">✦</span>
             <p className="font-serif text-lg text-text-muted">You're all clear.</p>
             <p className="text-sm text-text-faint mt-1">Nothing on your list right now.</p>
           </div>
@@ -276,7 +276,7 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           </div>
         ) : (
           <div className="py-10 text-center">
-            <span className="block font-serif text-4xl text-border-chip mb-3" aria-hidden="true">✦</span>
+            <span className="block font-serif text-4xl text-text-faint mb-3" aria-hidden="true">✦</span>
             <p className="font-serif text-lg text-text-muted">Nothing here yet.</p>
             <p className="text-sm text-text-faint mt-1">Add the first thing below.</p>
           </div>
