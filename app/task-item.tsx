@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+import ReactMarkdown from "react-markdown"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { IconBell, IconFeather, IconFlame, IconNote, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, updateTask } from "./actions"
@@ -293,9 +294,22 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
 
         {/* Expanded note */}
         {hasNote && isExpanded && (
-          <p className="pl-11 pr-4 pb-3 text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">
-            {task.notes}
-          </p>
+          <div className="pl-11 pr-4 pb-3 text-sm text-text-secondary leading-relaxed">
+            <ReactMarkdown
+              components={{
+                p:      ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                em:     ({ children }) => <em>{children}</em>,
+                a:      ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 hover:text-accent-hover">{children}</a>,
+                ul:     ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                ol:     ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                li:     ({ children }) => <li>{children}</li>,
+                code:   ({ children }) => <code className="bg-surface px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+              }}
+            >
+              {task.notes!}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
 
