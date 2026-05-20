@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import type { Person, Project, Prisma } from "@prisma/client"
-import { IconBell, IconFeather, IconFlame, IconPencilMinus } from "@tabler/icons-react"
+import { IconBell, IconFeather, IconFlame, IconNote, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
 import { todayLocal, utcDateStr, formatTime, formatShortDate } from "@/lib/dates"
@@ -38,6 +38,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
   const personColor = task.assigneeId != null
     ? getPersonColor(people, task.assigneeId)
     : null
+  const hasNote = !!(task.notes?.trim())
+  const [isExpanded, setIsExpanded] = useState(false)
   const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -77,7 +79,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
     <li className="group">
       <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
       <div
-        className={`relative rounded-lg border border-border-subtle border-l-[3px] transition-all ${
+        onClick={hasNote ? () => setIsExpanded(v => !v) : undefined}
+        className={`relative rounded-lg border border-border-subtle border-l-[3px] transition-all ${hasNote ? "cursor-pointer" : ""} ${
           isKid && task.completed
             ? ""
             : task.completed
@@ -92,7 +95,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
         {/* Title row */}
         <div className={`flex items-center gap-2 ${isKid ? "min-h-[56px]" : "min-h-[44px]"}`}>
           {/* Checkbox with 44px touch target */}
-          <label className={`shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] relative ${canToggle ? "cursor-pointer" : "cursor-default"}`}>
+          <label onClick={e => e.stopPropagation()} className={`shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] relative ${canToggle ? "cursor-pointer" : "cursor-default"}`}>
             <input
               type="checkbox"
               checked={task.completed}
@@ -171,7 +174,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             />
           ) : (
             <span
-              onClick={openInline}
+              onClick={e => { e.stopPropagation(); openInline() }}
               onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
               role={isAdmin && !task.completed ? "button" : undefined}
               aria-label={isAdmin && !task.completed ? `${task.title} – edit` : undefined}
@@ -195,10 +198,24 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             </span>
           )}
 
+          {/* Note expand — shown to all users when a note exists */}
+          {hasNote && (
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); setIsExpanded(v => !v) }}
+              aria-label={isExpanded ? "Collapse note" : "Expand note"}
+              aria-expanded={isExpanded}
+              className={`flex items-center justify-center min-h-[44px] min-w-[44px] shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8874E] focus-visible:ring-offset-1 rounded ${
+                isExpanded ? "text-accent" : "text-text-faint group-hover:text-text-hover"
+              }`}
+            >
+              <IconNote size={14} aria-hidden="true" />
+            </button>
+          )}
           {/* Bell and edit — admin only */}
           {isAdmin && <>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={e => { e.stopPropagation(); setIsModalOpen(true) }}
               className={`flex items-center justify-center min-h-[44px] min-w-[44px] text-sm leading-none shrink-0 transition-colors ${
                 task.reminderMinutesBefore != null
                   ? "text-accent"
@@ -209,7 +226,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               <IconBell size={16} />
             </button>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={e => { e.stopPropagation(); setIsModalOpen(true) }}
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint text-sm leading-none shrink-0 group-hover:text-text-hover transition-colors"
               aria-label="Edit task"
             >
@@ -273,6 +290,13 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             </div>
           )
         })()}
+
+        {/* Expanded note */}
+        {hasNote && isExpanded && (
+          <p className="pl-11 pr-4 pb-3 text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">
+            {task.notes}
+          </p>
+        )}
       </div>
 
       {isModalOpen && createPortal(
