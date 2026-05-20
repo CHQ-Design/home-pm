@@ -37,12 +37,14 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const [assigneeId, setAssigneeId] = useState("")
   const selectedAssigneeIsKid = isAdmin && assigneeId !== "" && (people.find(p => String(p.id) === assigneeId)?.isKid ?? false)
   const [selectedProjectId, setSelectedProjectId] = useState("")
+  const [notes, setNotes] = useState("")
   const [reminderMinutesBefore, setReminderMinutesBefore] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [focused, setFocused] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const panelTitleRef = useRef<HTMLInputElement>(null)
+  const notesRef = useRef<HTMLTextAreaElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -71,6 +73,13 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   useEffect(() => {
     if (sticky && showMore) panelTitleRef.current?.focus()
   }, [sticky, showMore])
+
+  useEffect(() => {
+    const el = notesRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${el.scrollHeight}px`
+  }, [notes])
 
   function closePanel() {
     setShowMore(false)
@@ -104,6 +113,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
     }
     formRef.current?.reset()
     setTitleValue("")
+    setNotes("")
     setDueDate("")
     setTime("")
     setPriority("medium")
@@ -117,14 +127,13 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const extraFields = (
     <div className="space-y-2">
       <textarea
+        ref={notesRef}
         name="notes"
+        aria-label="Notes"
         placeholder="Notes (optional)"
+        value={notes}
+        onChange={e => setNotes(e.target.value)}
         className={`${inputClass} resize-y min-h-[60px] max-h-[320px] overflow-y-auto`}
-        onInput={e => {
-          const el = e.currentTarget
-          el.style.height = "auto"
-          el.style.height = `${el.scrollHeight}px`
-        }}
       />
       <div className="flex gap-3 items-center">
         <label className="text-xs text-text-secondary shrink-0">Due date</label>

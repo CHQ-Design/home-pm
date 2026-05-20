@@ -210,7 +210,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 isExpanded ? "text-accent" : "text-text-faint group-hover:text-text-hover"
               }`}
             >
-              <IconNote size={14} aria-hidden="true" />
+              <IconNote size={16} aria-hidden="true" />
             </button>
           )}
           {/* Bell and edit — admin only */}
@@ -297,14 +297,22 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           <div className="pl-11 pr-4 pb-3 text-sm text-text-secondary leading-relaxed">
             <ReactMarkdown
               components={{
-                p:      ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
-                strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
-                em:     ({ children }) => <em>{children}</em>,
-                a:      ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 hover:text-accent-hover">{children}</a>,
-                ul:     ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
-                ol:     ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
-                li:     ({ children }) => <li>{children}</li>,
-                code:   ({ children }) => <code className="bg-surface px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                p:          ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+                strong:     ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                em:         ({ children }) => <em>{children}</em>,
+                a:          ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 hover:text-accent-hover">{children}</a>,
+                ul:         ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                ol:         ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                li:         ({ children }) => <li>{children}</li>,
+                code:       ({ children }) => <code className="bg-surface px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                h1:         ({ children }) => <h1 className="font-serif text-base font-bold text-foreground mb-1">{children}</h1>,
+                h2:         ({ children }) => <h2 className="font-serif text-sm font-bold text-foreground mb-1">{children}</h2>,
+                h3:         ({ children }) => <h3 className="text-sm font-semibold text-foreground mb-1">{children}</h3>,
+                h4:         ({ children }) => <h4 className="text-sm font-medium text-foreground mb-0.5">{children}</h4>,
+                h5:         ({ children }) => <h5 className="text-sm font-medium text-text-secondary mb-0.5">{children}</h5>,
+                h6:         ({ children }) => <h6 className="text-sm text-text-secondary mb-0.5">{children}</h6>,
+                blockquote: ({ children }) => <blockquote className="border-l-2 border-border-card pl-3 italic text-text-muted my-1.5">{children}</blockquote>,
+                hr:         () => <hr className="my-2 border-border-subtle" />,
               }}
             >
               {task.notes!}
