@@ -85,6 +85,7 @@ export default function RecurringTaskItem({
   const [confirming, setConfirming] = useState(false)
   const [pending, setPending] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [form, setForm] = useState({
     title: task.title,
     notes: task.notes ?? "",
@@ -109,26 +110,36 @@ export default function RecurringTaskItem({
     if (!title) return
     const [ivStr, iu] = form.cadence.split("|")
     setPending(true)
-    await updateRecurringTask(task.id, {
-      title,
-      notes: form.notes.trim() || null,
-      time: form.time || null,
-      intervalValue: Number(ivStr),
-      intervalUnit: iu,
-      nextDue: new Date(form.nextDue),
-      assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
-      projectId: form.projectId ? Number(form.projectId) : null,
-      reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
-    })
-    setPending(false)
-    setEditing(false)
-    onEditEnd?.()
+    setSaveError(null)
+    try {
+      await updateRecurringTask(task.id, {
+        title,
+        notes: form.notes.trim() || null,
+        time: form.time || null,
+        intervalValue: Number(ivStr),
+        intervalUnit: iu,
+        nextDue: new Date(form.nextDue),
+        assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
+        projectId: form.projectId ? Number(form.projectId) : null,
+        reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
+      })
+      setEditing(false)
+      onEditEnd?.()
+    } catch {
+      setSaveError("Couldn't save — please try again.")
+    } finally {
+      setPending(false)
+    }
   }
 
   async function handleDelete() {
     setPending(true)
-    await deleteRecurringTask(task.id)
-    setPending(false)
+    try {
+      await deleteRecurringTask(task.id)
+    } catch {
+      setSaveError("Couldn't delete — please try again.")
+      setPending(false)
+    }
   }
 
   if (editing) {
@@ -210,6 +221,7 @@ export default function RecurringTaskItem({
             )}
           </div>
         )}
+        {saveError && <p className="text-sm text-red-600">{saveError}</p>}
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleSave}
