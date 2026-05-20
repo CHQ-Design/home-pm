@@ -55,8 +55,12 @@ export async function addTask(formData: FormData) {
 }
 
 export async function toggleTask(id: number) {
-  const task = await prisma.task.findUniqueOrThrow({ where: { id } })
-  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
+  const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
+  if (!sessionUser) throw new Error("Not authenticated")
+  const task = await prisma.task.findFirst({ where: { id, householdId: sessionUser.householdId } })
+  if (!task) return
+  const canToggle = sessionUser.role === "admin" || task.assigneeId === sessionPersonId
+  if (!canToggle) throw new Error("Not authorized")
   const completing = !task.completed
   await prisma.task.update({
     where: { id },
