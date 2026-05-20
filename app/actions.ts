@@ -154,9 +154,10 @@ export async function updateTask(
       : null
   }
   if (update.reminderMinutesBefore != null) {
-    if (("assigneeId" in update && !update.assigneeId) || ("dueDate" in update && !update.dueDate)) {
-      update.reminderMinutesBefore = null
-    }
+    const current = await prisma.task.findUnique({ where: { id, householdId }, select: { assigneeId: true, dueDate: true } })
+    const finalAssignee = "assigneeId" in update ? update.assigneeId : current?.assigneeId
+    const finalDue = "dueDate" in update ? update.dueDate : current?.dueDate
+    if (!finalAssignee || !finalDue) update.reminderMinutesBefore = null
   }
   await prisma.task.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")

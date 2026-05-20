@@ -148,8 +148,10 @@ export async function updateRecurringTask(
       ? await verifyBelongsToHousehold("project", data.projectId, householdId)
       : null
   }
-  if (update.reminderMinutesBefore != null && "assigneeId" in update && !update.assigneeId) {
-    update.reminderMinutesBefore = null
+  if (update.reminderMinutesBefore != null) {
+    const current = await prisma.recurringTask.findUnique({ where: { id, householdId }, select: { assigneeId: true } })
+    const finalAssignee = "assigneeId" in update ? update.assigneeId : current?.assigneeId
+    if (!finalAssignee) update.reminderMinutesBefore = null
   }
   await prisma.recurringTask.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")
