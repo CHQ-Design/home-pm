@@ -182,7 +182,6 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
             }`}
           >
             Everyone
-            {totalOpen > 0 && <span className="text-[10px] opacity-70">{totalOpen}</span>}
           </button>
           {people.map(p => {
             const isActive = filterPersonId === p.id
@@ -208,19 +207,14 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
                 {p.name}
                 {(() => {
                   const stats = personStats.get(p.id)
-                  if (!stats || stats.open === 0) return null
+                  if (!stats || stats.overdue === 0) return null
                   return (
-                    <>
-                      <span className="text-[10px] opacity-70">{stats.open}</span>
-                      {stats.overdue > 0 && (
-                        <span className="text-[10px] text-warm-text">{stats.overdue} late</span>
-                      )}
-                    </>
+                    <span className="text-[10px] text-warm-text">{stats.overdue} late</span>
                   )
                 })()}
                 {p.streakCount >= 2 && (
                   <span className="text-[10px] ml-0.5" aria-label={`${p.streakCount} day streak`}>
-                    🔥{p.streakCount}
+                    🔥&nbsp;{p.streakCount}
                   </span>
                 )}
               </button>
