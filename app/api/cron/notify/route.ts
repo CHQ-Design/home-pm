@@ -86,7 +86,7 @@ export async function GET(request: Request) {
       const body = titles.length === 1 ? titles[0] : `${titles[0]} + ${titles.length - 1} more`
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        JSON.stringify({ title: "The Board", body, url: "/" })
+        JSON.stringify({ title: "Toft", body, url: "/" })
       ).then(() => { sent++ }).catch(async err => {
         if (err.statusCode === 410 || err.statusCode === 404) {
           await prisma.pushSubscription.delete({ where: { id: sub.id } })

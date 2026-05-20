@@ -29,12 +29,12 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "The Board",
+  title: "Toft",
   description: "Personal project manager for home and family life",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "The Board",
+    title: "Toft",
   },
 };
 

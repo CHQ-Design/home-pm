@@ -14,7 +14,7 @@ export default function Nav() {
     <nav className="border-b border-border">
       <div className="max-w-2xl mx-auto px-3 flex gap-0.5 h-12 items-center">
         <Link href="/" className="font-serif text-base font-bold text-foreground mr-2 shrink-0">
-          The Board
+          Toft
         </Link>
         <div className="hidden sm:flex gap-0.5 items-center">
           <NavLink href="/" active={pathname === "/"}>Things</NavLink>

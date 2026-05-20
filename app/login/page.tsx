@@ -11,7 +11,7 @@ function LoginContent() {
   return (
     <main className="flex-1 flex items-center justify-center bg-background">
       <div className="text-center space-y-6">
-        <h1 className="font-serif text-3xl font-bold text-foreground">The Board</h1>
+        <h1 className="font-serif text-3xl font-bold text-foreground">Toft</h1>
         <p className="text-sm text-text-secondary">Sign in to continue</p>
         {accessDenied && (
           <p className="text-sm text-red-600 max-w-xs mx-auto">
