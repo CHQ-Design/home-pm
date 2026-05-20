@@ -146,7 +146,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         <label className="text-xs text-text-secondary shrink-0">Time</label>
         <TimePicker value={time} onChange={setTime} name="time" />
       </div>
-      {dueDate && (
+      {dueDate && assigneeId && (
         <div className="flex gap-3 items-center">
           <label className="text-xs text-text-secondary shrink-0">Remind me</label>
           <div className="flex-1">
@@ -183,7 +183,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
             <CustomSelect
               name="assigneeId"
               value={assigneeId}
-              onChange={setAssigneeId}
+              onChange={v => { setAssigneeId(v); if (!v) setReminderMinutesBefore("") }}
               options={[{ label: "Unassigned", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
               aria-label="Assignee"
             />

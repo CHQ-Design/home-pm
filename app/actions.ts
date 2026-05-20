@@ -122,7 +122,7 @@ export async function updateTask(
   const update: {
     title?: string; notes?: string | null; dueDate?: Date | null; time?: string | null
     priority?: string; assigneeId?: number | null; projectId?: number | null
-    reminderMinutesBefore?: number | null
+    reminderMinutesBefore?: number | null; notifiedAt?: Date | null
   } = {}
   if (data.title !== undefined) {
     const t = data.title.trim()
@@ -137,6 +137,7 @@ export async function updateTask(
   if (data.reminderMinutesBefore !== undefined) {
     const r = data.reminderMinutesBefore
     update.reminderMinutesBefore = (r !== null && Number.isInteger(r) && r >= 0) ? r : null
+    update.notifiedAt = null
   }
   if (data.assigneeId !== undefined) {
     update.assigneeId = data.assigneeId !== null

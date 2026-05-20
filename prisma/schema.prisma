@@ -24,6 +24,7 @@ model User {
   email       String    @unique
   name        String?
   role        String    @default("member")  // "admin" | "member"
+  timezone    String    @default("America/Los_Angeles")
   householdId Int
   household   Household @relation(fields: [householdId], references: [id])
   createdAt   DateTime  @default(now())

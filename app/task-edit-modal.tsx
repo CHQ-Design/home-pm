@@ -167,7 +167,11 @@ export default function TaskEditModal({
               <label className={labelClass}>Assignee</label>
               <CustomSelect
                 value={form.assigneeId}
-                onChange={assigneeId => setForm(f => ({ ...f, assigneeId }))}
+                onChange={assigneeId => setForm(f => ({
+                  ...f,
+                  assigneeId,
+                  ...(assigneeId === "" ? { reminderMinutesBefore: "" } : {}),
+                }))}
                 options={[{ label: "Unassigned", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
                 aria-label="Assignee"
               />
@@ -186,7 +190,7 @@ export default function TaskEditModal({
             </div>
           )}
 
-          {form.dueDate && (
+          {form.dueDate && form.assigneeId && (
             <div className="col-span-2 sm:col-span-3">
               <label className={labelClass}>Remind me</label>
               <CustomSelect

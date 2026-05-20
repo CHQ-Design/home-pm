@@ -112,7 +112,7 @@ export async function updateRecurringTask(
   const update: {
     title?: string; notes?: string | null; time?: string | null; intervalValue?: number
     intervalUnit?: string; nextDue?: Date; assigneeId?: number | null
-    projectId?: number | null; reminderMinutesBefore?: number | null
+    projectId?: number | null; reminderMinutesBefore?: number | null; notifiedAt?: Date | null
   } = {}
   if (data.title !== undefined) {
     const t = data.title.trim()
@@ -134,6 +134,7 @@ export async function updateRecurringTask(
   if (data.reminderMinutesBefore !== undefined) {
     const r = data.reminderMinutesBefore
     update.reminderMinutesBefore = (r !== null && Number.isInteger(r) && r >= 0) ? r : null
+    update.notifiedAt = null
   }
   if (data.assigneeId !== undefined) {
     update.assigneeId = data.assigneeId !== null
