@@ -18,6 +18,8 @@ interface Props {
   "aria-label"?: string
 }
 
+const MARGIN = 8
+
 export default function CustomSelect({ value, onChange, options, name, placeholder, "aria-label": ariaLabel }: Props) {
   const [open, setOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -27,10 +29,24 @@ export default function CustomSelect({ value, onChange, options, name, placehold
 
   const currentLabel = options.find(o => o.value === value)?.label ?? placeholder ?? ""
 
-  function openList() {
-    if (!triggerRef.current) return
+  function computePos() {
+    if (!triggerRef.current) return null
     const rect = triggerRef.current.getBoundingClientRect()
-    setListPos({ top: rect.bottom + 4, left: rect.left, width: rect.width })
+    const vw = window.visualViewport?.width ?? window.innerWidth
+    const vh = window.visualViewport?.height ?? window.innerHeight
+    const estimatedMenuHeight = options.length * 44
+    const spaceBelow = vh - rect.bottom - MARGIN
+    const top = spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight
+      ? Math.max(MARGIN, rect.top - 4 - estimatedMenuHeight)
+      : rect.bottom + 4
+    const left = Math.max(MARGIN, Math.min(rect.left, vw - rect.width - MARGIN))
+    return { top, left, width: rect.width }
+  }
+
+  function openList() {
+    const pos = computePos()
+    if (!pos) return
+    setListPos(pos)
     setFocusedIndex(options.findIndex(o => o.value === value))
     setOpen(true)
   }
@@ -38,6 +54,10 @@ export default function CustomSelect({ value, onChange, options, name, placehold
   useEffect(() => {
     if (!open) return
 
+    function updatePos() {
+      const pos = computePos()
+      if (pos) setListPos(pos)
+    }
     function onMouseDown(e: MouseEvent) {
       const target = e.target as Node
       if (!triggerRef.current?.contains(target) && !listRef.current?.contains(target)) {
@@ -52,9 +72,13 @@ export default function CustomSelect({ value, onChange, options, name, placehold
     }
     document.addEventListener("mousedown", onMouseDown)
     document.addEventListener("keydown", onKeyDown)
+    window.addEventListener("scroll", updatePos, { passive: true, capture: true })
+    window.addEventListener("resize", updatePos, { passive: true })
     return () => {
       document.removeEventListener("mousedown", onMouseDown)
       document.removeEventListener("keydown", onKeyDown)
+      window.removeEventListener("scroll", updatePos, { capture: true })
+      window.removeEventListener("resize", updatePos)
     }
   }, [open])
 
