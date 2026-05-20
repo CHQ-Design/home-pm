@@ -48,13 +48,17 @@ function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }
   )
 }
 
-export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKid = false }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean }) {
+export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKid = false, filterPersonId = null }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean; filterPersonId?: number | null }) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
 
   // After hydration, filter to local today/overdue only (server query uses UTC midnight,
   // which can include "tomorrow" for US timezone users between midnight UTC and local midnight)
-  const visibleTasks = tasks.filter(t => daysDiff(t.nextDue, today) <= 0)
+  const visibleTasks = tasks.filter(t => {
+    if (daysDiff(t.nextDue, today) > 0) return false
+    if (filterPersonId !== null && t.assigneeId !== filterPersonId && t.assigneeId !== null) return false
+    return true
+  })
 
   if (visibleTasks.length === 0) return null
 

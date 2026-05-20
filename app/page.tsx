@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddTaskForm from "./add-task-form"
-import TaskList from "./task-list"
-import RecurringSection from "./recurring-section"
+import ThingsView from "./things-view"
 import LocalDate from "./local-date"
 import WelcomeHeader from "./welcome-header"
 import { getPersonColor } from "@/lib/person-colors"
@@ -50,8 +49,7 @@ export default async function Home() {
         ) : (
           <h1 className="font-serif text-3xl font-bold mb-6">Things</h1>
         )}
-        <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
-        <TaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+        <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
       </main>
       {showAddForm && (
         <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] sm:bottom-0 left-0 right-0 z-30 bg-background border-t border-border">

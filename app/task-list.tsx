@@ -111,13 +111,31 @@ function KidAllDone({ name, personColor }: { name: string; personColor: string }
   )
 }
 
-type Props = { tasks: Task[]; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid: boolean; currentProjectId?: number }
+type Props = {
+  tasks: Task[]
+  people: Person[]
+  projects: Project[]
+  isAdmin: boolean
+  sessionPersonId: number | null
+  isKid: boolean
+  currentProjectId?: number
+  filterPersonId?: number | null
+  onFilterChange?: (id: number | null) => void
+  hasRoutinesForActive?: boolean
+}
 
-export default function TaskList({ tasks, people, projects, isAdmin, sessionPersonId, isKid, currentProjectId }: Props) {
+export default function TaskList({
+  tasks, people, projects, isAdmin, sessionPersonId, isKid, currentProjectId,
+  filterPersonId: filterPersonIdProp,
+  onFilterChange,
+  hasRoutinesForActive = false,
+}: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [completedPulse, setCompletedPulse] = useState(false)
   const hasExpandedCompleted = useRef(false)
-  const [filterPersonId, setFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
+  const [localFilterPersonId, setLocalFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
+  const filterPersonId = filterPersonIdProp ?? localFilterPersonId
+  const setFilterPersonId = onFilterChange ?? setLocalFilterPersonId
   const boardClearCelebrated = useRef(false)
   const [showCelebration, setShowCelebration] = useState(false)
   const [boardClearAnnouncement, setBoardClearAnnouncement] = useState("")
@@ -271,7 +289,11 @@ export default function TaskList({ tasks, people, projects, isAdmin, sessionPers
           </div>
         ) : filterPersonId !== null ? (
           <div className="py-8 text-center">
-            <p className="font-serif text-base text-text-muted">Nothing for {activePerson?.name} right now.</p>
+            <p className="font-serif text-base text-text-muted">
+              {hasRoutinesForActive
+                ? `No other things for ${activePerson?.name} today.`
+                : `Nothing for ${activePerson?.name} right now.`}
+            </p>
           </div>
         ) : (
           <div className="py-10 text-center">
