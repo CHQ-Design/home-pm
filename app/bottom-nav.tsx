@@ -22,14 +22,15 @@ export default function BottomNav() {
   ]
 
   return (
-    <div className="sm:hidden fixed bottom-0 left-0 right-0 z-20 bg-background border-t border-border">
+    <nav aria-label="Sections" className="sm:hidden fixed bottom-0 left-0 right-0 z-20 bg-background border-t border-border">
       <div className="max-w-2xl mx-auto flex pb-[max(env(safe-area-inset-bottom),_4px)]">
         {tabs.map(({ href, label, Icon, active }) => (
           <Link
             key={href}
             href={href}
+            aria-current={active ? "page" : undefined}
             className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
-              active ? "text-accent" : "text-text-faint hover:text-text-secondary"
+              active ? "text-accent-hover" : "text-text-faint hover:text-text-secondary"
             }`}
           >
             <Icon size={22} aria-hidden="true" />
@@ -37,6 +38,6 @@ export default function BottomNav() {
           </Link>
         ))}
       </div>
-    </div>
+    </nav>
   )
 }

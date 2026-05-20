@@ -11,7 +11,7 @@ export default function Nav() {
   const isAdmin = session?.user?.role === "admin"
 
   return (
-    <nav className="border-b border-border">
+    <nav aria-label="Primary" className="border-b border-border">
       <div className="max-w-2xl mx-auto px-3 flex gap-0.5 h-12 items-center">
         <Link href="/" className="font-serif text-base font-bold text-foreground mr-2 shrink-0">
           Toft
@@ -67,9 +67,10 @@ function NavLink({
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className={`text-sm font-medium px-2 py-1.5 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
         active
-          ? "bg-accent/10 text-accent"
+          ? "bg-accent/10 text-accent-hover"
           : "text-text-secondary hover:text-foreground"
       }`}
     >

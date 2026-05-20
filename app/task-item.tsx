@@ -173,17 +173,19 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-foreground"
               autoFocus
             />
+          ) : isAdmin && !task.completed ? (
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); openInline() }}
+              aria-label={`Open ${task.title}`}
+              className={`relative flex-1 text-left ${isKid ? "text-xl" : "text-base"} font-medium cursor-pointer text-foreground hover:text-text-hover focus-visible:outline-none focus-visible:text-text-hover`}
+            >
+              {task.title}
+            </button>
           ) : (
             <span
-              onClick={e => { e.stopPropagation(); openInline() }}
-              onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openInline() } }}
-              role={isAdmin && !task.completed ? "button" : undefined}
-              aria-label={isAdmin && !task.completed ? `${task.title} – edit` : undefined}
-              tabIndex={isAdmin && !task.completed ? 0 : -1}
               className={`relative flex-1 ${isKid ? "text-xl" : "text-base"} font-medium ${
-                task.completed
-                  ? "text-text-muted"
-                  : "cursor-pointer text-foreground hover:text-text-hover focus-visible:outline-none focus-visible:text-text-hover"
+                task.completed ? "text-text-muted" : "text-foreground"
               }`}
             >
               {task.title}
@@ -218,7 +220,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             <button
               onClick={e => { e.stopPropagation(); setIsModalOpen(true) }}
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint text-sm leading-none shrink-0 group-hover:text-text-hover transition-colors"
-              aria-label="Edit task"
+              aria-label={`Edit ${task.title}`}
             >
               <IconPencilMinus size={16} aria-hidden="true" />
             </button>
@@ -279,7 +281,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 </span>
               )}
               {showBell && (
-                <span className="inline-flex items-center text-accent">
+                <span className="inline-flex items-center text-accent-hover">
                   <IconBell size={12} aria-hidden="true" />
                   <span className="sr-only">Reminder set</span>
                 </span>

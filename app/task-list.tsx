@@ -209,7 +209,7 @@ export default function TaskList({
                 key={p.id}
                 onClick={() => setFilterPersonId(p.id)}
                 aria-pressed={isActive}
-                aria-label={`Show ${p.name}'s things`}
+                aria-label={`Show ${p.name}'s things${p.streakCount >= 2 ? ` — ${p.streakCount} day streak` : ""}`}
                 className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
                 style={isActive
                   ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
