@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webpush } from "@/lib/web-push"
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   const expected = `Bearer ${secret ?? ""}`
   const secretsMatch = secret &&
     provided.length === expected.length &&
-    require("crypto").timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
+    timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
   if (!secretsMatch) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
