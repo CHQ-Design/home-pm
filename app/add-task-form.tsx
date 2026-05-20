@@ -119,8 +119,12 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       <textarea
         name="notes"
         placeholder="Notes (optional)"
-        rows={2}
-        className={`${inputClass} resize-none`}
+        className={`${inputClass} resize-y min-h-[60px] max-h-[320px] overflow-y-auto`}
+        onInput={e => {
+          const el = e.currentTarget
+          el.style.height = "auto"
+          el.style.height = `${el.scrollHeight}px`
+        }}
       />
       <div className="flex gap-3 items-center">
         <label className="text-xs text-text-secondary shrink-0">Due date</label>

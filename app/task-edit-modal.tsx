@@ -37,6 +37,14 @@ export default function TaskEditModal({
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
+  const notesRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    const el = notesRef.current
+    if (!el) return
+    el.style.height = "auto"
+    el.style.height = `${el.scrollHeight}px`
+  }, [form.notes])
 
   // Restore focus to the element that opened the modal when it closes
   useEffect(() => {
@@ -120,13 +128,14 @@ export default function TaskEditModal({
           </div>
 
           <div>
-            <label className={labelClass}>Notes</label>
+            <label htmlFor="task-notes" className={labelClass}>Notes</label>
             <textarea
+              ref={notesRef}
+              id="task-notes"
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               placeholder="Optional"
-              rows={3}
-              className={`${inputClass} resize-none`}
+              className={`${inputClass} resize-y min-h-[72px] max-h-[320px] overflow-y-auto`}
             />
           </div>
 
