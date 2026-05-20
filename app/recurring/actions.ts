@@ -41,10 +41,10 @@ export async function addRecurringTask(formData: FormData) {
   const [ivStr, iu] = cadence.split("|")
   const intervalValue = Number(ivStr)
   const intervalUnit = iu
-  if (!intervalValue || !VALID_UNITS.includes(intervalUnit as Unit)) return
+  if (!intervalValue || !VALID_UNITS.includes(intervalUnit as Unit)) return { error: "Invalid cadence" }
 
   const nextDue = parseDate(formData.get("nextDue") as string)
-  if (!nextDue) return
+  if (!nextDue) return { error: "Invalid date" }
 
   const notes = ((formData.get("notes") as string) ?? "").trim() || null
   if (notes && notes.length > 10000) return { error: "Notes are too long" }

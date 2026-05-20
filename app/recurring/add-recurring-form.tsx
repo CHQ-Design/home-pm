@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import type { Person, Project } from "@prisma/client"
 import { addRecurringTask } from "./actions"
 import { inputClass } from "@/lib/styles"
@@ -28,6 +29,7 @@ function todayString() {
 }
 
 export default function AddRecurringForm({ people, projects, isAdmin }: { people: Person[]; projects: Project[]; isAdmin: boolean }) {
+  const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [nextDue, setNextDue] = useState(todayString())
   const [time, setTime] = useState("")
@@ -40,11 +42,18 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
   const [showReminder, setShowReminder] = useState(false)
   const [showAssignee, setShowAssignee] = useState(false)
   const [showProject, setShowProject] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setSubmitError(null)
     const formData = new FormData(e.currentTarget)
-    await addRecurringTask(formData)
+    const result = await addRecurringTask(formData)
+    if (result && "error" in result) {
+      setSubmitError(result.error)
+      return
+    }
+    router.refresh()
     formRef.current?.reset()
     setNextDue(todayString())
     setTime("")
@@ -186,6 +195,9 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
           </button>
         )}
       </div>
+      {submitError && (
+        <p className="text-sm text-red-600">{submitError}</p>
+      )}
       <button
         type="submit"
         className="w-full py-2 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover"
