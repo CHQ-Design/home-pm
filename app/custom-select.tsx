@@ -91,6 +91,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
   function handleTriggerKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
       e.preventDefault()
+      setIsKeyboardNav(true)
       openList()
     }
   }
