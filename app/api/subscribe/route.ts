@@ -39,7 +39,9 @@ export async function DELETE(request: Request) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const { endpoint } = await request.json()
+  const body = await request.json()
+  const { endpoint } = body
+  if (typeof endpoint !== "string") return NextResponse.json({ error: "Invalid request" }, { status: 400 })
   await prisma.pushSubscription.deleteMany({
     where: { endpoint, userEmail: session.user.email.toLowerCase() },
   })

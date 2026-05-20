@@ -16,17 +16,20 @@ type AttachmentInput = {
 
 const UUID_FILENAME_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$/
 
+function isValidBlobUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw)
+    return u.protocol === "https:" && /\.blob\.vercel-storage\.com$/.test(u.hostname)
+  } catch { return false }
+}
+
 function sanitizeAttachments(atts: AttachmentInput[]): AttachmentInput[] {
   return atts.filter(att =>
     UUID_FILENAME_RE.test(att.filename) &&
     typeof att.originalName === "string" && att.originalName.length > 0 &&
     typeof att.mimeType === "string" &&
     typeof att.size === "number" && att.size > 0 &&
-    (att.blobUrl === undefined || (
-      typeof att.blobUrl === "string" &&
-      att.blobUrl.startsWith("https://") &&
-      att.blobUrl.includes(".blob.vercel-storage.com/")
-    ))
+    (att.blobUrl === undefined || (typeof att.blobUrl === "string" && isValidBlobUrl(att.blobUrl)))
   )
 }
 

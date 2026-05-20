@@ -1,15 +1,14 @@
 import { put } from "@vercel/blob"
 import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSessionUser } from "@/lib/require-auth"
 import { ALLOWED_EXTENSIONS, MIME_MAP } from "@/lib/upload"
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10 MB
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const contentLength = Number(request.headers.get("content-length") ?? 0)
   if (contentLength > MAX_BYTES) {

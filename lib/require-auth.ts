@@ -72,6 +72,6 @@ export async function requireAssignedOrAdmin(
   }
   if (!assigneeId) throw new Error("Not authorized")
   const email = session.user?.email?.toLowerCase() ?? ""
-  const person = await prisma.person.findFirst({ where: { id: assigneeId, email }, select: { id: true } })
-  if (!person) throw new Error("Not authorized")
+  const person = await prisma.person.findFirst({ where: { id: assigneeId, email }, select: { id: true, householdId: true } })
+  if (!person || person.householdId !== recordHouseholdId) throw new Error("Not authorized")
 }
