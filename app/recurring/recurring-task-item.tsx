@@ -175,23 +175,25 @@ export default function RecurringTaskItem({
             onChange={time => setForm(f => ({ ...f, time }))}
           />
         </div>
-        <div className="flex gap-3 items-center">
-          <label className="text-xs text-text-secondary shrink-0">Remind me</label>
-          <div className="flex-1">
-            <CustomSelect
-              value={form.reminderMinutesBefore}
-              onChange={reminderMinutesBefore => setForm(f => ({ ...f, reminderMinutesBefore }))}
-              options={[
-                { label: "No reminder", value: "" },
-                { label: "At the time", value: "0" },
-                { label: "30 minutes before", value: "30" },
-                { label: "1 hour before", value: "60" },
-                { label: "1 day before", value: "1440" },
-              ]}
-              aria-label="Reminder"
-            />
+        {form.assigneeId && (
+          <div className="flex gap-3 items-center">
+            <label className="text-xs text-text-secondary shrink-0">Remind me</label>
+            <div className="flex-1">
+              <CustomSelect
+                value={form.reminderMinutesBefore}
+                onChange={reminderMinutesBefore => setForm(f => ({ ...f, reminderMinutesBefore }))}
+                options={[
+                  { label: "No reminder", value: "" },
+                  { label: "At the time", value: "0" },
+                  { label: "30 minutes before", value: "30" },
+                  { label: "1 hour before", value: "60" },
+                  { label: "1 day before", value: "1440" },
+                ]}
+                aria-label="Reminder"
+              />
+            </div>
           </div>
-        </div>
+        )}
         {showNotes && (
           <textarea
             value={form.notes}
@@ -206,7 +208,11 @@ export default function RecurringTaskItem({
             {people.length > 0 && (
               <CustomSelect
                 value={form.assigneeId}
-                onChange={assigneeId => setForm(f => ({ ...f, assigneeId }))}
+                onChange={assigneeId => setForm(f => ({
+                  ...f,
+                  assigneeId,
+                  ...(assigneeId === "" ? { reminderMinutesBefore: "" } : {}),
+                }))}
                 options={[{ label: "No assignee", value: "" }, ...people.map(p => ({ label: p.name, value: String(p.id) }))]}
                 aria-label="Assignee"
               />

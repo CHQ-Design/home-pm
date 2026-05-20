@@ -38,16 +38,20 @@ export async function addTask(formData: FormData) {
       ])
     : [sessionPersonId, null]
 
+  const dueDate = parseDate(formData.get("dueDate") as string)
+  const reminderRaw = parseReminder(formData.get("reminderMinutesBefore") as string | null)
+  const reminderMinutesBefore = reminderRaw != null && assigneeId != null && dueDate != null ? reminderRaw : null
+
   await prisma.task.create({
     data: {
       title,
       notes,
-      dueDate: parseDate(formData.get("dueDate") as string),
+      dueDate,
       time: parseTime(formData.get("time") as string | null),
       priority,
       assigneeId,
       projectId,
-      reminderMinutesBefore: parseReminder(formData.get("reminderMinutesBefore") as string | null),
+      reminderMinutesBefore,
       householdId,
     },
   })
@@ -148,6 +152,11 @@ export async function updateTask(
     update.projectId = data.projectId !== null
       ? await verifyBelongsToHousehold("project", data.projectId, householdId)
       : null
+  }
+  if (update.reminderMinutesBefore != null) {
+    if (("assigneeId" in update && !update.assigneeId) || ("dueDate" in update && !update.dueDate)) {
+      update.reminderMinutesBefore = null
+    }
   }
   await prisma.task.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")

@@ -13,27 +13,38 @@ export const dynamic = "force-dynamic"
 // "time" is the HH:MM at which the task/routine is due, as a local wall-clock time
 // in the assignee's timezone.  We convert to UTC using the "sv" locale trick:
 // format a UTC epoch in the target tz, measure the offset, then correct.
+// Returns the UTC offset (ms) for a given timezone at a given UTC instant.
+// Used for two-pass DST correction: computing the offset at `approx` and then
+// recomputing it at the corrected instant handles the one-hour skew that occurs
+// on the two DST transition days each year.
+function tzOffsetMs(utcMs: number, tz: string): number {
+  const s = new Intl.DateTimeFormat("sv", {
+    timeZone: tz,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).format(new Date(utcMs)).replace(" ", "T")
+  return utcMs - new Date(s + "Z").getTime()
+}
+
 function computeNotifyAt(dueDate: Date, time: string | null, minutesBefore: number, tz: string): Date {
-  const dateStr = dueDate.toISOString().slice(0, 10) // e.g. "2026-05-19"
+  // dueDate is stored as midnight UTC; the UTC date string is the intended calendar date
+  // (e.g. "2026-05-19") regardless of where the viewer lives.
+  const dateStr = dueDate.toISOString().slice(0, 10)
   const [h, m] = (time ?? "00:00").split(":").map(Number)
   const hh = String(h).padStart(2, "0")
   const mm = String(m).padStart(2, "0")
 
-  // Treat the desired wall-clock time as UTC to get an approximation
-  const approx = new Date(`${dateStr}T${hh}:${mm}:00Z`)
+  // First pass: approximate UTC by treating wall-clock as UTC and correcting for offset
+  const approx = new Date(`${dateStr}T${hh}:${mm}:00Z`).getTime()
+  const first = approx + tzOffsetMs(approx, tz)
 
-  // Find what the target timezone shows at that UTC instant
-  const tzStr = new Intl.DateTimeFormat("sv", {
-    timeZone: tz,
-    year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-  }).format(approx).replace(" ", "T") // "YYYY-MM-DDTHH:MM:SS"
+  // Second pass: recompute offset at `first` to correct for DST boundary crossings.
+  // On transition days, the offset at approx may differ from the offset at first.
+  // dueUtc = approx + offset_at_first is the correct formula (NOT first + offset_at_first,
+  // which would double-count the offset in stable-timezone cases).
+  const dueUtc = approx + tzOffsetMs(first, tz)
 
-  // Offset between what we want and what the tz shows
-  const diff = approx.getTime() - new Date(tzStr + "Z").getTime()
-
-  // Correct to get the actual UTC instant for the desired wall-clock time in tz
-  return new Date(approx.getTime() + diff - minutesBefore * 60_000)
+  return new Date(dueUtc - minutesBefore * 60_000)
 }
 
 export async function GET(request: Request) {

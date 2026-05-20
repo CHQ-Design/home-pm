@@ -49,7 +49,7 @@ export async function addRecurringTask(formData: FormData) {
   const notes = ((formData.get("notes") as string) ?? "").trim() || null
   if (notes && notes.length > 10000) return { error: "Notes are too long" }
 
-  const reminderMinutesBefore = parseReminder(formData.get("reminderMinutesBefore") as string | null)
+  const reminderRaw = parseReminder(formData.get("reminderMinutesBefore") as string | null)
 
   const [assigneeId, projectId] = isAdmin
     ? await Promise.all([
@@ -57,6 +57,8 @@ export async function addRecurringTask(formData: FormData) {
         verifyBelongsToHousehold("project", parseId(formData.get("projectId") as string), householdId),
       ])
     : [sessionPersonId, null]
+
+  const reminderMinutesBefore = reminderRaw != null && assigneeId != null ? reminderRaw : null
 
   await prisma.recurringTask.create({
     data: {
@@ -145,6 +147,9 @@ export async function updateRecurringTask(
     update.projectId = data.projectId !== null
       ? await verifyBelongsToHousehold("project", data.projectId, householdId)
       : null
+  }
+  if (update.reminderMinutesBefore != null && "assigneeId" in update && !update.assigneeId) {
+    update.reminderMinutesBefore = null
   }
   await prisma.recurringTask.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")
