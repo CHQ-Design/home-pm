@@ -46,7 +46,7 @@ function groupTasks(tasks: Task[], today: string) {
 }
 
 function Section({
-  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId,
+  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId, listClass,
 }: {
   title: string
   tasks: Task[]
@@ -59,6 +59,7 @@ function Section({
   sessionPersonId: number | null
   isKid: boolean
   currentProjectId?: number
+  listClass?: string
 }) {
   if (tasks.length === 0) return null
   const headingId = `heading-${title.toLowerCase().replace(/\s+/g, "-")}`
@@ -68,7 +69,7 @@ function Section({
         {icon}
         {title}
       </h2>
-      <ul className="space-y-1">
+      <ul className={`space-y-1 ${listClass ?? ""}`}>
         {tasks.map(task => (
           <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} />
         ))}
@@ -348,9 +349,9 @@ export default function TaskList({
       )}
 
       <Section
-        title={activePerson ? "Needs attention" : "Overdue"}
+        title="Needs attention"
         tasks={groups.overdue}
-        titleClass={activePerson ? "" : "text-red-700"}
+        titleClass={activePerson ? "" : "text-warm-text"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={activePerson
           ? <IconStar size={18} aria-hidden="true" />
@@ -380,6 +381,7 @@ export default function TaskList({
         titleClass={activePerson ? "" : "text-text-muted"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
+        listClass="opacity-70"
         people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
       />
 
