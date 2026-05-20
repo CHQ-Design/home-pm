@@ -17,6 +17,15 @@ export async function POST(request: Request) {
   }
   const userEmail = session.user.email.toLowerCase()
 
+  // Don't allow one user to claim another user's push endpoint
+  const existing = await prisma.pushSubscription.findFirst({
+    where: { endpoint: sub.endpoint },
+    select: { userEmail: true },
+  })
+  if (existing && existing.userEmail !== userEmail) {
+    return NextResponse.json({ ok: true })
+  }
+
   await prisma.pushSubscription.upsert({
     where: { endpoint: sub.endpoint },
     update: { p256dh: sub.keys.p256dh, auth: sub.keys.auth, userEmail },

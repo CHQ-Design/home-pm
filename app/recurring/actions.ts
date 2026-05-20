@@ -106,22 +106,46 @@ export async function updateRecurringTask(
 ) {
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
-  if (data.intervalUnit && !VALID_UNITS.includes(data.intervalUnit as Unit)) return
-  if (data.intervalValue !== undefined && (!Number.isInteger(data.intervalValue) || data.intervalValue < 1)) return
-  if (data.time !== undefined && data.time !== null) {
-    if (!TIME_RE.test(data.time)) data.time = null
+  const { householdId } = sessionUser
+
+  // Build update from only whitelisted fields
+  const update: {
+    title?: string; notes?: string | null; time?: string | null; intervalValue?: number
+    intervalUnit?: string; nextDue?: Date; assigneeId?: number | null
+    projectId?: number | null; reminderMinutesBefore?: number | null
+  } = {}
+  if (data.title !== undefined) {
+    const t = data.title.trim()
+    if (!t) return
+    if (t.length > 500) return { error: "Title is too long" }
+    update.title = t
   }
-  if (data.reminderMinutesBefore !== undefined && data.reminderMinutesBefore !== null) {
+  if (data.notes !== undefined) update.notes = data.notes
+  if (data.time !== undefined) update.time = (data.time && TIME_RE.test(data.time)) ? data.time : null
+  if (data.intervalValue !== undefined) {
+    if (!Number.isInteger(data.intervalValue) || data.intervalValue < 1) return
+    update.intervalValue = data.intervalValue
+  }
+  if (data.intervalUnit !== undefined) {
+    if (!VALID_UNITS.includes(data.intervalUnit as Unit)) return
+    update.intervalUnit = data.intervalUnit
+  }
+  if (data.nextDue !== undefined) update.nextDue = data.nextDue
+  if (data.reminderMinutesBefore !== undefined) {
     const r = data.reminderMinutesBefore
-    if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
+    update.reminderMinutesBefore = (r !== null && Number.isInteger(r) && r >= 0) ? r : null
   }
-  if (data.assigneeId !== undefined && data.assigneeId !== null) {
-    data.assigneeId = await verifyBelongsToHousehold("person", data.assigneeId, sessionUser.householdId)
+  if (data.assigneeId !== undefined) {
+    update.assigneeId = data.assigneeId !== null
+      ? await verifyBelongsToHousehold("person", data.assigneeId, householdId)
+      : null
   }
-  if (data.projectId !== undefined && data.projectId !== null) {
-    data.projectId = await verifyBelongsToHousehold("project", data.projectId, sessionUser.householdId)
+  if (data.projectId !== undefined) {
+    update.projectId = data.projectId !== null
+      ? await verifyBelongsToHousehold("project", data.projectId, householdId)
+      : null
   }
-  await prisma.recurringTask.update({ where: { id, householdId: sessionUser.householdId }, data })
+  await prisma.recurringTask.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")
 }
 

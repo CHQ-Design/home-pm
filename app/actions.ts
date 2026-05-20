@@ -112,28 +112,39 @@ export async function updateTask(
 ) {
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+  const { householdId } = sessionUser
+
+  // Build update from only whitelisted fields — never spread client data into Prisma
+  const update: {
+    title?: string; notes?: string | null; dueDate?: Date | null; time?: string | null
+    priority?: string; assigneeId?: number | null; projectId?: number | null
+    reminderMinutesBefore?: number | null
+  } = {}
   if (data.title !== undefined) {
-    data.title = data.title.trim()
-    if (!data.title) delete data.title
-    else if (data.title.length > 500) return { error: "Title is too long" }
+    const t = data.title.trim()
+    if (!t) return
+    if (t.length > 500) return { error: "Title is too long" }
+    update.title = t
   }
-  if (data.priority !== undefined) {
-    data.priority = parsePriority(data.priority)
-  }
-  if (data.time !== undefined && data.time !== null) {
-    if (!TIME_RE.test(data.time)) data.time = null
-  }
-  if (data.reminderMinutesBefore !== undefined && data.reminderMinutesBefore !== null) {
+  if (data.notes !== undefined) update.notes = data.notes
+  if (data.dueDate !== undefined) update.dueDate = data.dueDate
+  if (data.time !== undefined) update.time = (data.time && TIME_RE.test(data.time)) ? data.time : null
+  if (data.priority !== undefined) update.priority = parsePriority(data.priority)
+  if (data.reminderMinutesBefore !== undefined) {
     const r = data.reminderMinutesBefore
-    if (!Number.isInteger(r) || r < 0) data.reminderMinutesBefore = null
+    update.reminderMinutesBefore = (r !== null && Number.isInteger(r) && r >= 0) ? r : null
   }
-  if (data.assigneeId !== undefined && data.assigneeId !== null) {
-    data.assigneeId = await verifyBelongsToHousehold("person", data.assigneeId, sessionUser.householdId)
+  if (data.assigneeId !== undefined) {
+    update.assigneeId = data.assigneeId !== null
+      ? await verifyBelongsToHousehold("person", data.assigneeId, householdId)
+      : null
   }
-  if (data.projectId !== undefined && data.projectId !== null) {
-    data.projectId = await verifyBelongsToHousehold("project", data.projectId, sessionUser.householdId)
+  if (data.projectId !== undefined) {
+    update.projectId = data.projectId !== null
+      ? await verifyBelongsToHousehold("project", data.projectId, householdId)
+      : null
   }
-  await prisma.task.update({ where: { id, householdId: sessionUser.householdId }, data })
+  await prisma.task.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")
 }
 
@@ -150,9 +161,14 @@ export async function addPerson(formData: FormData) {
 export async function updatePerson(id: number, data: { email?: string | null; isKid?: boolean }) {
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
-  const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email
-  if (email && !EMAIL_RE.test(email)) return { error: "Invalid email address" }
-  await prisma.person.update({ where: { id, householdId: sessionUser.householdId }, data: { ...data, email } })
+  const update: { email?: string | null; isKid?: boolean } = {}
+  if (data.isKid !== undefined) update.isKid = !!data.isKid
+  if (data.email !== undefined) {
+    const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email
+    if (email && !EMAIL_RE.test(email)) return { error: "Invalid email address" }
+    update.email = email
+  }
+  await prisma.person.update({ where: { id, householdId: sessionUser.householdId }, data: update })
   revalidatePath("/", "layout")
 }
 
@@ -169,6 +185,10 @@ export async function deletePerson(id: number, reassignToId?: number) {
 
   await prisma.$transaction([
     prisma.task.updateMany({
+      where: { assigneeId: id, householdId },
+      data: { assigneeId: reassignToId ?? null },
+    }),
+    prisma.recurringTask.updateMany({
       where: { assigneeId: id, householdId },
       data: { assigneeId: reassignToId ?? null },
     }),

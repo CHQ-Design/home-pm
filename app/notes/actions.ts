@@ -75,26 +75,35 @@ export async function updateNote(
 ) {
   const sessionUser = await getSessionUser()
   if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+
+  // Build update from only whitelisted fields
+  const update: { title?: string; body?: string | null; tags?: string | null; projectId?: number | null } = {}
   if (data.title !== undefined) {
-    data.title = data.title.trim()
-    if (!data.title) delete data.title
-    else if (data.title.length > 500) return { error: "Title is too long" }
+    const t = data.title.trim()
+    if (!t) return
+    if (t.length > 500) return { error: "Title is too long" }
+    update.title = t
   }
-  if (data.body !== undefined && data.body !== null && data.body.length > 10000) return { error: "Body is too long" }
-  if (data.tags !== undefined && data.tags !== null) {
-    if (data.tags.length > 200) return { error: "Tags are too long" }
-    data = { ...data, tags: normalizeTags(data.tags) }
+  if (data.body !== undefined) {
+    if (data.body !== null && data.body.length > 10000) return { error: "Body is too long" }
+    update.body = data.body
   }
-  if (data.projectId !== undefined && data.projectId !== null) {
-    data = { ...data, projectId: await verifyBelongsToHousehold("project", data.projectId, sessionUser.householdId) }
+  if (data.tags !== undefined) {
+    if (data.tags !== null && data.tags.length > 200) return { error: "Tags are too long" }
+    update.tags = data.tags !== null ? normalizeTags(data.tags) : null
+  }
+  if (data.projectId !== undefined) {
+    update.projectId = data.projectId !== null
+      ? await verifyBelongsToHousehold("project", data.projectId, sessionUser.householdId)
+      : null
   }
   const safeAttachments = sanitizeAttachments(newAttachments)
   await prisma.note.update({
     where: { id, householdId: sessionUser.householdId },
     data: {
-      ...data,
+      ...update,
       updatedAt: new Date(),
-      attachments: safeAttachments.length > 0 ? { create: safeAttachments } : undefined,
+      ...(safeAttachments.length > 0 ? { attachments: { create: safeAttachments } } : {}),
     },
   })
   revalidatePath("/", "layout")
