@@ -9,6 +9,7 @@ import AddTaskForm from "./add-task-form"
 import ThingsView from "./things-view"
 import LocalDate from "./local-date"
 import WelcomeHeader from "./welcome-header"
+import PageHeader from "./page-header"
 import { getPersonColor } from "@/lib/person-colors"
 import { redirect } from "next/navigation"
 
@@ -50,7 +51,7 @@ export default async function Home() {
         {memberPerson && memberColor ? (
           <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
         ) : (
-          <h1 className="font-serif text-3xl font-bold mb-6">Things</h1>
+          <PageHeader title="Things" />
         )}
         <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
       </main>

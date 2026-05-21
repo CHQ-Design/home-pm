@@ -86,7 +86,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             ? ""
             : task.completed
               ? "bg-background opacity-60"
-              : "bg-background hover:bg-hover hover:shadow-[0_2px_8px_rgba(58,50,40,0.06)] active:bg-[rgba(200,146,42,0.07)]"
+              : "bg-background hover:bg-hover hover:shadow-card active:bg-[rgba(200,146,42,0.07)]"
         }`}
         style={{
           borderLeftColor: personColor?.border ?? "transparent",

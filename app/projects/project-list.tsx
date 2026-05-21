@@ -63,7 +63,7 @@ function ProjectCard({ project }: { project: Project }) {
         )}
 
         {total === 0 && (
-          <p className="mt-2 text-xs text-text-muted">No tasks yet</p>
+          <p className="mt-2 font-serif text-sm text-text-faint flex items-center gap-1.5"><span aria-hidden="true">✦</span>No tasks yet</p>
         )}
       </Link>
     </li>

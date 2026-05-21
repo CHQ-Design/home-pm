@@ -11,6 +11,7 @@ import { getSessionUser } from "@/lib/require-auth"
 import Link from "next/link"
 import PeopleManager from "@/app/people-manager"
 import UserManager from "./user-manager"
+import PageHeader from "@/app/page-header"
 
 export default async function SettingsPage() {
   const sessionUser = await getSessionUser()
@@ -34,7 +35,7 @@ export default async function SettingsPage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
-      <h1 className="font-serif text-2xl font-bold mb-6">Settings</h1>
+      <PageHeader title="Settings" />
       {/* TODO: add timezone selector per user — User.timezone exists, needs UI + action (github.com/CHQ-Design/home-pm/issues/1) */}
       <UserManager users={users} currentEmail={currentEmail} />
       <PeopleManager people={people} />

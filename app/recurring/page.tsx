@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddRecurringForm from "./add-recurring-form"
 import RecurringTaskList from "./recurring-task-list"
+import PageHeader from "@/app/page-header"
 import { redirect } from "next/navigation"
 
 export default async function RecurringPage() {
@@ -31,7 +32,7 @@ export default async function RecurringPage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
-      <h1 className="font-serif text-2xl font-bold mb-6 text-foreground">Routines</h1>
+      <PageHeader title="Routines" />
 
       {showAddForm && <AddRecurringForm people={people} projects={projects} isAdmin={isAdmin} />}
 
