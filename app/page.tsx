@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import type { Metadata } from "next"
-export const metadata: Metadata = { title: "Things — Toft" }
+export const metadata: Metadata = { title: "Things — Otium" }
 
 import { prisma } from "@/lib/prisma"
 import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"

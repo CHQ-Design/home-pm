@@ -142,7 +142,7 @@ export async function GET(request: Request) {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify({ title: "Toft", body, url: "/" })
+          JSON.stringify({ title: "Otium", body, url: "/" })
         )
         sent++
         for (const id of items.taskIds) notifiedTaskIds.add(id)

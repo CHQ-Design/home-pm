@@ -1,6 +1,7 @@
 {
-  "name": "Toft",
-  "short_name": "Toft",
+  "name": "Otium",
+  "short_name": "Otium",
+  "description": "A calm way to keep your household running. Add what needs doing. Check it off when it's done.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F9F5EF",

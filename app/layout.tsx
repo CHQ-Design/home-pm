@@ -30,12 +30,12 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Toft",
-  description: "Personal project manager for home and family life",
+  title: "Otium",
+  description: "A calm way to keep your household running. Add what needs doing. Check it off when it's done.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Toft",
+    title: "Otium",
   },
 };
 

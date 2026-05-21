@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import type { Metadata } from "next"
-export const metadata: Metadata = { title: "Notes — Toft" }
+export const metadata: Metadata = { title: "Notes — Otium" }
 
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
