@@ -48,6 +48,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
   const [justCompleted, setJustCompleted] = useState(false)
   const [announcement, setAnnouncement] = useState("")
   const prevCompleted = useRef(task.completed)
+  const openTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const editTriggerRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
     if (!prevCompleted.current && task.completed) {
@@ -123,7 +125,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   ? isKid
                     ? "bg-warm border-warm scale-125"
                     : "bg-accent border-accent scale-110"
-                  : "bg-transparent border-border-chip scale-100 peer-focus-visible:border-accent"
+                  : "bg-transparent border-text-muted scale-100 peer-focus-visible:border-accent"
                 }
               `}
             >
@@ -163,22 +165,30 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
 
           {isInlineEditing ? (
             <input
+              id={`task-panel-${task.id}`}
+              aria-label="Task title"
               value={inlineTitle}
               onChange={e => setInlineTitle(e.target.value)}
               onBlur={saveInline}
               onKeyDown={e => {
                 if (e.key === "Enter") saveInline()
-                if (e.key === "Escape") setIsInlineEditing(false)
+                if (e.key === "Escape") {
+                  setIsInlineEditing(false)
+                  requestAnimationFrame(() => openTriggerRef.current?.focus())
+                }
               }}
               className="flex-1 text-base font-medium border-b border-accent outline-none bg-transparent py-0.5 text-foreground"
               autoFocus
             />
           ) : isAdmin && !task.completed ? (
             <button
+              ref={openTriggerRef}
               type="button"
               onClick={e => { e.stopPropagation(); openInline() }}
               aria-label={`Open ${task.title}`}
-              className={`relative flex-1 text-left ${isKid ? "text-xl" : "text-base"} font-medium cursor-pointer text-foreground hover:text-text-hover focus-visible:outline-none focus-visible:text-text-hover`}
+              aria-expanded={isInlineEditing}
+              aria-controls={`task-panel-${task.id}`}
+              className={`relative flex-1 text-left ${isKid ? "text-xl" : "text-base"} font-medium cursor-pointer text-foreground hover:text-text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded`}
             >
               {task.title}
             </button>
@@ -218,6 +228,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           {/* Edit — admin only */}
           {isAdmin && (
             <button
+              ref={editTriggerRef}
+              type="button"
               onClick={e => { e.stopPropagation(); setIsModalOpen(true) }}
               className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint text-sm leading-none shrink-0 group-hover:text-text-hover transition-colors"
               aria-label={`Edit ${task.title}`}
@@ -237,7 +249,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           return (
             <div className="flex flex-wrap gap-1.5 pl-11 pb-2">
               {showProject && (
-                <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent">
+                <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent-hover">
                   {task.project!.name}
                 </span>
               )}
@@ -324,7 +336,10 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           task={task}
           people={people}
           projects={projects}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false)
+            requestAnimationFrame(() => editTriggerRef.current?.focus())
+          }}
         />,
         document.body
       )}

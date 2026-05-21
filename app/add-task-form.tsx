@@ -225,7 +225,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         )}
 
         {showMore && (
-          <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden pt-3 pb-2 space-y-3">
+          <div id="add-task-more-options" className="max-h-[60vh] overflow-y-auto overflow-x-hidden pt-3 pb-2 space-y-3">
             <div className="relative">
               <input
                 ref={panelTitleRef}
@@ -287,6 +287,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
             type="button"
             onClick={showMore ? closePanel : toggleShowMore}
             aria-expanded={showMore}
+            aria-controls="add-task-more-options"
             aria-label={showMore ? "Close options" : "More options"}
             className="min-h-[44px] min-w-[44px] flex items-center justify-center text-text-secondary hover:text-foreground shrink-0"
           >
@@ -351,6 +352,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         type="button"
         onClick={toggleShowMore}
         aria-expanded={showMore}
+        aria-controls="add-task-more-options"
         className="text-[13px] text-text-secondary hover:text-foreground min-h-[44px] inline-flex items-center"
       >
         <span className="inline-flex items-center gap-1">
@@ -360,7 +362,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       </button>
 
       {showMore && (
-        <div className="pl-1">
+        <div id="add-task-more-options" className="pl-1">
           {extraFields}
         </div>
       )}
