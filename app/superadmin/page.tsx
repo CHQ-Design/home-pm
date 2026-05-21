@@ -59,8 +59,7 @@ export default async function SuperAdminPage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
-      <PageHeader title="Super Admin" />
-      <p className="text-sm text-text-muted -mt-2 mb-8">Manage all households on this instance.</p>
+      <PageHeader title="Super Admin" description="Manage all households on this instance." />
 
       <div className="space-y-3 mb-8">
         {households.length === 0 && (
