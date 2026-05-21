@@ -45,7 +45,7 @@ export default async function Home() {
 
   return (
     <>
-      <main id="main-content" className={`w-full max-w-2xl mx-auto px-4 pt-8 ${showAddForm ? "pb-40 sm:pb-8" : "pb-20 sm:pb-8"}`}>
+      <main id="main-content" className={`w-full max-w-2xl mx-auto px-4 pt-8 ${showAddForm ? "pb-52 sm:pb-8" : "pb-28 sm:pb-8"}`}>
         <LocalDate />
         {memberPerson && memberColor ? (
           <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
