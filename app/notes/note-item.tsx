@@ -182,6 +182,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
             Cancel
           </button>
         </div>
+        {saveError && <p className="text-xs text-red-600">{saveError}</p>}
       </div>
     )
   }
