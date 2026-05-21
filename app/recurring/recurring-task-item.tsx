@@ -51,14 +51,6 @@ function dueDateLabel(nextDue: Date | string, today: string): string {
   return `Due ${formatDate(nextDue)}`
 }
 
-function localDateString(d: Date | string): string {
-  const date = new Date(d)
-  const yyyy = date.getFullYear()
-  const mm = String(date.getMonth() + 1).padStart(2, "0")
-  const dd = String(date.getDate()).padStart(2, "0")
-  return `${yyyy}-${mm}-${dd}`
-}
-
 export default function RecurringTaskItem({
   task,
   people,
@@ -90,7 +82,7 @@ export default function RecurringTaskItem({
     title: task.title,
     notes: task.notes ?? "",
     cadence: `${task.intervalValue}|${task.intervalUnit}`,
-    nextDue: localDateString(task.nextDue),
+    nextDue: new Date(task.nextDue).toISOString().slice(0, 10),
     time: task.time ?? "",
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",

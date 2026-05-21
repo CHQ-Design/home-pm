@@ -32,6 +32,8 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
   const [expanded, setExpanded] = useState(false)
   const [pending, setPending] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [form, setForm] = useState({
     title: note.title,
     body: note.body ?? "",
@@ -43,14 +45,24 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
     const files = Array.from(e.target.files ?? [])
     if (files.length === 0) return
     setUploading(true)
+    setUploadError(null)
     const uploaded: UploadedFile[] = []
+    const failed: string[] = []
     for (const file of files) {
       const fd = new FormData()
       fd.append("file", file)
       const res = await fetch("/api/upload", { method: "POST", body: fd })
-      if (res.ok) uploaded.push(await res.json())
+      if (res.ok) {
+        uploaded.push(await res.json())
+      } else {
+        const msg = res.status === 413 ? "too large"
+                  : res.status === 415 ? "file type not allowed"
+                  : "upload failed"
+        failed.push(`${file.name}: ${msg}`)
+      }
     }
-    await updateNote(note.id, {}, uploaded)
+    if (uploaded.length > 0) await updateNote(note.id, {}, uploaded)
+    if (failed.length > 0) setUploadError(failed.join(", "))
     setUploading(false)
     e.target.value = ""
   }
@@ -59,24 +71,39 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
     const title = form.title.trim()
     if (!title) return
     setPending(true)
-    await updateNote(note.id, {
-      title,
-      body: form.body.trim() || null,
-      tags: form.tags,
-      projectId: form.projectId ? Number(form.projectId) : null,
-    })
-    setPending(false)
-    setEditing(false)
+    setSaveError(null)
+    try {
+      await updateNote(note.id, {
+        title,
+        body: form.body.trim() || null,
+        tags: form.tags,
+        projectId: form.projectId ? Number(form.projectId) : null,
+      })
+      setEditing(false)
+    } catch {
+      setSaveError("Couldn't save — please try again.")
+    } finally {
+      setPending(false)
+    }
   }
 
   async function handleDelete() {
     setPending(true)
-    await deleteNote(note.id)
-    setPending(false)
+    setSaveError(null)
+    try {
+      await deleteNote(note.id)
+    } catch {
+      setSaveError("Couldn't delete — please try again.")
+      setPending(false)
+    }
   }
 
   async function handleDeleteAttachment(id: number) {
-    await deleteAttachment(id)
+    try {
+      await deleteAttachment(id)
+    } catch {
+      setUploadError("Couldn't remove attachment — please try again.")
+    }
   }
 
   const tags = note.tags ? note.tags.split(",").map(t => t.trim()).filter(Boolean) : []
@@ -116,6 +143,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
             aria-label="Project"
           />
         )}
+        {saveError && <p className="text-xs text-red-600">{saveError}</p>}
         <div className="flex gap-2">
           <button
             onClick={handleSave}
@@ -241,6 +269,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
         </ul>
       )}
 
+      {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
       <div className="flex items-center justify-between pt-1">
         <span className="text-xs text-text-muted">Updated {formatTimestamp(note.updatedAt)}</span>
         <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-faint hover:text-text-hover"}`}>

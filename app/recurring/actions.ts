@@ -13,14 +13,28 @@ type Unit = typeof VALID_UNITS[number]
 function computeNextDue(from: Date, value: number, unit: Unit): Date {
   const d = new Date(from)
   switch (unit) {
-    case "day":   d.setDate(d.getDate() + value); break
-    case "week":  d.setDate(d.getDate() + value * 7); break
-    case "month": d.setMonth(d.getMonth() + value); break
-    case "year":  d.setFullYear(d.getFullYear() + value); break
+    case "day":  d.setDate(d.getDate() + value); break
+    case "week": d.setDate(d.getDate() + value * 7); break
+    case "month": {
+      const day = d.getDate()
+      d.setDate(1)
+      d.setMonth(d.getMonth() + value)
+      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
+      break
+    }
+    case "year": {
+      const day = d.getDate()
+      d.setDate(1)
+      d.setFullYear(d.getFullYear() + value)
+      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
+      break
+    }
     case "weekday":
-      d.setDate(d.getDate() + 1)
-      if (d.getDay() === 6) d.setDate(d.getDate() + 2) // Sat → Mon
-      if (d.getDay() === 0) d.setDate(d.getDate() + 1) // Sun → Mon
+      for (let i = 0; i < value; i++) {
+        d.setDate(d.getDate() + 1)
+        if (d.getDay() === 6) d.setDate(d.getDate() + 2) // Sat → Mon
+        if (d.getDay() === 0) d.setDate(d.getDate() + 1) // Sun → Mon
+      }
       break
   }
   return d
@@ -83,7 +97,7 @@ export async function completeRecurringTask(id: number) {
   await requireAssignedOrAdmin(task.assigneeId, task.householdId)
 
   const now = new Date()
-  const nextDue = computeNextDue(now, task.intervalValue, task.intervalUnit as Unit)
+  const nextDue = computeNextDue(task.nextDue, task.intervalValue, task.intervalUnit as Unit)
 
   await prisma.recurringTask.update({
     where: { id },

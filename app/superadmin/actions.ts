@@ -27,8 +27,10 @@ export async function createHousehold(formData: FormData) {
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) return { error: "That email is already in a household" }
 
-  const household = await prisma.household.create({ data: { name } })
-  await prisma.user.create({ data: { email, role: "admin", householdId: household.id } })
+  await prisma.$transaction(async (tx) => {
+    const household = await tx.household.create({ data: { name } })
+    await tx.user.create({ data: { email, role: "admin", householdId: household.id } })
+  })
 
   revalidatePath("/superadmin")
 }

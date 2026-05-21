@@ -3,8 +3,13 @@
 import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
-import { todayUTC } from "@/lib/dates"
 import { parseReminder, parseId, parseTime, parseDate, TIME_RE, EMAIL_RE } from "@/lib/parse"
+
+function localYmd(date: Date, tz: string): string {
+  return new Intl.DateTimeFormat("sv", {
+    timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(date)
+}
 
 const VALID_PRIORITIES = ["high", "medium", "low"] as const
 type Priority = typeof VALID_PRIORITIES[number]
@@ -76,9 +81,14 @@ export async function toggleTask(id: number) {
   if (completing && task.assigneeId) {
     const person = await prisma.person.findUnique({ where: { id: task.assigneeId } })
     if (person) {
-      const today = todayUTC()
-      const last = person.lastStreakDate ? person.lastStreakDate.toISOString().slice(0, 10) : null
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+      const linkedUser = person.email
+        ? await prisma.user.findUnique({ where: { email: person.email.toLowerCase() }, select: { timezone: true } })
+        : null
+      const tz = linkedUser?.timezone ?? "America/Los_Angeles"
+      const now = new Date()
+      const today     = localYmd(now, tz)
+      const yesterday = localYmd(new Date(Date.now() - 86400000), tz)
+      const last      = person.lastStreakDate ? localYmd(person.lastStreakDate, tz) : null
       let streakCount = person.streakCount
       if (last === today) {
         // already counted today — no change
@@ -90,7 +100,7 @@ export async function toggleTask(id: number) {
       if (last !== today) {
         await prisma.person.update({
           where: { id: task.assigneeId },
-          data: { streakCount, lastStreakDate: new Date() },
+          data: { streakCount, lastStreakDate: now },
         })
       }
     }
@@ -153,11 +163,12 @@ export async function updateTask(
       ? await verifyBelongsToHousehold("project", data.projectId, householdId)
       : null
   }
-  if (update.reminderMinutesBefore != null) {
-    const current = await prisma.task.findUnique({ where: { id, householdId }, select: { assigneeId: true, dueDate: true } })
+  if (update.reminderMinutesBefore != null || "assigneeId" in update || "dueDate" in update) {
+    const current = await prisma.task.findUnique({ where: { id, householdId }, select: { assigneeId: true, dueDate: true, reminderMinutesBefore: true } })
     const finalAssignee = "assigneeId" in update ? update.assigneeId : current?.assigneeId
     const finalDue = "dueDate" in update ? update.dueDate : current?.dueDate
-    if (!finalAssignee || !finalDue) update.reminderMinutesBefore = null
+    const effectiveReminder = update.reminderMinutesBefore !== undefined ? update.reminderMinutesBefore : current?.reminderMinutesBefore
+    if (effectiveReminder != null && (!finalAssignee || !finalDue)) update.reminderMinutesBefore = null
   }
   await prisma.task.update({ where: { id, householdId }, data: update })
   revalidatePath("/", "layout")
