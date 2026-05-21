@@ -74,7 +74,7 @@ export default function UserManager({ users, currentEmail }: { users: User[]; cu
                 <div className="flex items-center gap-3 min-h-[44px]">
                   <span className="flex-1 text-sm text-foreground truncate">
                     {user.email}
-                    {isSelf && <span className="ml-1.5 text-xs text-text-faint">(you)</span>}
+                    {isSelf && <span className="ml-1.5 text-xs text-text-secondary">(you)</span>}
                   </span>
                   {isSelf ? (
                     <span className="text-xs text-text-secondary capitalize px-2 py-1">{user.role}</span>

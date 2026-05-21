@@ -128,7 +128,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-foreground flex items-center gap-3">
                         {person.name}
-                        <span className="text-text-faint text-xs">
+                        <span className="text-text-secondary text-xs">
                           {person._count.tasks} task{person._count.tasks !== 1 ? "s" : ""}
                         </span>
                         <label className="flex items-center gap-1 text-xs text-text-secondary cursor-pointer select-none">

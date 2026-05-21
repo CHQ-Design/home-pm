@@ -284,7 +284,7 @@ export default function RecurringTaskItem({
           {task.time && <span className="text-xs text-text-muted">{formatTime(task.time)}</span>}
           <span className={`text-xs ${dueDateClass(task.nextDue, today)}`}>{dueDateLabel(task.nextDue, today)}</span>
           {task.assignee && (
-            <span className="text-xs text-text-faint">{task.assignee.name}</span>
+            <span className="text-xs text-text-secondary">{task.assignee.name}</span>
           )}
           {task.project && (
             <span className="text-xs text-text-secondary bg-surface rounded px-1.5 py-0.5">{task.project.name}</span>

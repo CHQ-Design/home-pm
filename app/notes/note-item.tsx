@@ -256,7 +256,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
                 className="truncate hover:text-accent flex-1"
               >
                 {att.originalName}
-                <span className="ml-1.5 text-text-faint">{formatSize(att.size)}</span>
+                <span className="ml-1.5 text-text-secondary">{formatSize(att.size)}</span>
               </a>
               <button
                 onClick={() => handleDeleteAttachment(att.id)}
