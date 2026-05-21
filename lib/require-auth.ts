@@ -39,7 +39,12 @@ export async function getSessionPersonId(): Promise<number | null> {
   const session = await getServerSession(authOptions)
   const email = session?.user?.email?.toLowerCase()
   if (!email) return null
-  const person = await prisma.person.findFirst({ where: { email }, select: { id: true } })
+  const user = await prisma.user.findUnique({ where: { email }, select: { householdId: true } })
+  if (!user) return null
+  const person = await prisma.person.findFirst({
+    where: { email, householdId: user.householdId },
+    select: { id: true },
+  })
   return person?.id ?? null
 }
 

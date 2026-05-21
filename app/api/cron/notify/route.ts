@@ -49,11 +49,11 @@ function computeNotifyAt(dueDate: Date, time: string | null, minutesBefore: numb
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET
-  const provided = request.headers.get("authorization") ?? ""
-  const expected = `Bearer ${secret ?? ""}`
+  const providedBuf = Buffer.from(request.headers.get("authorization") ?? "")
+  const expectedBuf = Buffer.from(`Bearer ${secret ?? ""}`)
   const secretsMatch = secret &&
-    provided.length === expected.length &&
-    timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
+    providedBuf.byteLength === expectedBuf.byteLength &&
+    timingSafeEqual(providedBuf, expectedBuf)
   if (!secretsMatch) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }

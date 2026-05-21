@@ -70,7 +70,7 @@ export async function addRecurringTask(formData: FormData) {
         verifyBelongsToHousehold("person", parseId(formData.get("assigneeId") as string), householdId),
         verifyBelongsToHousehold("project", parseId(formData.get("projectId") as string), householdId),
       ])
-    : [sessionPersonId, null]
+    : [await verifyBelongsToHousehold("person", sessionPersonId, householdId), null]
 
   const reminderMinutesBefore = reminderRaw != null && assigneeId != null ? reminderRaw : null
 

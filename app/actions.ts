@@ -41,7 +41,7 @@ export async function addTask(formData: FormData) {
         verifyBelongsToHousehold("person", parseId(formData.get("assigneeId") as string), householdId),
         verifyBelongsToHousehold("project", parseId(formData.get("projectId") as string), householdId),
       ])
-    : [sessionPersonId, null]
+    : [await verifyBelongsToHousehold("person", sessionPersonId, householdId), null]
 
   const dueDate = parseDate(formData.get("dueDate") as string)
   const reminderRaw = parseReminder(formData.get("reminderMinutesBefore") as string | null)
@@ -191,7 +191,14 @@ export async function updatePerson(id: number, data: { email?: string | null; is
   if (data.isKid !== undefined) update.isKid = !!data.isKid
   if (data.email !== undefined) {
     const email = typeof data.email === "string" ? (data.email.toLowerCase() || null) : data.email
-    if (email && !EMAIL_RE.test(email)) return { error: "Invalid email address" }
+    if (email) {
+      if (!EMAIL_RE.test(email)) return { error: "Invalid email address" }
+      const matching = await prisma.user.findFirst({
+        where: { email, householdId: sessionUser.householdId },
+        select: { id: true },
+      })
+      if (!matching) return { error: "That email isn't a member of this household yet — invite them first." }
+    }
     update.email = email
   }
   await prisma.person.update({ where: { id, householdId: sessionUser.householdId }, data: update })

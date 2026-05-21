@@ -68,6 +68,7 @@ export async function removeHouseholdUser(id: number) {
     if (adminCount <= 1) return { error: "Can't remove the last admin" }
   }
 
+  await prisma.pushSubscription.deleteMany({ where: { userEmail: target.email } })
   await prisma.user.delete({ where: { id } })
   revalidatePath("/superadmin")
 }
