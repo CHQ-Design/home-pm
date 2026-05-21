@@ -166,7 +166,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                     ) : (
                       <button
                         onClick={() => startEditEmail(person)}
-                        className="text-xs text-text-faint hover:text-text-hover mt-0.5 block"
+                        className="text-xs text-text-secondary hover:text-foreground mt-0.5 block"
                       >
                         {person.email ?? "+ Set Google email"}
                       </button>

@@ -70,7 +70,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
           Routines
         </h2>
         {isAdmin && (
-          <Link href="/recurring" className="min-h-[44px] inline-flex items-center text-xs text-text-faint hover:text-text-hover">
+          <Link href="/recurring" className="min-h-[44px] inline-flex items-center text-xs text-text-secondary hover:text-foreground">
             Manage →
           </Link>
         )}

@@ -237,7 +237,7 @@ export default function RecurringTaskItem({
           <button
             type="button"
             onClick={() => setShowNotes(v => !v)}
-            className={`text-xs ${showNotes ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+            className={`text-xs ${showNotes ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
           >
             {showNotes ? "− Notes" : "+ Notes"}
           </button>

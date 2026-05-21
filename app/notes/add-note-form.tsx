@@ -116,11 +116,11 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
           <button
             type="button"
             onClick={() => setShowBody(v => !v)}
-            className={`text-xs ${showBody ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+            className={`text-xs ${showBody ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
           >
             {showBody ? "− Body" : "+ Body"}
           </button>
-          <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-faint hover:text-text-hover"}`}>
+          <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-secondary hover:text-foreground"}`}>
             {uploading ? "Uploading…" : "+ Attach"}
             <input
               ref={fileInputRef}
@@ -135,7 +135,7 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
             <button
               type="button"
               onClick={() => setShowProject(v => !v)}
-              className={`text-xs ${showProject ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+              className={`text-xs ${showProject ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
             >
               {showProject ? "− Project" : "+ Project"}
             </button>

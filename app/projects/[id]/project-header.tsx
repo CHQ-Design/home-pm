@@ -132,7 +132,7 @@ export default function ProjectHeader({
           </button>
           <button
             onClick={() => setShowDeleteConfirm(false)}
-            className="text-sm text-text-faint hover:text-text-hover shrink-0"
+            className="text-sm text-text-secondary hover:text-foreground shrink-0"
           >
             Cancel
           </button>
@@ -140,7 +140,7 @@ export default function ProjectHeader({
       ) : (
         <button
           onClick={() => setShowDeleteConfirm(true)}
-          className="mt-4 text-xs text-text-faint hover:text-red-600 transition-colors"
+          className="mt-4 text-xs text-text-secondary hover:text-red-600 transition-colors"
         >
           Delete project
         </button>

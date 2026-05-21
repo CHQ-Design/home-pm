@@ -224,7 +224,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           {note.body.length > 200 && (
             <button
               onClick={() => setExpanded(v => !v)}
-              className="text-xs text-text-faint hover:text-text-hover mt-1"
+              className="text-xs text-text-secondary hover:text-foreground mt-1"
             >
               {expanded ? "Show less" : "Show more"}
             </button>
@@ -273,7 +273,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
       {uploadError && <p className="text-xs text-red-600">{uploadError}</p>}
       <div className="flex items-center justify-between pt-1">
         <span className="text-xs text-text-muted">Updated {formatTimestamp(note.updatedAt)}</span>
-        <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-faint hover:text-text-hover"}`}>
+        <label className={`text-xs cursor-pointer ${uploading ? "text-text-muted" : "text-text-secondary hover:text-foreground"}`}>
           {uploading ? "Uploading…" : "+ Attach"}
           <input
             type="file"

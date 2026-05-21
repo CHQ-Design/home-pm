@@ -158,21 +158,21 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         <button
           type="button"
           onClick={() => setShowNotes(v => !v)}
-          className={`text-xs ${showNotes ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+          className={`text-xs ${showNotes ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
         >
           {showNotes ? "− Notes" : "+ Notes"}
         </button>
         <button
           type="button"
           onClick={() => setShowTime(v => !v)}
-          className={`text-xs ${showTime ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+          className={`text-xs ${showTime ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
         >
           {showTime ? "− Time" : "+ Time"}
         </button>
         <button
           type="button"
           onClick={() => setShowReminder(v => !v)}
-          className={`text-xs ${showReminder ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+          className={`text-xs ${showReminder ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
         >
           {showReminder ? "− Reminder" : "+ Reminder"}
         </button>
@@ -180,7 +180,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
           <button
             type="button"
             onClick={() => setShowAssignee(v => !v)}
-            className={`text-xs ${showAssignee ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+            className={`text-xs ${showAssignee ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
           >
             {showAssignee ? "− Assignee" : "+ Assignee"}
           </button>
@@ -189,7 +189,7 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
           <button
             type="button"
             onClick={() => setShowProject(v => !v)}
-            className={`text-xs ${showProject ? "text-accent" : "text-text-faint hover:text-text-hover"}`}
+            className={`text-xs ${showProject ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
           >
             {showProject ? "− Project" : "+ Project"}
           </button>
