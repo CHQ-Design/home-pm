@@ -1,11 +1,12 @@
 {
   "name": "Otium",
   "short_name": "Otium",
-  "description": "A calm way to keep your household running. Add what needs doing. Check it off when it's done.",
+  "description": "A calm way to keep your household running.",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#F9F5EF",
-  "theme_color": "#6B7A5A",
+  "theme_color": "#3A3228",
   "icons": [
     { "src": "/api/pwa-icon?size=192", "sizes": "192x192", "type": "image/png" },
     { "src": "/api/pwa-icon?size=512", "sizes": "512x512", "type": "image/png" }

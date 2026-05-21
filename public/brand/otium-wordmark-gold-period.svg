@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" role="img" aria-label="Otium wordmark with a deliberate period in warm gold — the otium hour made visible">
+  <rect width="600" height="180" fill="#F9F5EF"/>
+
+  <!-- Wordmark and period are drawn as separate elements so the period's
+       diameter can be locked to the same proportional rule as the dot in
+       concept 03: diameter = 12% × Fraunces cap-height (≈ 9% × font-size em).
+       At font-size 96: dot radius = 0.045 × 96 ≈ 4.3. -->
+
+  <text x="151" y="118" text-anchor="start"
+        font-family="'Fraunces', 'Cormorant Garamond', 'EB Garamond', serif"
+        font-weight="500"
+        font-variation-settings="'opsz' 144"
+        font-size="96"
+        letter-spacing="4"
+        fill="#3A3228">Otium</text>
+
+  <!-- Period: warm gold, baseline-aligned. Center sits ~5px above the text
+       baseline (y=118) so the dot rests on the baseline like a typographic period. -->
+  <circle cx="446" cy="113" r="4.3" fill="#C8922A"/>
+</svg>

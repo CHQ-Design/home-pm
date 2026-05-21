@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" role="img" aria-label="Otium with Quiet Hour O — capital O with a dot at a clock-hour position">
+  <rect width="600" height="320" fill="#F9F5EF"/>
+  <!-- Icon: Fraunces capital O with a dot at the "1 o'clock" position, suggesting a single quiet hour -->
+  <g transform="translate(300 100)">
+    <text x="0" y="0" text-anchor="middle" dominant-baseline="central"
+          font-family="'Fraunces', 'Cormorant Garamond', 'EB Garamond', serif"
+          font-weight="500"
+          font-variation-settings="'opsz' 144"
+          font-size="118" fill="#3A3228">O</text>
+    <!-- Hour-mark dot, just inside the counter at the upper right.
+         Diameter is locked at 12% of Fraunces cap-height (~9% of font-size em).
+         At font-size 118: r = 0.045 × 118 = 5.3. -->
+    <circle cx="14" cy="-22" r="5.3" fill="#3A3228"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="300" y="245" text-anchor="middle"
+        font-family="'Fraunces', 'Cormorant Garamond', 'EB Garamond', serif"
+        font-weight="500"
+        font-variation-settings="'opsz' 144"
+        font-size="64"
+        letter-spacing="3"
+        fill="#3A3228">Otium</text>
+</svg>

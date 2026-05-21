@@ -30,8 +30,11 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Otium",
-  description: "A calm way to keep your household running. Add what needs doing. Check it off when it's done.",
+  title: "Otium — the quiet hours, attended to",
+  description: "A calm way to keep your household running. Add what needs doing. Check it off. The rest is yours.",
+  icons: {
+    apple: "/icons/icon-180.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -51,7 +54,7 @@ export default function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#6B7A5A" />
+        <meta name="theme-color" content="#3A3228" />
       </head>
       <body className="min-h-[100dvh] flex flex-col">
         <a

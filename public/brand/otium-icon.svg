@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Otium app icon — Quiet Hour O">
+  <rect width="200" height="200" fill="#F9F5EF"/>
+  <g transform="translate(100 100)">
+    <text x="0" y="0" text-anchor="middle" dominant-baseline="central"
+          font-family="'Fraunces', 'Cormorant Garamond', 'EB Garamond', serif"
+          font-weight="500"
+          font-variation-settings="'opsz' 144"
+          font-size="150" fill="#3A3228">O</text>
+    <!-- Dot diameter = 12% × cap-height (≈ 9% × font-size em). At F=150: r = 6.75 -->
+    <circle cx="19" cy="-30" r="6.75" fill="#3A3228"/>
+  </g>
+</svg>
