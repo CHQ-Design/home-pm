@@ -8,8 +8,8 @@ import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddTaskForm from "./add-task-form"
 import ThingsView from "./things-view"
 import LocalDate from "./local-date"
-import WelcomeHeader from "./welcome-header"
-import PageHeader from "./page-header"
+import GreetingMast from "./greeting-mast"
+import PageMast from "./page-mast"
 import { getPersonColor } from "@/lib/person-colors"
 import { redirect } from "next/navigation"
 
@@ -51,9 +51,9 @@ export default async function Home() {
       <main id="main-content" className={`w-full max-w-2xl mx-auto px-4 pt-8 ${showAddForm ? "pb-52 sm:pb-28" : "pb-28 sm:pb-8"}`}>
         <LocalDate />
         {memberPerson && memberColor ? (
-          <WelcomeHeader name={memberPerson.name} color={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
+          <GreetingMast name={memberPerson.name} accentColor={memberColor.text} streakCount={memberPerson.streakCount} isKid={isKid} />
         ) : (
-          <PageHeader title="Things" />
+          <PageMast title="Things" />
         )}
         <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} />
       </main>

@@ -12,7 +12,7 @@ import Link from "next/link"
 import PeopleManager from "@/app/people-manager"
 import UserManager from "./user-manager"
 import SoundSettingToggle from "./sound-setting-toggle"
-import PageHeader from "@/app/page-header"
+import PageMast from "@/app/page-mast"
 
 export default async function SettingsPage() {
   const sessionUser = await getSessionUser()
@@ -40,7 +40,7 @@ export default async function SettingsPage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
-      <PageHeader title="Settings" />
+      <PageMast title="Settings" />
       <SoundSettingToggle initialEnabled={household?.soundEnabled ?? true} />
       {/* TODO: add timezone selector per user — User.timezone exists, needs UI + action (github.com/CHQ-Design/home-pm/issues/1) */}
       <UserManager users={users} currentEmail={currentEmail} />

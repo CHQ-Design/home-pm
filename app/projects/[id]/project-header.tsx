@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { updateProject, deleteProject } from "../actions"
 import ProjectStatusSelect from "./project-status-select"
+import PageMast from "@/app/page-mast"
 import { inputClassSm as inputClass } from "@/lib/styles"
 
 export default function ProjectHeader({
@@ -86,9 +87,11 @@ export default function ProjectHeader({
   }
 
   return (
-    <div className="mb-6">
-      <div className="flex items-start justify-between gap-3">
-        <h1 className="font-serif text-2xl font-bold text-foreground">{name}</h1>
+    <div>
+      <PageMast
+        title={name}
+        subtitle={description || undefined}
+      >
         <div className="flex items-center gap-2 shrink-0">
           <ProjectStatusSelect projectId={projectId} status={status} />
           <button
@@ -99,11 +102,7 @@ export default function ProjectHeader({
             ✎
           </button>
         </div>
-      </div>
-
-      {description && (
-        <p className="text-sm text-text-secondary mt-1">{description}</p>
-      )}
+      </PageMast>
 
       {progress && progress.total > 0 && (
         <div className="mt-4">

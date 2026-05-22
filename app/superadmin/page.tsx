@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { createHousehold } from "./actions"
 import HouseholdCard from "./household-card"
-import PageHeader from "@/app/page-header"
+import PageMast from "@/app/page-mast"
 
 async function NewHouseholdForm() {
   async function handleCreate(formData: FormData) {
@@ -59,7 +59,7 @@ export default async function SuperAdminPage() {
 
   return (
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
-      <PageHeader title="Super Admin" description="Manage all households on this instance." />
+      <PageMast title="Super Admin" subtitle="Manage all households on this instance." />
 
       <div className="space-y-3 mb-8">
         {households.length === 0 && (
