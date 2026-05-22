@@ -22,7 +22,7 @@ function toHHMM(h: string, m: string, ampm: string): string {
 }
 
 const triggerClass =
-  "bg-surface-warm border border-border-card rounded-md px-2 py-2 text-sm text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 appearance-none cursor-pointer"
+  "bg-surface-warm border border-border-card rounded-md px-2 py-2 text-base text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 appearance-none cursor-pointer"
 
 interface Props {
   value: string // HH:MM or ""
@@ -48,6 +48,7 @@ export default function TimePicker({ value, onChange, name }: Props) {
         aria-label="Hour"
         value={h}
         onChange={e => update({ h: e.target.value })}
+        style={{ fontSize: '16px' }}
         className={`${triggerClass} w-16`}
       >
         <option value="">--</option>
@@ -58,6 +59,7 @@ export default function TimePicker({ value, onChange, name }: Props) {
         aria-label="Minute"
         value={m || "00"}
         onChange={e => update({ m: e.target.value })}
+        style={{ fontSize: '16px' }}
         className={`${triggerClass} w-16`}
         disabled={!h}
       >
@@ -67,6 +69,7 @@ export default function TimePicker({ value, onChange, name }: Props) {
         aria-label="AM or PM"
         value={ampm}
         onChange={e => update({ ampm: e.target.value })}
+        style={{ fontSize: '16px' }}
         className={`${triggerClass} w-16`}
         disabled={!h}
       >
