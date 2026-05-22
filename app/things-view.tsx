@@ -17,10 +17,11 @@ type Props = {
   isAdmin: boolean
   sessionPersonId: number | null
   isKid: boolean
+  soundEnabled: boolean
 }
 
 export default function ThingsView({
-  tasks, recurringTasks, people, projects, isAdmin, sessionPersonId, isKid,
+  tasks, recurringTasks, people, projects, isAdmin, sessionPersonId, isKid, soundEnabled,
 }: Props) {
   const [filterPersonId, setFilterPersonId] = useState<number | null>(
     isAdmin ? null : sessionPersonId
@@ -56,6 +57,7 @@ export default function ThingsView({
         filterPersonId={filterPersonId}
         onFilterChange={setFilterPersonId}
         hasRoutinesForActive={hasRoutinesForActive}
+        soundEnabled={soundEnabled}
       />
     </>
   )

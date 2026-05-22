@@ -25,7 +25,7 @@ export default async function Home() {
   const householdId = sessionUser.householdId
   const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
 
-  const [tasks, people, projects, recurringTasks] = await Promise.all([
+  const [tasks, people, projects, recurringTasks, household] = await Promise.all([
     prisma.task.findMany({ where: { householdId, ...assigneeFilter }, include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } }),
     prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
@@ -34,7 +34,9 @@ export default async function Home() {
       include: { assignee: true },
       orderBy: [{ nextDue: "asc" }, { time: { sort: "asc", nulls: "first" } }],
     }),
+    prisma.household.findUnique({ where: { id: householdId }, select: { soundEnabled: true } }),
   ])
+  const soundEnabled = household?.soundEnabled ?? true
 
   const memberPerson = !isAdmin && sessionPersonId
     ? people.find(p => p.id === sessionPersonId) ?? null
@@ -53,7 +55,7 @@ export default async function Home() {
         ) : (
           <PageHeader title="Things" />
         )}
-        <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} />
+        <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} />
       </main>
       {showAddForm && (
         <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] sm:bottom-0 left-0 right-0 z-30 bg-background border-t border-border">

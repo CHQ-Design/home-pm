@@ -11,6 +11,7 @@ model Household {
   id             Int             @id @default(autoincrement())
   name           String
   createdAt      DateTime        @default(now())
+  soundEnabled   Boolean         @default(true)
   users          User[]
   people         Person[]
   tasks          Task[]

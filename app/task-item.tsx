@@ -34,7 +34,7 @@ function relativeDateLabel(date: Date): string {
   return `In ${diff} days`
 }
 
-export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId, isKid = false, currentProjectId }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean; currentProjectId?: number }) {
+export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId, isKid = false, currentProjectId, soundEnabled = true }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean; currentProjectId?: number; soundEnabled?: boolean }) {
   const canToggle = isAdmin || task.assigneeId === sessionPersonId
   const personColor = task.assigneeId != null
     ? getPersonColor(people, task.assigneeId)
@@ -109,7 +109,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   const personIndex = task.assigneeId != null
                     ? sorted.findIndex(p => p.id === task.assigneeId)
                     : null
-                  playCompletionTone(personIndex)
+                  if (soundEnabled) playCompletionTone(personIndex)
                 }
                 toggleTask(task.id)
               }}

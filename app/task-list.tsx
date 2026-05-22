@@ -46,7 +46,7 @@ function groupTasks(tasks: Task[], today: string) {
 }
 
 function Section({
-  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId, listClass,
+  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId, listClass, soundEnabled,
 }: {
   title: string
   tasks: Task[]
@@ -60,6 +60,7 @@ function Section({
   isKid: boolean
   currentProjectId?: number
   listClass?: string
+  soundEnabled: boolean
 }) {
   if (tasks.length === 0) return null
   const headingId = `heading-${title.toLowerCase().replace(/\s+/g, "-")}`
@@ -71,7 +72,7 @@ function Section({
       </h2>
       <ul className={`space-y-1 ${listClass ?? ""}`}>
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} />
+          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} />
         ))}
       </ul>
     </section>
@@ -82,13 +83,13 @@ const DRIFT_COLORS = ["#C8A882", "#91B89A", "#C8899A", "#8891B8", "#B0A87A", "#C
 
 const KID_BURST_ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
 
-function KidAllDone({ name, personColor }: { name: string; personColor: string }) {
+function KidAllDone({ name, personColor, soundEnabled }: { name: string; personColor: string; soundEnabled: boolean }) {
   const fired = useRef(false)
   useEffect(() => {
     if (fired.current) return
     fired.current = true
-    playCompletionTone(null)
-  }, [])
+    if (soundEnabled) playCompletionTone(null)
+  }, [soundEnabled])
   return (
     <div className="py-10 text-center relative overflow-hidden">
       <div className="relative inline-block mb-4">
@@ -123,6 +124,7 @@ type Props = {
   filterPersonId?: number | null
   onFilterChange?: (id: number | null) => void
   hasRoutinesForActive?: boolean
+  soundEnabled?: boolean
 }
 
 export default function TaskList({
@@ -130,6 +132,7 @@ export default function TaskList({
   filterPersonId: filterPersonIdProp,
   onFilterChange,
   hasRoutinesForActive = false,
+  soundEnabled = true,
 }: Props) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [completedPulse, setCompletedPulse] = useState(false)
@@ -278,6 +281,7 @@ export default function TaskList({
         <KidAllDone
           name={activePerson?.name ?? "you"}
           personColor={activeColors?.border ?? "#6B7A5A"}
+          soundEnabled={soundEnabled}
         />
       )}
 
@@ -357,7 +361,7 @@ export default function TaskList({
           ? <IconStar size={18} aria-hidden="true" />
           : <IconAlertTriangle size={18} aria-hidden="true" />
         }
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
       />
       <Section
         title="Today"
@@ -365,7 +369,7 @@ export default function TaskList({
         titleClass={activePerson ? "" : "text-accent"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconSun size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
       />
       <Section
         title="Coming up"
@@ -373,7 +377,7 @@ export default function TaskList({
         titleClass={activePerson ? "" : "text-text-secondary"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconClock size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
       />
       <Section
         title="No rush"
@@ -382,7 +386,7 @@ export default function TaskList({
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
         listClass="opacity-70"
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
       />
 
       {groups.completed.length > 0 && (
@@ -409,7 +413,7 @@ export default function TaskList({
           {showCompleted && (
             <ul className="mt-2 space-y-1">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} />
+                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} />
               ))}
             </ul>
           )}

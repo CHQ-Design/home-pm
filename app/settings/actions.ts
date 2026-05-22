@@ -71,3 +71,16 @@ export async function updateUserRole(id: number, role: "admin" | "member") {
   await prisma.user.update({ where: { id }, data: { role } })
   revalidatePath("/settings")
 }
+
+export async function updateHouseholdSoundEnabled(enabled: boolean) {
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+
+  await prisma.household.update({
+    where: { id: sessionUser.householdId },
+    data: { soundEnabled: enabled },
+  })
+
+  revalidatePath("/settings")
+  revalidatePath("/")
+}
