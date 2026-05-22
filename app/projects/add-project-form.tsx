@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { addProject } from "./actions"
-import { inputClassSm as inputClass } from "@/lib/styles"
+import { inputClass } from "@/lib/styles"
 
 export default function AddProjectForm() {
   const [showDesc, setShowDesc] = useState(false)

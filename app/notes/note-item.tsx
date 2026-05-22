@@ -5,7 +5,7 @@ import { IconPencilMinus, IconX } from "@tabler/icons-react"
 import type { Prisma, Project } from "@prisma/client"
 import { updateNote, deleteNote, deleteAttachment } from "./actions"
 import { formatTimestamp } from "@/lib/dates"
-import { inputClassSm as inputClass } from "@/lib/styles"
+import { inputClass } from "@/lib/styles"
 import CustomSelect from "../custom-select"
 
 type Note = Prisma.NoteGetPayload<{ include: { attachments: true; project: true } }>

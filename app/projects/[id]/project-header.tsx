@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { updateProject, deleteProject } from "../actions"
 import ProjectStatusSelect from "./project-status-select"
 import PageMast from "@/app/page-mast"
-import { inputClassSm as inputClass } from "@/lib/styles"
+import { inputClass } from "@/lib/styles"
 
 export default function ProjectHeader({
   projectId,
