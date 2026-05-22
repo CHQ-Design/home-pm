@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
   })
 
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
+    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast title="Projects" />
       <AddProjectForm />
       <ProjectList projects={projects} />

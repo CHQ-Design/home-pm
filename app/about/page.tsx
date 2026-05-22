@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "About — Otium" }
 
 export default function AboutPage() {
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
+    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast kicker="Otium" title="An old Latin word." />
       <div className="space-y-4 font-serif text-lg text-text-hover leading-relaxed">
         <p>

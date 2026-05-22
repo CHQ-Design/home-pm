@@ -31,7 +31,7 @@ export default async function RecurringPage() {
   const showAddForm = isAdmin || (sessionPersonId !== null && !isKid)
 
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
+    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast title="Routines" />
 
       {showAddForm && <AddRecurringForm people={people} projects={projects} isAdmin={isAdmin} />}
