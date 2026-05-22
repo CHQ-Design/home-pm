@@ -19,7 +19,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const householdId = sessionUser?.householdId ?? -1
   const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
 
-  const [project, recurringTasks, people, projects] = await Promise.all([
+  const [project, recurringTasks, people, projects, household] = await Promise.all([
     prisma.project.findUnique({
       where: { id: projectId, householdId },
       include: { tasks: { where: assigneeFilter, include: { assignee: true, project: true }, orderBy: { createdAt: "asc" } } },
@@ -31,7 +31,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     }),
     prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
+    prisma.household.findUnique({ where: { id: householdId }, select: { soundEnabled: true } }),
   ])
+  const soundEnabled = household?.soundEnabled ?? true
 
   if (!project) notFound()
 
@@ -55,8 +57,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         progress={total > 0 ? { done, total } : null}
       />
 
-      {isAdmin && <AddTaskForm people={people} projectId={project.id} isAdmin={true} />}
-      <TaskList tasks={project?.tasks ?? []} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={false} currentProjectId={project.id} />
+      {isAdmin && <AddTaskForm people={people} projectId={project.id} isAdmin={true} householdId={householdId} sessionPersonId={sessionPersonId} />}
+      <TaskList tasks={project?.tasks ?? []} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={false} currentProjectId={project.id} soundEnabled={soundEnabled} />
       <RecurringSection tasks={recurringTasks} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={false} />
     </main>
   )

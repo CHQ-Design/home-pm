@@ -260,7 +260,7 @@ export default function TaskList({
       )}
       {!isAdmin && doneToday > 0 && activePerson && activeColors && (
         <p className="font-serif text-sm mb-4 text-accent-hover">
-          {doneToday} {doneToday === 1 ? "thing" : "things"} handled today.
+          {doneToday} {doneToday === 1 ? "thing" : "things"} done today.
         </p>
       )}
 
@@ -350,7 +350,7 @@ export default function TaskList({
             {([
               "The board's clear.",
               "Everything's handled.",
-              `All done! ${groups.completed.length} ${groups.completed.length === 1 ? "thing" : "things"} handled. The day is yours.`,
+              `All done! ${groups.completed.length} ${groups.completed.length === 1 ? "thing" : "things"} done. The day is yours.`,
             ])[new Date().getDay() % 3]}
           </p>
         </div>

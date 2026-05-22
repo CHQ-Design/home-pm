@@ -10,7 +10,7 @@ import DatePicker from "./date-picker"
 import TimePicker from "./time-picker"
 import CustomSelect from "./custom-select"
 
-type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdmin: boolean; sticky?: boolean }
+type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdmin: boolean; sticky?: boolean; householdId?: number; sessionPersonId?: number | null }
 
 const PLACEHOLDERS = [
   "Add a thing…",
@@ -20,7 +20,7 @@ const PLACEHOLDERS = [
   "What would make tomorrow easier?",
 ]
 
-export default function AddTaskForm({ people, projects, projectId, isAdmin, sticky = false }: Props) {
+export default function AddTaskForm({ people, projects, projectId, isAdmin, sticky = false, householdId, sessionPersonId }: Props) {
   const [showMore, setShowMore] = useState(false)
 
   useEffect(() => {
@@ -36,15 +36,20 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const [priority, setPriority] = useState("medium")
   const [assigneeId, setAssigneeId] = useState("")
 
+  const storageKey = householdId != null
+    ? `addTaskDefaults:${householdId}:${sessionPersonId ?? "admin"}`
+    : null
+
   useEffect(() => {
+    if (!storageKey) return
     try {
-      const saved = localStorage.getItem("addTaskDefaults")
+      const saved = localStorage.getItem(storageKey)
       if (!saved) return
       const { priority: p, assigneeId: a } = JSON.parse(saved)
       if (p) setPriority(p)
-      if (a) setAssigneeId(a)
+      if (a && people.some(person => String(person.id) === a)) setAssigneeId(a)
     } catch { /* ignore malformed */ }
-  }, [])
+  }, [storageKey])
   const selectedAssigneeIsKid = isAdmin && assigneeId !== "" && (people.find(p => String(p.id) === assigneeId)?.isKid ?? false)
   const [selectedProjectId, setSelectedProjectId] = useState("")
   const [notes, setNotes] = useState("")
@@ -124,9 +129,11 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       setSubmitting(false)
       return
     }
-    try {
-      localStorage.setItem("addTaskDefaults", JSON.stringify({ priority, assigneeId }))
-    } catch { /* storage unavailable */ }
+    if (storageKey) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({ priority, assigneeId }))
+      } catch { /* storage unavailable */ }
+    }
     formRef.current?.reset()
     setTitleValue("")
     setNotes("")
