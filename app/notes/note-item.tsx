@@ -113,6 +113,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
     return (
       <div className="p-4 bg-surface rounded-xl border border-border-card space-y-3">
         <input
+          aria-label="Note title"
           value={form.title}
           onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
           onKeyDown={e => { if (e.key === "Escape") setEditing(false) }}
@@ -120,6 +121,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           autoFocus
         />
         <textarea
+          aria-label="Note body"
           value={form.body}
           onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
           placeholder="Body (optional)"
@@ -127,6 +129,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           className={`${inputClass} resize-none`}
         />
         <input
+          aria-label="Tags"
           value={form.tags}
           onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
           placeholder="Tags (comma-separated)"
@@ -148,13 +151,13 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           <button
             onClick={handleSave}
             disabled={pending}
-            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             {pending ? "Saving…" : "Save"}
           </button>
           <button
             onClick={() => setEditing(false)}
-            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
+            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             Cancel
           </button>
@@ -171,13 +174,13 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
           <button
             onClick={handleDelete}
             disabled={pending}
-            className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+            className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-1"
           >
             {pending ? "Deleting…" : "Delete"}
           </button>
           <button
             onClick={() => setConfirming(false)}
-            className="text-sm px-3 py-1 text-text-secondary hover:text-foreground"
+            className="text-sm px-3 py-1 text-text-secondary hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             Cancel
           </button>

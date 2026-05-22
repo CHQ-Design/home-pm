@@ -92,7 +92,9 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
         <div className="mt-8 border-t border-border-card pt-5">
           <button
             onClick={() => setShowArchived(v => !v)}
-            className="min-h-[44px] inline-flex items-center gap-1 text-sm text-text-secondary hover:text-foreground"
+            aria-expanded={showArchived}
+            aria-label={showArchived ? "Hide archived projects" : "Show archived projects"}
+            className="min-h-[44px] inline-flex items-center gap-1 text-sm text-text-secondary hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             {showArchived ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
             {archived.length} archived

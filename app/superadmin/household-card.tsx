@@ -43,7 +43,8 @@ export default function HouseholdCard({
       <button
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between px-4 py-3 bg-surface-raised hover:bg-surface transition-colors text-left"
+        aria-label={`${household.name} — ${open ? "collapse" : "expand"}`}
+        className="w-full flex items-center justify-between px-4 py-3 bg-surface-raised hover:bg-surface transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
       >
         <div>
           <span className="font-medium text-foreground">{household.name}</span>

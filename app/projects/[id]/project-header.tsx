@@ -54,6 +54,7 @@ export default function ProjectHeader({
     return (
       <div className="mb-6 space-y-3">
         <input
+          aria-label="Project name"
           value={form.name}
           onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
           onKeyDown={e => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") handleCancel() }}
@@ -61,6 +62,7 @@ export default function ProjectHeader({
           autoFocus
         />
         <textarea
+          aria-label="Project description"
           value={form.description}
           onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
           placeholder="Description (optional)"
@@ -71,13 +73,13 @@ export default function ProjectHeader({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             {saving ? "Saving…" : "Save"}
           </button>
           <button
             onClick={handleCancel}
-            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
+            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             Cancel
           </button>

@@ -29,7 +29,7 @@ export default function BottomNav() {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[56px] text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B07A3C] focus-visible:ring-inset ${
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[56px] text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
               active ? "text-foreground font-semibold" : "font-medium text-text-hover hover:text-foreground"
             }`}
           >

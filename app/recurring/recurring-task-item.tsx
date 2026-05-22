@@ -188,6 +188,7 @@ export default function RecurringTaskItem({
         )}
         {showNotes && (
           <textarea
+            aria-label="Notes"
             value={form.notes}
             onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
             placeholder="Notes (optional)"
@@ -224,26 +225,26 @@ export default function RecurringTaskItem({
           <button
             onClick={handleSave}
             disabled={pending}
-            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50"
+            className="text-sm px-4 py-1.5 bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             {pending ? "Saving…" : "Save"}
           </button>
           <button
             onClick={() => { setEditing(false); onEditEnd?.() }}
-            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground"
+            className="text-sm px-4 py-1.5 text-text-secondary hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => setShowNotes(v => !v)}
-            className={`text-xs ${showNotes ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
+            className={`text-xs rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${showNotes ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
           >
             {showNotes ? "− Notes" : "+ Notes"}
           </button>
           <button
             onClick={() => { setEditing(false); onEditEnd?.(); setConfirming(true) }}
-            className="text-sm px-4 py-1.5 text-red-500 hover:text-red-700 ml-auto"
+            className="text-sm px-4 py-1.5 text-red-500 hover:text-red-700 ml-auto rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-1"
           >
             Delete
           </button>
@@ -260,13 +261,13 @@ export default function RecurringTaskItem({
           <button
             onClick={handleDelete}
             disabled={pending}
-            className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+            className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-1"
           >
             {pending ? "Deleting…" : "Delete"}
           </button>
           <button
             onClick={() => setConfirming(false)}
-            className="text-sm px-3 py-1 text-text-secondary hover:text-foreground"
+            className="text-sm px-3 py-1 text-text-secondary hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             Cancel
           </button>
