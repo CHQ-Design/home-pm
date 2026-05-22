@@ -46,19 +46,21 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const panelTitleRef = useRef<HTMLInputElement>(null)
   const notesRef = useRef<HTMLTextAreaElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (focused) return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     intervalRef.current = setInterval(() => {
       setPlaceholderVisible(false)
-      setTimeout(() => {
+      fadeTimeoutRef.current = setTimeout(() => {
         setPlaceholderIndex(i => (i + 1) % PLACEHOLDERS.length)
         setPlaceholderVisible(true)
-      }, 400)
+      }, 350)
     }, 3000)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current)
     }
   }, [focused])
 
@@ -232,7 +234,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
                 ref={panelTitleRef}
                 name="title"
                 aria-label="Task title"
-                placeholder="Add a thing…"
+                aria-placeholder="Add a thing…"
                 aria-invalid={titleError ? true : undefined}
                 aria-describedby={submitError ? "add-task-error" : undefined}
                 value={titleValue}
@@ -246,7 +248,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               {!focused && !titleValue && (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
+                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-200"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
                   {selectedAssigneeIsKid ? "🎯 Try an emoji + description" : PLACEHOLDERS[placeholderIndex]}
@@ -267,7 +269,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               <input
                 name="title"
                 aria-label="Task title"
-                placeholder="Add a thing…"
+                aria-placeholder="Add a thing…"
                 aria-invalid={titleError ? true : undefined}
                 aria-describedby={submitError ? "add-task-error" : undefined}
                 value={titleValue}
@@ -281,7 +283,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               {!focused && !titleValue && (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
+                  className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-200"
                   style={{ opacity: placeholderVisible ? 1 : 0 }}
                 >
                   {selectedAssigneeIsKid ? "🎯 Try an emoji + description" : PLACEHOLDERS[placeholderIndex]}
@@ -336,7 +338,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           {!focused && !titleValue && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-300"
+              className="pointer-events-none absolute inset-0 flex items-center px-3 text-sm text-text-muted transition-opacity duration-200"
               style={{ opacity: placeholderVisible ? 1 : 0 }}
             >
               {selectedAssigneeIsKid ? "🎯 Try an emoji + description" : PLACEHOLDERS[placeholderIndex]}
