@@ -80,7 +80,7 @@ export default function PushManager() {
       <button
         onClick={isSubscribed ? unsubscribe : subscribe}
         disabled={loading}
-        className="text-text-faint hover:text-text-hover shrink-0 pl-2 disabled:opacity-50"
+        className="text-text-faint hover:text-text-hover shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center disabled:opacity-50"
         aria-label={isSubscribed ? "Disable notifications" : "Enable notifications"}
         title={isSubscribed ? "Disable notifications" : "Enable notifications"}
       >
