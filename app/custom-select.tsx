@@ -132,7 +132,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
           ref={listRef}
           role="listbox"
           aria-label={ariaLabel}
-          className="fixed z-[200] bg-surface-raised border border-border-card rounded-lg shadow-card overflow-hidden"
+          className="fixed z-[200] bg-surface-raised border border-border-card rounded-lg shadow-lift overflow-hidden"
           style={{ top: listPos.top, left: listPos.left, width: listPos.width }}
         >
           {options.map((opt, i) => (

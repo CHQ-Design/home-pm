@@ -111,8 +111,7 @@ export default function TaskEditModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="task-edit-title"
-        className="bg-surface-raised border border-border-card rounded-xl w-full max-w-md overflow-hidden my-auto"
-        style={{ boxShadow: "0 8px 32px rgba(44,35,22,0.14)" }}
+        className="bg-surface-raised border border-border-card rounded-xl w-full max-w-md overflow-hidden my-auto shadow-lift"
       >
         <h2 id="task-edit-title" className="sr-only">Edit task</h2>
         <div className="p-5 space-y-4">
