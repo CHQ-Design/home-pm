@@ -34,7 +34,9 @@ export default async function Home() {
   ])
   const soundEnabled = household?.soundEnabled ?? true
   const custodyModeEnabled = household?.custodyModeEnabled ?? false
-  const initialCustodyMode = (sessionUser.custodyMode as "with_kids" | "without_kids" | null) ?? null
+  const raw = sessionUser.custodyMode
+  const initialCustodyMode: import("./custody-mode-chip").CustodyMode | null =
+    raw === "with_kids" || raw === "without_kids" ? raw : null
 
   const memberPerson = !isAdmin && sessionPersonId
     ? people.find(p => p.id === sessionPersonId) ?? null

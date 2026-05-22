@@ -108,7 +108,7 @@ export default function RecurringTaskItem({
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",
     reminderMinutesBefore: task.reminderMinutesBefore != null ? String(task.reminderMinutesBefore) : "",
-    custodyModes: task.custodyModes ?? "",
+    custodyMode: task.custodyMode ?? "",
   })
 
   function openSheet(e: React.MouseEvent<HTMLButtonElement>) {
@@ -154,7 +154,7 @@ export default function RecurringTaskItem({
         assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
         projectId: form.projectId ? Number(form.projectId) : null,
         reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
-        custodyModes: form.custodyModes || null,
+        custodyMode: form.custodyMode || null,
       })
       setEditing(false)
       onEditEnd?.()
@@ -232,8 +232,8 @@ export default function RecurringTaskItem({
             <label className="text-xs text-text-secondary shrink-0">Day mode</label>
             <div className="flex-1">
               <CustomSelect
-                value={form.custodyModes}
-                onChange={custodyModes => setForm(f => ({ ...f, custodyModes }))}
+                value={form.custodyMode}
+                onChange={custodyMode => setForm(f => ({ ...f, custodyMode }))}
                 options={[
                   { label: "Always show", value: "" },
                   { label: "With kids only", value: "with_kids" },

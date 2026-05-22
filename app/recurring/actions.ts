@@ -47,6 +47,10 @@ export async function addRecurringTask(formData: FormData) {
 
   const reminderMinutesBefore = reminderRaw != null && assigneeId != null ? reminderRaw : null
 
+  const custodyModeRaw = (formData.get("custodyMode") as string | null) ?? ""
+  const validModes = ["with_kids", "without_kids"]
+  const custodyMode = validModes.includes(custodyModeRaw) ? custodyModeRaw : null
+
   await prisma.recurringTask.create({
     data: {
       title,
@@ -58,6 +62,7 @@ export async function addRecurringTask(formData: FormData) {
       assigneeId,
       projectId,
       reminderMinutesBefore,
+      custodyMode,
       householdId,
     },
   })
@@ -220,7 +225,7 @@ export async function updateRecurringTask(
     assigneeId?: number | null
     projectId?: number | null
     reminderMinutesBefore?: number | null
-    custodyModes?: string | null
+    custodyMode?: string | null
   }
 ) {
   const sessionUser = await getSessionUser()
@@ -232,7 +237,7 @@ export async function updateRecurringTask(
     title?: string; notes?: string | null; time?: string | null; intervalValue?: number
     intervalUnit?: string; nextDue?: Date; assigneeId?: number | null
     projectId?: number | null; reminderMinutesBefore?: number | null; notifiedAt?: Date | null
-    custodyModes?: string | null
+    custodyMode?: string | null
   } = {}
   if (data.title !== undefined) {
     const t = data.title.trim()
@@ -266,10 +271,9 @@ export async function updateRecurringTask(
       ? await verifyBelongsToHousehold("project", data.projectId, householdId)
       : null
   }
-  if (data.custodyModes !== undefined) {
+  if (data.custodyMode !== undefined) {
     const valid = ["with_kids", "without_kids"]
-    const modes = data.custodyModes ? data.custodyModes.split(",").filter(m => valid.includes(m)) : []
-    update.custodyModes = modes.length > 0 ? modes.join(",") : null
+    update.custodyMode = data.custodyMode && valid.includes(data.custodyMode) ? data.custodyMode : null
   }
   if (update.reminderMinutesBefore != null) {
     const current = await prisma.recurringTask.findUnique({ where: { id, householdId }, select: { assigneeId: true } })

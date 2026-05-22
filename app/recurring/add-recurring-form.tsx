@@ -28,7 +28,7 @@ function todayString() {
   return `${yyyy}-${mm}-${dd}`
 }
 
-export default function AddRecurringForm({ people, projects, isAdmin }: { people: Person[]; projects: Project[]; isAdmin: boolean }) {
+export default function AddRecurringForm({ people, projects, isAdmin, custodyModeEnabled = false }: { people: Person[]; projects: Project[]; isAdmin: boolean; custodyModeEnabled?: boolean }) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [nextDue, setNextDue] = useState(todayString())
@@ -37,11 +37,13 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
   const [assigneeId, setAssigneeId] = useState("")
   const [projectId, setProjectId] = useState("")
   const [reminderMinutesBefore, setReminderMinutesBefore] = useState("")
+  const [custodyMode, setCustodyMode] = useState("")
   const [showNotes, setShowNotes] = useState(false)
   const [showTime, setShowTime] = useState(false)
   const [showReminder, setShowReminder] = useState(false)
   const [showAssignee, setShowAssignee] = useState(false)
   const [showProject, setShowProject] = useState(false)
+  const [showDayMode, setShowDayMode] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -61,11 +63,13 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
     setAssigneeId("")
     setProjectId("")
     setReminderMinutesBefore("")
+    setCustodyMode("")
     setShowNotes(false)
     setShowTime(false)
     setShowReminder(false)
     setShowAssignee(false)
     setShowProject(false)
+    setShowDayMode(false)
   }
 
   return (
@@ -154,6 +158,25 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
         />
       )}
 
+      {custodyModeEnabled && showDayMode && (
+        <div className="flex gap-4 items-center">
+          <label className="text-xs text-text-secondary shrink-0">Day mode</label>
+          <div className="flex-1">
+            <CustomSelect
+              name="custodyMode"
+              value={custodyMode}
+              onChange={setCustodyMode}
+              options={[
+                { label: "Always show", value: "" },
+                { label: "With kids only", value: "with_kids" },
+                { label: "Without kids only", value: "without_kids" },
+              ]}
+              aria-label="Day mode"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-3 flex-wrap">
         <button
           type="button"
@@ -192,6 +215,15 @@ export default function AddRecurringForm({ people, projects, isAdmin }: { people
             className={`text-xs rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${showProject ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
           >
             {showProject ? "− Project" : "+ Project"}
+          </button>
+        )}
+        {custodyModeEnabled && (
+          <button
+            type="button"
+            onClick={() => setShowDayMode(v => !v)}
+            className={`text-xs rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${showDayMode ? "text-accent" : "text-text-secondary hover:text-foreground"}`}
+          >
+            {showDayMode ? "− Day mode" : "+ Day mode"}
           </button>
         )}
       </div>

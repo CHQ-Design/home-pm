@@ -98,7 +98,7 @@ model RecurringTask {
   reminderMinutesBefore Int?
   notifiedAt            DateTime?
   streak                Int       @default(0)
-  custodyModes          String?   // null = always show; "with_kids" | "without_kids" = mode-gated
+  custodyMode           String?   // null = always show; "with_kids" | "without_kids" = mode-gated
   lastActionAt          DateTime?
   householdId           Int
   household             Household @relation(fields: [householdId], references: [id])

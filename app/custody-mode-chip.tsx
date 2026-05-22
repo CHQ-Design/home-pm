@@ -29,18 +29,26 @@ export default function CustodyModeChip({
   const [, startTransition] = useTransition()
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    const today = new Date().toLocaleDateString("en-CA")
-    setIsStale(mode !== null && stored !== today)
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      const today = new Date().toLocaleDateString("en-CA")
+      setIsStale(mode !== null && stored !== today)
+    } catch {}
   }, [mode])
 
   function handleTap() {
+    const previous = mode
     const next: CustodyMode = mode ? OTHER[mode] : "with_kids"
     setMode(next)
     setIsStale(false)
     onModeChange(next)
-    localStorage.setItem(STORAGE_KEY, new Date().toLocaleDateString("en-CA"))
-    startTransition(() => setUserCustodyMode(next))
+    try { localStorage.setItem(STORAGE_KEY, new Date().toLocaleDateString("en-CA")) } catch {}
+    startTransition(() => {
+      setUserCustodyMode(next).catch(() => {
+        setMode(previous)
+        onModeChange(previous)
+      })
+    })
   }
 
   const label = mode ? MODE_LABEL[mode] : "Set mode"

@@ -255,19 +255,13 @@ export default function BucketedTaskList({
     if (selectedCategories.length > 0 && !selectedCategories.includes(UNCATEGORIZED)) return false
     if (!isAdmin && r.assigneeId !== sessionPersonId && r.assigneeId !== null) return false
     if (isAdmin && selectedPersonIds.length > 0 && r.assigneeId !== null && !selectedPersonIds.includes(r.assigneeId)) return false
-    if (custodyModeEnabled && custodyMode) {
-      const modes = r.custodyModes ? r.custodyModes.split(",") : []
-      if (modes.length > 0 && !modes.includes(custodyMode)) return false
-    }
+    if (custodyModeEnabled && custodyMode && r.custodyMode && r.custodyMode !== custodyMode) return false
     return true
   })
 
   const hiddenByModeCount = useMemo(() => {
     if (!custodyModeEnabled || !custodyMode) return 0
-    return recurringTasks.filter(r => {
-      const modes = r.custodyModes ? r.custodyModes.split(",") : []
-      return modes.length > 0 && !modes.includes(custodyMode)
-    }).length
+    return recurringTasks.filter(r => r.custodyMode && r.custodyMode !== custodyMode).length
   }, [recurringTasks, custodyModeEnabled, custodyMode])
 
   // ── Bucketing ────────────────────────────────────────────────────────────────
