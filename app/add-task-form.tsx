@@ -241,7 +241,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         {projectId && <input type="hidden" name="projectId" value={projectId} />}
 
         {showMore && createPortal(
-          <div className="fixed inset-0 z-20 bg-foreground/10" onClick={closePanel} aria-hidden="true" />,
+          <div className="fixed inset-0 z-20" onClick={closePanel} aria-hidden="true" />,
           document.body
         )}
 
