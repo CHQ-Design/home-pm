@@ -193,7 +193,7 @@ export default function NoteItem({ note, projects }: { note: Note; projects: Pro
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium text-foreground">{note.title}</p>
           {note.project && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent mt-1 inline-block">
+            <span className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent-hover mt-1 inline-block">
               {note.project.name}
             </span>
           )}

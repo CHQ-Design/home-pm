@@ -248,14 +248,14 @@ export default function TaskList({
             {activePerson.name}'s Things
           </p>
           {doneToday > 0 && (
-            <p className="font-serif text-sm mt-0.5 text-accent">
+            <p className="font-serif text-sm mt-0.5 text-accent-hover">
               {doneToday} {doneToday === 1 ? "thing" : "things"} handled today.
             </p>
           )}
         </div>
       )}
       {!isAdmin && doneToday > 0 && activePerson && activeColors && (
-        <p className="font-serif text-sm mb-4 text-accent">
+        <p className="font-serif text-sm mb-4 text-accent-hover">
           {doneToday} {doneToday === 1 ? "thing" : "things"} handled today.
         </p>
       )}

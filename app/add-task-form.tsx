@@ -49,6 +49,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
 
   useEffect(() => {
     if (focused) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     intervalRef.current = setInterval(() => {
       setPlaceholderVisible(false)
       setTimeout(() => {

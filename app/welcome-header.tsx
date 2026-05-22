@@ -24,7 +24,7 @@ export default function WelcomeHeader({ name, color, streakCount = 0, isKid = fa
         {greet}, {name}{isKid ? "!" : "."}
       </h1>
       {!isKid && streakCount >= 2 && (
-        <p className="text-sm mt-1 text-accent inline-flex items-center gap-1"><IconFlame size={14} aria-hidden="true" /> {streakCount}-day streak</p>
+        <p className="text-sm mt-1 text-accent-hover inline-flex items-center gap-1"><IconFlame size={14} aria-hidden="true" /> {streakCount}-day streak</p>
       )}
     </div>
   )
