@@ -17,7 +17,7 @@ export default async function RecurringPage() {
   const householdId = sessionUser.householdId
   const assigneeFilter = isAdmin ? {} : { assigneeId: sessionPersonId ?? -1 }
 
-  const [tasks, people, projects] = await Promise.all([
+  const [tasks, people, projects, household] = await Promise.all([
     prisma.recurringTask.findMany({
       where: { householdId, ...assigneeFilter },
       include: { assignee: true, project: true },
@@ -25,7 +25,9 @@ export default async function RecurringPage() {
     }),
     prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
+    prisma.household.findUnique({ where: { id: householdId }, select: { custodyModeEnabled: true } }),
   ])
+  const custodyModeEnabled = household?.custodyModeEnabled ?? false
 
   const isKid = sessionPersonId != null ? (people.find(p => p.id === sessionPersonId)?.isKid ?? false) : false
   const showAddForm = isAdmin || (sessionPersonId !== null && !isKid)
@@ -36,7 +38,7 @@ export default async function RecurringPage() {
 
       {showAddForm && <AddRecurringForm people={people} projects={projects} isAdmin={isAdmin} />}
 
-      <RecurringTaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} />
+      <RecurringTaskList tasks={tasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} custodyModeEnabled={custodyModeEnabled} />
     </main>
   )
 }

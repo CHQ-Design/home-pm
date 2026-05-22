@@ -30,9 +30,11 @@ export default async function Home() {
       include: { assignee: true },
       orderBy: [{ nextDue: "asc" }, { time: { sort: "asc", nulls: "first" } }],
     }),
-    prisma.household.findUnique({ where: { id: householdId }, select: { soundEnabled: true } }),
+    prisma.household.findUnique({ where: { id: householdId }, select: { soundEnabled: true, custodyModeEnabled: true } }),
   ])
   const soundEnabled = household?.soundEnabled ?? true
+  const custodyModeEnabled = household?.custodyModeEnabled ?? false
+  const initialCustodyMode = (sessionUser.custodyMode as "with_kids" | "without_kids" | null) ?? null
 
   const memberPerson = !isAdmin && sessionPersonId
     ? people.find(p => p.id === sessionPersonId) ?? null
@@ -52,7 +54,7 @@ export default async function Home() {
           <PageMast title="Things" />
         )}
         <Suspense>
-          <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} timezone={sessionUser.timezone} />
+          <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} timezone={sessionUser.timezone} custodyModeEnabled={custodyModeEnabled} initialCustodyMode={initialCustodyMode} />
         </Suspense>
       </main>
       {showAddForm && (

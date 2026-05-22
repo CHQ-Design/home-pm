@@ -12,6 +12,7 @@ import Link from "next/link"
 import PeopleManager from "@/app/people-manager"
 import UserManager from "./user-manager"
 import SoundSettingToggle from "./sound-setting-toggle"
+import CustodySettingToggle from "./custody-setting-toggle"
 import PushManager from "@/app/push-manager"
 import PageMast from "@/app/page-mast"
 
@@ -35,7 +36,7 @@ export default async function SettingsPage() {
     }),
     prisma.household.findUnique({
       where: { id: householdId },
-      select: { soundEnabled: true },
+      select: { soundEnabled: true, custodyModeEnabled: true },
     }),
   ])
 
@@ -43,6 +44,7 @@ export default async function SettingsPage() {
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast title="Settings" />
       <SoundSettingToggle initialEnabled={household?.soundEnabled ?? true} />
+      <CustodySettingToggle initialEnabled={household?.custodyModeEnabled ?? false} />
       <div className="mb-8 pb-6 border-b border-border">
         <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Notifications</h2>
         <div className="flex items-center justify-between">

@@ -14,12 +14,13 @@ function addDays(dateStr: string, n: number): string {
   return d.toISOString().slice(0, 10)
 }
 
-export default function RecurringTaskList({ tasks, people, projects, isAdmin, sessionPersonId }: {
+export default function RecurringTaskList({ tasks, people, projects, isAdmin, sessionPersonId, custodyModeEnabled = false }: {
   tasks: RecurringTask[]
   people: Person[]
   projects: Project[]
   isAdmin: boolean
   sessionPersonId: number | null
+  custodyModeEnabled?: boolean
 }) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
@@ -57,6 +58,7 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
           projects={projects}
           isAdmin={isAdmin}
           sessionPersonId={sessionPersonId}
+          custodyModeEnabled={custodyModeEnabled}
           onEditStart={() => setEditingId(t.id)}
           onEditEnd={() => setEditingId(null)}
           onShowToast={handleShowToast}

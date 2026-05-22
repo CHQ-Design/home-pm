@@ -11,7 +11,8 @@ model Household {
   id             Int             @id @default(autoincrement())
   name           String
   createdAt      DateTime        @default(now())
-  soundEnabled   Boolean         @default(true)
+  soundEnabled        Boolean         @default(true)
+  custodyModeEnabled  Boolean         @default(false)
   users          User[]
   people         Person[]
   tasks          Task[]
@@ -26,6 +27,7 @@ model User {
   name        String?
   role        String    @default("member")  // "admin" | "member"
   timezone    String    @default("America/Los_Angeles")
+  custodyMode String?   // "with_kids" | "without_kids" | null
   householdId Int
   household   Household @relation(fields: [householdId], references: [id])
   createdAt   DateTime  @default(now())
@@ -96,6 +98,7 @@ model RecurringTask {
   reminderMinutesBefore Int?
   notifiedAt            DateTime?
   streak                Int       @default(0)
+  custodyModes          String?   // null = always show; "with_kids" | "without_kids" = mode-gated
   lastActionAt          DateTime?
   householdId           Int
   household             Household @relation(fields: [householdId], references: [id])

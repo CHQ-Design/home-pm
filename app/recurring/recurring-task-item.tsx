@@ -69,6 +69,7 @@ export default function RecurringTaskItem({
   projects,
   isAdmin,
   sessionPersonId,
+  custodyModeEnabled = false,
   onEditStart,
   onEditEnd,
   onShowToast,
@@ -78,6 +79,7 @@ export default function RecurringTaskItem({
   projects: Project[]
   isAdmin: boolean
   sessionPersonId: number | null
+  custodyModeEnabled?: boolean
   onEditStart?: () => void
   onEditEnd?: () => void
   onShowToast: (message: string, undoFn: () => Promise<void>) => void
@@ -106,6 +108,7 @@ export default function RecurringTaskItem({
     assigneeId: task.assigneeId ? String(task.assigneeId) : "",
     projectId: task.projectId ? String(task.projectId) : "",
     reminderMinutesBefore: task.reminderMinutesBefore != null ? String(task.reminderMinutesBefore) : "",
+    custodyModes: task.custodyModes ?? "",
   })
 
   function openSheet(e: React.MouseEvent<HTMLButtonElement>) {
@@ -151,6 +154,7 @@ export default function RecurringTaskItem({
         assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
         projectId: form.projectId ? Number(form.projectId) : null,
         reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
+        custodyModes: form.custodyModes || null,
       })
       setEditing(false)
       onEditEnd?.()
@@ -219,6 +223,23 @@ export default function RecurringTaskItem({
                   { label: "1 day before", value: "1440" },
                 ]}
                 aria-label="Reminder"
+              />
+            </div>
+          </div>
+        )}
+        {custodyModeEnabled && (
+          <div className="flex gap-3 items-center">
+            <label className="text-xs text-text-secondary shrink-0">Day mode</label>
+            <div className="flex-1">
+              <CustomSelect
+                value={form.custodyModes}
+                onChange={custodyModes => setForm(f => ({ ...f, custodyModes }))}
+                options={[
+                  { label: "Always show", value: "" },
+                  { label: "With kids only", value: "with_kids" },
+                  { label: "Without kids only", value: "without_kids" },
+                ]}
+                aria-label="Day mode"
               />
             </div>
           </div>

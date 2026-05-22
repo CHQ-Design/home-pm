@@ -8,16 +8,16 @@ async function getDbUser() {
   if (!email) return null
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { role: true, householdId: true, timezone: true },
+    select: { id: true, role: true, householdId: true, timezone: true, custodyMode: true },
   })
   if (!user) return null
   return { ...user, email }
 }
 
-export async function getSessionUser(): Promise<{ role: Role; householdId: number; timezone: string } | null> {
+export async function getSessionUser(): Promise<{ id: number; role: Role; householdId: number; timezone: string; custodyMode: string | null } | null> {
   const user = await getDbUser()
   if (!user) return null
-  return { role: user.role as Role, householdId: user.householdId, timezone: user.timezone }
+  return { id: user.id, role: user.role as Role, householdId: user.householdId, timezone: user.timezone, custodyMode: user.custodyMode }
 }
 
 export async function requireRole(minimum: Role): Promise<void> {

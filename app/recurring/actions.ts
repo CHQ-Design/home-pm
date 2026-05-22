@@ -220,6 +220,7 @@ export async function updateRecurringTask(
     assigneeId?: number | null
     projectId?: number | null
     reminderMinutesBefore?: number | null
+    custodyModes?: string | null
   }
 ) {
   const sessionUser = await getSessionUser()
@@ -231,6 +232,7 @@ export async function updateRecurringTask(
     title?: string; notes?: string | null; time?: string | null; intervalValue?: number
     intervalUnit?: string; nextDue?: Date; assigneeId?: number | null
     projectId?: number | null; reminderMinutesBefore?: number | null; notifiedAt?: Date | null
+    custodyModes?: string | null
   } = {}
   if (data.title !== undefined) {
     const t = data.title.trim()
@@ -263,6 +265,11 @@ export async function updateRecurringTask(
     update.projectId = data.projectId !== null
       ? await verifyBelongsToHousehold("project", data.projectId, householdId)
       : null
+  }
+  if (data.custodyModes !== undefined) {
+    const valid = ["with_kids", "without_kids"]
+    const modes = data.custodyModes ? data.custodyModes.split(",").filter(m => valid.includes(m)) : []
+    update.custodyModes = modes.length > 0 ? modes.join(",") : null
   }
   if (update.reminderMinutesBefore != null) {
     const current = await prisma.recurringTask.findUnique({ where: { id, householdId }, select: { assigneeId: true } })

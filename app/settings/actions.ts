@@ -84,3 +84,25 @@ export async function updateHouseholdSoundEnabled(enabled: boolean) {
   revalidatePath("/settings")
   revalidatePath("/")
 }
+
+export async function updateHouseholdCustodyModeEnabled(enabled: boolean) {
+  const sessionUser = await getSessionUser()
+  if (sessionUser?.role !== "admin") throw new Error("Not authorized")
+
+  await prisma.household.update({
+    where: { id: sessionUser.householdId },
+    data: { custodyModeEnabled: enabled },
+  })
+
+  revalidatePath("/settings")
+  revalidatePath("/")
+}
+
+export async function setUserCustodyMode(mode: "with_kids" | "without_kids" | null) {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Not authenticated")
+  if (mode !== null && mode !== "with_kids" && mode !== "without_kids") throw new Error("Invalid mode")
+
+  await prisma.user.update({ where: { id: sessionUser.id }, data: { custodyMode: mode } })
+  revalidatePath("/")
+}

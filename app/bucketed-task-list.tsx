@@ -20,6 +20,8 @@ import { todayUTC, todayInTz, endOfWeekStr, utcDateStr, formatTime, formatToastD
 import { CATEGORIES, CATEGORY_VALUES, UNCATEGORIZED } from "@/lib/categories"
 import type { CategoryValue } from "@/lib/categories"
 import CategoryTag from "./category-tag"
+import CustodyModeChip from "./custody-mode-chip"
+import type { CustodyMode } from "./custody-mode-chip"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
@@ -133,6 +135,8 @@ export default function BucketedTaskList({
   isKid,
   soundEnabled = true,
   timezone = "America/Los_Angeles",
+  custodyModeEnabled = false,
+  initialCustodyMode = null,
 }: {
   tasks: Task[]
   recurringTasks: RecurringTask[]
@@ -143,6 +147,8 @@ export default function BucketedTaskList({
   isKid: boolean
   soundEnabled?: boolean
   timezone?: string
+  custodyModeEnabled?: boolean
+  initialCustodyMode?: CustodyMode | null
 }) {
   const [today, setToday] = useState(todayUTC())
   const [endOfWeek, setEndOfWeek] = useState(() => endOfWeekStr(timezone))
@@ -158,6 +164,8 @@ export default function BucketedTaskList({
   const [showCelebration, setShowCelebration] = useState(false)
   const [boardClearAnnouncement, setBoardClearAnnouncement] = useState("")
   const boardClearCelebrated = useRef(false)
+
+  const [custodyMode, setCustodyMode] = useState<CustodyMode | null>(initialCustodyMode)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -242,12 +250,25 @@ export default function BucketedTaskList({
 
   // Routines: person filter applies. Routines are conceptually uncategorized, so they're
   // hidden when the user filters to specific categories — unless Uncategorized is selected.
+  // Custody mode filter: when enabled and mode is set, hide routines tagged for a different mode.
   const filteredRoutines = recurringTasks.filter(r => {
     if (selectedCategories.length > 0 && !selectedCategories.includes(UNCATEGORIZED)) return false
-    if (!isAdmin) return r.assigneeId === sessionPersonId || r.assigneeId === null
-    if (selectedPersonIds.length > 0) return r.assigneeId === null || selectedPersonIds.includes(r.assigneeId)
+    if (!isAdmin && r.assigneeId !== sessionPersonId && r.assigneeId !== null) return false
+    if (isAdmin && selectedPersonIds.length > 0 && r.assigneeId !== null && !selectedPersonIds.includes(r.assigneeId)) return false
+    if (custodyModeEnabled && custodyMode) {
+      const modes = r.custodyModes ? r.custodyModes.split(",") : []
+      if (modes.length > 0 && !modes.includes(custodyMode)) return false
+    }
     return true
   })
+
+  const hiddenByModeCount = useMemo(() => {
+    if (!custodyModeEnabled || !custodyMode) return 0
+    return recurringTasks.filter(r => {
+      const modes = r.custodyModes ? r.custodyModes.split(",") : []
+      return modes.length > 0 && !modes.includes(custodyMode)
+    }).length
+  }, [recurringTasks, custodyModeEnabled, custodyMode])
 
   // ── Bucketing ────────────────────────────────────────────────────────────────
 
@@ -407,6 +428,13 @@ export default function BucketedTaskList({
   return (
     <div>
       <span className="sr-only" aria-live="polite" aria-atomic="true">{boardClearAnnouncement}</span>
+
+      {/* Custody mode chip — when feature enabled, non-kid users only */}
+      {custodyModeEnabled && !isKid && (
+        <div className="flex mb-2">
+          <CustodyModeChip initialMode={custodyMode} onModeChange={setCustodyMode} />
+        </div>
+      )}
 
       {/* Person filter pills — admin only, multi-select */}
       {isAdmin && people.length > 0 && (
@@ -663,6 +691,14 @@ export default function BucketedTaskList({
             )}
           </section>
         </>
+      )}
+
+      {/* Hidden by mode hint */}
+      {hiddenByModeCount > 0 && (
+        <p className="text-xs text-text-secondary mt-6">
+          {hiddenByModeCount} {hiddenByModeCount === 1 ? "routine" : "routines"} hidden ·{" "}
+          {custodyMode === "with_kids" ? "Without kids" : "With kids"}
+        </p>
       )}
 
       {/* ── Completed section ─────────────────────────────────────────────────── */}
