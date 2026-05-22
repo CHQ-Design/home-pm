@@ -11,8 +11,8 @@ function LoginContent() {
   return (
     <main className="flex-1 flex items-center justify-center bg-background">
       <div className="text-center space-y-6">
-        <h1 className="font-serif text-3xl font-bold text-foreground">Otium<span className="text-warm" aria-hidden="true">.</span></h1>
-        <p className="text-xs text-text-secondary tracking-widest uppercase">oh · tee · um</p>
+        <h1 className="font-serif text-5xl font-bold tracking-tight text-foreground">Otium<span className="text-warm" aria-hidden="true">.</span></h1>
+        <p className="text-xs text-text-hover tracking-[0.3em] uppercase">oh · tee · um</p>
         <p className="text-sm text-text-secondary">Sign in to your household.</p>
         {accessDenied && (
           <p className="text-sm text-red-600 max-w-xs mx-auto">

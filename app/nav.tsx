@@ -13,7 +13,7 @@ export default function Nav() {
   return (
     <nav aria-label="Primary" className="border-b border-border">
       <div className="max-w-2xl mx-auto px-3 flex gap-0.5 h-12 items-center">
-        <Link href="/" className="font-serif text-base font-bold text-foreground mr-2 shrink-0">
+        <Link href="/" className="font-serif text-lg font-bold tracking-tight text-foreground mr-2 shrink-0">
           Otium<span className="text-warm" aria-hidden="true">.</span>
         </Link>
         <div className="hidden sm:flex gap-0.5 items-center">
