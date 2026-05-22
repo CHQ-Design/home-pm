@@ -40,3 +40,7 @@ export function formatShortDate(d: Date | string): string {
 export function formatTimestamp(d: Date | string): string {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
+
+export function formatToastDate(d: Date | string): string {
+  return new Date(d).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })
+}

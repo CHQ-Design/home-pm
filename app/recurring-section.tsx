@@ -1,11 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Prisma } from "@prisma/client"
-import { IconCheck, IconRepeat } from "@tabler/icons-react"
-import { completeRecurringTask } from "./recurring/actions"
-import { todayUTC, todayLocal, daysDiff, formatTime } from "@/lib/dates"
+import { IconDots, IconRepeat } from "@tabler/icons-react"
+import { completeRecurringTask, snoozeRoutine, skipRoutine, moveRoutineToTodayAction, undoRoutineAction } from "./recurring/actions"
+import type { ActionSnapshot } from "./recurring/actions"
+import type { RoutineVerb } from "./routine-action-sheet"
+import RoutineActionSheet from "./routine-action-sheet"
+import UndoToast from "./undo-toast"
+import { todayUTC, todayLocal, daysDiff, formatTime, formatToastDate } from "@/lib/dates"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
 
@@ -24,46 +28,36 @@ function dueDateClass(nextDue: Date | string, today: string): string {
   return "text-text-muted"
 }
 
-function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }) {
-  const [pending, setPending] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [announcement, setAnnouncement] = useState("")
-
-  async function handleClick() {
-    setPending(true)
-    await completeRecurringTask(taskId)
-    setPending(false)
-    setSuccess(true)
-    setAnnouncement(`Done — ${taskTitle}`)
-    setTimeout(() => setSuccess(false), 800)
-    setTimeout(() => setAnnouncement(""), 1500)
+function toastMessage(verb: RoutineVerb, nextDue: string): string {
+  const date = formatToastDate(nextDue)
+  switch (verb) {
+    case "done":          return `Marked done. Next due ${date}.`
+    case "snooze":        return `Snoozed until ${date}.`
+    case "skip":          return `Skipped this cycle. Next due ${date}.`
+    case "move-to-today": return "Moved to today."
   }
-
-  return (
-    <>
-      <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
-      <button
-        onClick={handleClick}
-        disabled={pending || success}
-        aria-label={`Mark ${taskTitle} as done`}
-        className="min-h-[44px] px-3 text-sm inline-flex items-center gap-1.5 text-accent-hover hover:text-foreground hover:bg-surface-warm rounded-md disabled:opacity-50 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
-      >
-        {pending ? "…" : success ? (
-          <><IconCheck size={14} aria-hidden="true" />Done</>
-        ) : (
-          <><IconCheck size={14} aria-hidden="true" />Mark done</>
-        )}
-      </button>
-    </>
-  )
 }
 
-export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKid = false, filterPersonId = null }: { tasks: RecurringTask[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean; filterPersonId?: number | null }) {
+type FlashState = { taskId: number; verb: RoutineVerb } | null
+type ToastState = { message: string; taskId: number; snapshot: ActionSnapshot } | null
+
+export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKid = false, filterPersonId = null }: {
+  tasks: RecurringTask[]
+  isAdmin: boolean
+  sessionPersonId: number | null
+  isKid?: boolean
+  filterPersonId?: number | null
+}) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
 
-  // After hydration, filter to local today/overdue only (server query uses UTC midnight,
-  // which can include "tomorrow" for US timezone users between midnight UTC and local midnight)
+  const [sheetTask, setSheetTask] = useState<RecurringTask | null>(null)
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
+  const [flash, setFlash] = useState<FlashState>(null)
+  const [toast, setToast] = useState<ToastState>(null)
+  const buttonRefs = useRef<Map<number, HTMLButtonElement>>(new Map())
+
+  // After hydration, filter to local today/overdue only
   const visibleTasks = tasks.filter(t => {
     if (daysDiff(t.nextDue, today) > 0) return false
     if (filterPersonId !== null && t.assigneeId !== filterPersonId && t.assigneeId !== null) return false
@@ -71,6 +65,45 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
   })
 
   if (visibleTasks.length === 0) return null
+
+  function openSheet(task: RecurringTask, rect: DOMRect) {
+    setSheetTask(task)
+    setAnchorRect(rect)
+  }
+
+  function closeSheet() {
+    if (sheetTask) buttonRefs.current.get(sheetTask.id)?.focus()
+    setSheetTask(null)
+    setAnchorRect(null)
+  }
+
+  async function handleAction(verb: RoutineVerb) {
+    if (!sheetTask) return
+    const task = sheetTask
+    closeSheet()
+
+    let result: { nextDue: string; snapshot: ActionSnapshot }
+    if (verb === "done")          result = await completeRecurringTask(task.id)
+    else if (verb === "snooze")   result = await snoozeRoutine(task.id)
+    else if (verb === "skip")     result = await skipRoutine(task.id)
+    else                          result = await moveRoutineToTodayAction(task.id)
+
+    setFlash({ taskId: task.id, verb })
+    setTimeout(() => setFlash(null), 200)
+
+    setToast({
+      message: toastMessage(verb, result.nextDue),
+      taskId: task.id,
+      snapshot: result.snapshot,
+    })
+  }
+
+  async function handleUndo() {
+    if (!toast) return
+    const { taskId, snapshot } = toast
+    setToast(null)
+    await undoRoutineAction(taskId, snapshot)
+  }
 
   return (
     <section className="mb-8" aria-labelledby="heading-routines">
@@ -87,15 +120,21 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
       </div>
       <ul className="rounded-xl border border-border-subtle divide-y divide-border-subtle overflow-hidden">
         {visibleTasks.map(task => {
+          const canAct = isAdmin || task.assigneeId === sessionPersonId
           const metaParts = [
             task.time && !isKid ? formatTime(task.time) : null,
             isKid ? (dueDateLabel(task.nextDue, today) === "Today" ? "Today" : null) : dueDateLabel(task.nextDue, today),
             task.assignee && !isKid ? task.assignee.name : null,
           ].filter(Boolean)
+
+          const flashCls = flash?.taskId === task.id
+            ? `row-flash-${flash.verb === "move-to-today" ? "move" : flash.verb}`
+            : ""
+
           return (
             <li
               key={task.id}
-              className="flex items-center gap-3 py-2.5 px-3"
+              className={`flex items-center gap-3 py-2.5 px-3 ${flashCls}`}
             >
               <div className="flex-1 min-w-0">
                 <span className={`${isKid ? "text-xl" : "text-sm"} text-foreground`}>{task.title}</span>
@@ -118,11 +157,39 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
                   <span aria-hidden="true" className="ml-2 text-xs text-text-faint">{task.assignee.name}</span>
                 )}
               </div>
-              {(isAdmin || task.assigneeId === sessionPersonId) && <DoneButton taskId={task.id} taskTitle={task.title} />}
+              {canAct && (
+                <button
+                  ref={el => { if (el) buttonRefs.current.set(task.id, el); else buttonRefs.current.delete(task.id) }}
+                  onClick={e => openSheet(task, e.currentTarget.getBoundingClientRect())}
+                  aria-label={`More options for ${task.title}`}
+                  className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-foreground hover:bg-surface-hover rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 shrink-0"
+                >
+                  <IconDots size={18} aria-hidden="true" />
+                </button>
+              )}
             </li>
           )
         })}
       </ul>
+
+      {sheetTask && (
+        <RoutineActionSheet
+          taskTitle={sheetTask.title}
+          nextDue={sheetTask.nextDue}
+          today={today}
+          anchorRect={anchorRect}
+          onAction={handleAction}
+          onClose={closeSheet}
+        />
+      )}
+
+      {toast && (
+        <UndoToast
+          message={toast.message}
+          onUndo={handleUndo}
+          onDismiss={() => setToast(null)}
+        />
+      )}
     </section>
   )
 }

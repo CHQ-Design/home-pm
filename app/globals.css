@@ -150,6 +150,36 @@ body {
   outline: none;
 }
 
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes row-flash-done {
+  0%, 100% { background-color: inherit; }
+  40%      { background-color: rgba(200, 146, 42, 0.12); }
+}
+
+@keyframes row-flash-snooze {
+  0%, 100% { background-color: inherit; }
+  40%      { background-color: rgba(107, 122, 90, 0.14); }
+}
+
+@keyframes row-flash-skip {
+  0%, 100% { background-color: inherit; }
+  40%      { background-color: rgba(150, 100, 120, 0.12); }
+}
+
+@keyframes row-flash-move {
+  0%, 100% { background-color: inherit; }
+  40%      { background-color: rgba(176, 122, 60, 0.14); }
+}
+
+.row-flash-done   { animation: row-flash-done   150ms ease-in-out; }
+.row-flash-snooze { animation: row-flash-snooze 150ms ease-in-out; }
+.row-flash-skip   { animation: row-flash-skip   150ms ease-in-out; }
+.row-flash-move   { animation: row-flash-move   150ms ease-in-out; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

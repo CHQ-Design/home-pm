@@ -95,6 +95,8 @@ model RecurringTask {
   lastCompleted         DateTime?
   reminderMinutesBefore Int?
   notifiedAt            DateTime?
+  streak                Int       @default(0)
+  lastActionAt          DateTime?
   householdId           Int
   household             Household @relation(fields: [householdId], references: [id])
   assigneeId            Int?

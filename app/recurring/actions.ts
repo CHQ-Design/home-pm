@@ -8,7 +8,12 @@ import { revalidatePath } from "next/cache"
 const VALID_UNITS = ["day", "week", "month", "year", "weekday"] as const
 type Unit = typeof VALID_UNITS[number]
 
-
+export type ActionSnapshot = {
+  prevNextDue: string
+  prevStreak: number
+  prevLastActionAt: string | null
+  prevLastCompleted: string | null
+}
 
 function computeNextDue(from: Date, value: number, unit: Unit): Date {
   const d = new Date(from)
@@ -38,6 +43,50 @@ function computeNextDue(from: Date, value: number, unit: Unit): Date {
       break
   }
   return d
+}
+
+function computePrevDue(from: Date, value: number, unit: Unit): Date {
+  const d = new Date(from)
+  switch (unit) {
+    case "day":  d.setDate(d.getDate() - value); break
+    case "week": d.setDate(d.getDate() - value * 7); break
+    case "month": {
+      const day = d.getDate()
+      d.setDate(1)
+      d.setMonth(d.getMonth() - value)
+      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
+      break
+    }
+    case "year": {
+      const day = d.getDate()
+      d.setDate(1)
+      d.setFullYear(d.getFullYear() - value)
+      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
+      break
+    }
+    case "weekday":
+      for (let i = 0; i < value; i++) {
+        d.setDate(d.getDate() - 1)
+        while (d.getDay() === 6 || d.getDay() === 0) d.setDate(d.getDate() - 1)
+      }
+      break
+  }
+  return d
+}
+
+// Lazy streak reset: if the current cycle elapsed with no user action, streak is effectively 0.
+function computeEffectiveStreak(task: {
+  streak: number
+  nextDue: Date
+  lastActionAt: Date | null
+  intervalValue: number
+  intervalUnit: string
+}): number {
+  if (task.streak <= 0) return 0
+  if (task.nextDue > new Date()) return task.streak
+  const prevCycleStart = computePrevDue(task.nextDue, task.intervalValue, task.intervalUnit as Unit)
+  if (task.lastActionAt === null || task.lastActionAt < prevCycleStart) return 0
+  return task.streak
 }
 
 export async function addRecurringTask(formData: FormData) {
@@ -91,11 +140,69 @@ export async function addRecurringTask(formData: FormData) {
   revalidatePath("/", "layout")
 }
 
-export async function completeRecurringTask(id: number) {
+export async function completeRecurringTask(id: number): Promise<{ nextDue: string; snapshot: ActionSnapshot }> {
   const sessionUser = await getSessionUser()
   if (!sessionUser) throw new Error("Not authenticated")
   const task = await prisma.recurringTask.findFirst({ where: { id, householdId: sessionUser.householdId } })
-  if (!task) return
+  if (!task) throw new Error("Routine not found")
+  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
+
+  const now = new Date()
+  const effectiveStreak = computeEffectiveStreak(task)
+  const nextDue = computeNextDue(task.nextDue, task.intervalValue, task.intervalUnit as Unit)
+
+  await prisma.recurringTask.updateMany({
+    where: { id, householdId: task.householdId },
+    data: { lastCompleted: now, nextDue, notifiedAt: null, streak: effectiveStreak + 1, lastActionAt: now },
+  })
+  revalidatePath("/", "layout")
+  return {
+    nextDue: nextDue.toISOString(),
+    snapshot: {
+      prevNextDue: task.nextDue.toISOString(),
+      prevStreak: task.streak,
+      prevLastActionAt: task.lastActionAt?.toISOString() ?? null,
+      prevLastCompleted: task.lastCompleted?.toISOString() ?? null,
+    },
+  }
+}
+
+export async function snoozeRoutine(id: number): Promise<{ nextDue: string; snapshot: ActionSnapshot }> {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Not authenticated")
+  const task = await prisma.recurringTask.findFirst({ where: { id, householdId: sessionUser.householdId } })
+  if (!task) throw new Error("Routine not found")
+  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
+
+  const now = new Date()
+  const todayUTC = new Date()
+  todayUTC.setUTCHours(0, 0, 0, 0)
+
+  const base = task.nextDue > todayUTC ? task.nextDue : todayUTC
+  const nextDue = new Date(base)
+  nextDue.setUTCDate(nextDue.getUTCDate() + 1)
+
+  await prisma.recurringTask.updateMany({
+    where: { id, householdId: task.householdId },
+    data: { nextDue, notifiedAt: null, lastActionAt: now },
+  })
+  revalidatePath("/", "layout")
+  return {
+    nextDue: nextDue.toISOString(),
+    snapshot: {
+      prevNextDue: task.nextDue.toISOString(),
+      prevStreak: task.streak,
+      prevLastActionAt: task.lastActionAt?.toISOString() ?? null,
+      prevLastCompleted: task.lastCompleted?.toISOString() ?? null,
+    },
+  }
+}
+
+export async function skipRoutine(id: number): Promise<{ nextDue: string; snapshot: ActionSnapshot }> {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Not authenticated")
+  const task = await prisma.recurringTask.findFirst({ where: { id, householdId: sessionUser.householdId } })
+  if (!task) throw new Error("Routine not found")
   await requireAssignedOrAdmin(task.assigneeId, task.householdId)
 
   const now = new Date()
@@ -103,7 +210,76 @@ export async function completeRecurringTask(id: number) {
 
   await prisma.recurringTask.updateMany({
     where: { id, householdId: task.householdId },
-    data: { lastCompleted: now, nextDue, notifiedAt: null },
+    data: { nextDue, notifiedAt: null, lastActionAt: now },
+  })
+  revalidatePath("/", "layout")
+  return {
+    nextDue: nextDue.toISOString(),
+    snapshot: {
+      prevNextDue: task.nextDue.toISOString(),
+      prevStreak: task.streak,
+      prevLastActionAt: task.lastActionAt?.toISOString() ?? null,
+      prevLastCompleted: task.lastCompleted?.toISOString() ?? null,
+    },
+  }
+}
+
+export async function moveRoutineToTodayAction(id: number): Promise<{ nextDue: string; snapshot: ActionSnapshot }> {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Not authenticated")
+  const task = await prisma.recurringTask.findFirst({ where: { id, householdId: sessionUser.householdId } })
+  if (!task) throw new Error("Routine not found")
+  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
+
+  const todayUTC = new Date()
+  todayUTC.setUTCHours(0, 0, 0, 0)
+
+  // Server-side guard: no-op if already today or in the past
+  if (task.nextDue <= todayUTC) {
+    return {
+      nextDue: task.nextDue.toISOString(),
+      snapshot: {
+        prevNextDue: task.nextDue.toISOString(),
+        prevStreak: task.streak,
+        prevLastActionAt: task.lastActionAt?.toISOString() ?? null,
+        prevLastCompleted: task.lastCompleted?.toISOString() ?? null,
+      },
+    }
+  }
+
+  const now = new Date()
+  await prisma.recurringTask.updateMany({
+    where: { id, householdId: task.householdId },
+    data: { nextDue: todayUTC, notifiedAt: null, lastActionAt: now },
+  })
+  revalidatePath("/", "layout")
+  return {
+    nextDue: todayUTC.toISOString(),
+    snapshot: {
+      prevNextDue: task.nextDue.toISOString(),
+      prevStreak: task.streak,
+      prevLastActionAt: task.lastActionAt?.toISOString() ?? null,
+      prevLastCompleted: task.lastCompleted?.toISOString() ?? null,
+    },
+  }
+}
+
+export async function undoRoutineAction(id: number, snapshot: ActionSnapshot): Promise<void> {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Not authenticated")
+  const task = await prisma.recurringTask.findFirst({ where: { id, householdId: sessionUser.householdId } })
+  if (!task) return
+  await requireAssignedOrAdmin(task.assigneeId, task.householdId)
+
+  await prisma.recurringTask.updateMany({
+    where: { id, householdId: task.householdId },
+    data: {
+      nextDue: new Date(snapshot.prevNextDue),
+      streak: snapshot.prevStreak,
+      lastActionAt: snapshot.prevLastActionAt ? new Date(snapshot.prevLastActionAt) : null,
+      lastCompleted: snapshot.prevLastCompleted ? new Date(snapshot.prevLastCompleted) : null,
+      notifiedAt: null,
+    },
   })
   revalidatePath("/", "layout")
 }

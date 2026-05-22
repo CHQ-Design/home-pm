@@ -1,10 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
-import { IconPencilMinus, IconX } from "@tabler/icons-react"
-import { completeRecurringTask, updateRecurringTask, deleteRecurringTask } from "./actions"
-import { todayUTC, todayLocal, daysDiff, formatTime, formatDate } from "@/lib/dates"
+import { IconDots, IconPencilMinus, IconX } from "@tabler/icons-react"
+import { completeRecurringTask, snoozeRoutine, skipRoutine, moveRoutineToTodayAction, undoRoutineAction, updateRecurringTask, deleteRecurringTask } from "./actions"
+import type { ActionSnapshot } from "./actions"
+import type { RoutineVerb } from "../routine-action-sheet"
+import RoutineActionSheet from "../routine-action-sheet"
+import UndoToast from "../undo-toast"
+import { todayUTC, todayLocal, daysDiff, formatTime, formatDate, formatToastDate } from "@/lib/dates"
 import { inputClass } from "@/lib/styles"
 import DatePicker from "../date-picker"
 import TimePicker from "../time-picker"
@@ -34,7 +38,6 @@ function describeCadence(value: number, unit: string): string {
   return `Every ${value} ${unit}s`
 }
 
-
 function dueDateClass(nextDue: Date | string, today: string): string {
   const diff = daysDiff(nextDue, today)
   if (diff < 0) return "text-red-600 font-medium"
@@ -49,6 +52,16 @@ function dueDateLabel(nextDue: Date | string, today: string): string {
   if (diff === 0) return "Due today"
   if (diff === 1) return "Due tomorrow"
   return `Due ${formatDate(nextDue)}`
+}
+
+function toastMessage(verb: RoutineVerb, nextDue: string): string {
+  const date = formatToastDate(nextDue)
+  switch (verb) {
+    case "done":          return `Marked done. Next due ${date}.`
+    case "snooze":        return `Snoozed until ${date}.`
+    case "skip":          return `Skipped this cycle. Next due ${date}.`
+    case "move-to-today": return "Moved to today."
+  }
 }
 
 export default function RecurringTaskItem({
@@ -71,13 +84,19 @@ export default function RecurringTaskItem({
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
 
-  const canComplete = isAdmin || task.assigneeId === sessionPersonId
+  const canAct = isAdmin || task.assigneeId === sessionPersonId
   const [editing, setEditing] = useState(false)
   const [showNotes, setShowNotes] = useState(!!task.notes)
   const [confirming, setConfirming] = useState(false)
   const [pending, setPending] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
+  const [flash, setFlash] = useState<RoutineVerb | null>(null)
+  const [toast, setToast] = useState<{ message: string; snapshot: ActionSnapshot } | null>(null)
+  const dotsRef = useRef<HTMLButtonElement>(null)
+
   const [form, setForm] = useState({
     title: task.title,
     notes: task.notes ?? "",
@@ -89,12 +108,37 @@ export default function RecurringTaskItem({
     reminderMinutesBefore: task.reminderMinutesBefore != null ? String(task.reminderMinutesBefore) : "",
   })
 
-  async function handleDone() {
-    setPending(true)
-    await completeRecurringTask(task.id)
-    setPending(false)
-    setSuccess(true)
-    setTimeout(() => setSuccess(false), 800)
+  function openSheet(e: React.MouseEvent<HTMLButtonElement>) {
+    setAnchorRect(e.currentTarget.getBoundingClientRect())
+    setSheetOpen(true)
+  }
+
+  function closeSheet() {
+    setSheetOpen(false)
+    setAnchorRect(null)
+    dotsRef.current?.focus()
+  }
+
+  async function handleAction(verb: RoutineVerb) {
+    closeSheet()
+
+    let result: { nextDue: string; snapshot: ActionSnapshot }
+    if (verb === "done")          result = await completeRecurringTask(task.id)
+    else if (verb === "snooze")   result = await snoozeRoutine(task.id)
+    else if (verb === "skip")     result = await skipRoutine(task.id)
+    else                          result = await moveRoutineToTodayAction(task.id)
+
+    setFlash(verb)
+    setTimeout(() => setFlash(null), 200)
+
+    setToast({ message: toastMessage(verb, result.nextDue), snapshot: result.snapshot })
+  }
+
+  async function handleUndo() {
+    if (!toast) return
+    const { snapshot } = toast
+    setToast(null)
+    await undoRoutineAction(task.id, snapshot)
   }
 
   async function handleSave() {
@@ -276,54 +320,78 @@ export default function RecurringTaskItem({
     )
   }
 
+  const flashCls = flash ? `row-flash-${flash === "move-to-today" ? "move" : flash}` : ""
+
   return (
-    <div className="flex items-center gap-3 p-4 bg-surface-warm rounded-xl border border-border-subtle group">
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground">{task.title}</p>
-        <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
-          <span className="text-xs text-text-muted">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
-          {task.time && <span className="text-xs text-text-muted">{formatTime(task.time)}</span>}
-          <span className={`text-xs ${dueDateClass(task.nextDue, today)}`}>{dueDateLabel(task.nextDue, today)}</span>
-          {task.assignee && (
-            <span className="text-xs text-text-secondary">{task.assignee.name}</span>
-          )}
-          {task.project && (
-            <span className="text-xs text-text-secondary bg-surface rounded px-1.5 py-0.5">{task.project.name}</span>
+    <>
+      <div className={`flex items-center gap-3 p-4 bg-surface-warm rounded-xl border border-border-subtle group ${flashCls}`}>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-foreground">{task.title}</p>
+          <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
+            <span className="text-xs text-text-muted">{describeCadence(task.intervalValue, task.intervalUnit)}</span>
+            {task.time && <span className="text-xs text-text-muted">{formatTime(task.time)}</span>}
+            <span className={`text-xs ${dueDateClass(task.nextDue, today)}`}>{dueDateLabel(task.nextDue, today)}</span>
+            {task.assignee && (
+              <span className="text-xs text-text-secondary">{task.assignee.name}</span>
+            )}
+            {task.project && (
+              <span className="text-xs text-text-secondary bg-surface rounded px-1.5 py-0.5">{task.project.name}</span>
+            )}
+          </div>
+          {task.notes && (
+            <p className="text-xs text-text-secondary mt-1">{task.notes}</p>
           )}
         </div>
-        {task.notes && (
-          <p className="text-xs text-text-secondary mt-1">{task.notes}</p>
-        )}
-      </div>
-      <div className="flex items-center shrink-0">
-        {isAdmin && (
-          <>
+        <div className="flex items-center shrink-0">
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => { setEditing(true); onEditStart?.() }}
+                className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 rounded"
+                aria-label={`Edit ${task.title}`}
+              >
+                <IconPencilMinus size={16} aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => setConfirming(true)}
+                className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-1 rounded"
+                aria-label={`Delete ${task.title}`}
+              >
+                <IconX size={16} aria-hidden="true" />
+              </button>
+            </>
+          )}
+          {canAct && (
             <button
-              onClick={() => { setEditing(true); onEditStart?.() }}
-              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-text-hover"
-              aria-label={`Edit ${task.title}`}
+              ref={dotsRef}
+              onClick={openSheet}
+              aria-label={`More options for ${task.title}`}
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-foreground hover:bg-surface-hover rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ml-1"
             >
-              <IconPencilMinus size={16} aria-hidden="true" />
+              <IconDots size={18} aria-hidden="true" />
             </button>
-            <button
-              onClick={() => setConfirming(true)}
-              className="flex items-center justify-center min-h-[44px] min-w-[44px] text-text-faint hover:text-red-600"
-              aria-label={`Delete ${task.title}`}
-            >
-              <IconX size={16} aria-hidden="true" />
-            </button>
-          </>
-        )}
-        {canComplete && (
-          <button
-            onClick={handleDone}
-            disabled={pending || success}
-            className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 ml-3"
-          >
-            {pending ? "…" : success ? (daysDiff(task.nextDue, today) < 0 ? "Done. That one's been waiting." : "Done.") : "Done"}
-          </button>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+
+      {sheetOpen && (
+        <RoutineActionSheet
+          taskTitle={task.title}
+          nextDue={task.nextDue}
+          today={today}
+          anchorRect={anchorRect}
+          onAction={handleAction}
+          onClose={closeSheet}
+        />
+      )}
+
+      {toast && (
+        <UndoToast
+          message={toast.message}
+          onUndo={handleUndo}
+          onDismiss={() => setToast(null)}
+        />
+      )}
+    </>
   )
 }
