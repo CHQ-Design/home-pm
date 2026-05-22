@@ -12,6 +12,7 @@ import { todayLocal, utcDateStr, formatTime, formatShortDate } from "@/lib/dates
 import { getPersonColor } from "@/lib/person-colors"
 import { playCompletionTone } from "@/lib/sounds"
 import type { CategoryValue } from "@/lib/categories"
+import { getCategoryMeta } from "@/lib/categories"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type Priority = "high" | "medium" | "low"
@@ -44,6 +45,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
   const showLeadingMonogram =
     isAdmin && filterPersonId == null && task.assigneeId != null && !!task.assignee
   const hasNote = !!(task.notes?.trim())
+  const categoryLabel = !isKid && task.category ? (getCategoryMeta(task.category as CategoryValue)?.label ?? null) : null
   const [isExpanded, setIsExpanded] = useState(false)
   const [isInlineEditing, setIsInlineEditing] = useState(false)
   const [inlineTitle, setInlineTitle] = useState("")
@@ -212,7 +214,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               ref={openTriggerRef}
               type="button"
               onClick={e => { e.stopPropagation(); openInline() }}
-              aria-label={`Open ${task.title}`}
+              aria-label={`Open ${task.title}${categoryLabel ? `, ${categoryLabel}` : ""}`}
               aria-expanded={isInlineEditing}
               aria-controls={`task-panel-${task.id}`}
               className={`relative flex-1 text-left ${isKid ? "text-xl" : "text-base"} font-medium cursor-pointer text-foreground hover:text-text-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded`}
@@ -226,6 +228,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               }`}
             >
               {task.title}
+              {categoryLabel && <span className="sr-only">, {categoryLabel}</span>}
               {task.completed && !isKid && (
                 <span
                   aria-hidden="true"

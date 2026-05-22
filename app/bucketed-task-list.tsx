@@ -270,7 +270,7 @@ export default function BucketedTaskList({
   }, [tasks, filteredRoutines, today, endOfWeek])
 
   const openItemCount = buckets.today.length + buckets.thisWeek.length + buckets.later.length
-  const isBoardClear = openItemCount === 0 && completedTasks.length > 0
+  const isBoardClear = !hasActiveFilters && openItemCount === 0 && completedTasks.length > 0
 
   useEffect(() => {
     if (isBoardClear && !boardClearCelebrated.current) {
