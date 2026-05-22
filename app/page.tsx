@@ -14,11 +14,6 @@ import { getPersonColor } from "@/lib/person-colors"
 import { redirect } from "next/navigation"
 
 export default async function Home() {
-  const now = new Date()
-  const startOfTomorrow = new Date(now)
-  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1)
-  startOfTomorrow.setHours(0, 0, 0, 0)
-
   const [sessionUser, sessionPersonId] = await Promise.all([getSessionUser(), getSessionPersonId()])
   if (!sessionUser) redirect("/login")
   const isAdmin = sessionUser.role === "admin"
@@ -30,7 +25,7 @@ export default async function Home() {
     prisma.person.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.project.findMany({ where: { householdId }, orderBy: { name: "asc" } }),
     prisma.recurringTask.findMany({
-      where: { householdId, nextDue: { lt: startOfTomorrow }, ...assigneeFilter },
+      where: { householdId, ...assigneeFilter },
       include: { assignee: true },
       orderBy: [{ nextDue: "asc" }, { time: { sort: "asc", nulls: "first" } }],
     }),
