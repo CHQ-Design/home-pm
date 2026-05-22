@@ -44,6 +44,7 @@ export default function TaskEditModal({
   const [saveError, setSaveError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const notesRef = useRef<HTMLTextAreaElement>(null)
+  const categoryTriggerRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const el = notesRef.current
@@ -117,7 +118,10 @@ export default function TaskEditModal({
         <CategorySheet
           value={category}
           onSelect={setCategory}
-          onClose={() => setShowCategorySheet(false)}
+          onClose={() => {
+            setShowCategorySheet(false)
+            requestAnimationFrame(() => categoryTriggerRef.current?.focus())
+          }}
         />
       )}
       <div
@@ -206,6 +210,7 @@ export default function TaskEditModal({
           <div>
             <label className={labelClass}>Category</label>
             <button
+              ref={categoryTriggerRef}
               type="button"
               onClick={() => setShowCategorySheet(true)}
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border-subtle bg-surface text-sm text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"

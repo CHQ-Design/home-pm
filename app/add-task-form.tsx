@@ -66,6 +66,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const formRef = useRef<HTMLFormElement>(null)
   const panelTitleRef = useRef<HTMLInputElement>(null)
   const notesRef = useRef<HTMLTextAreaElement>(null)
+  const categoryTriggerRef = useRef<HTMLButtonElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -233,6 +234,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       {/* Category */}
       <input type="hidden" name="category" value={category ?? ""} />
       <button
+        ref={categoryTriggerRef}
         type="button"
         onClick={() => setShowCategorySheet(true)}
         className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border-subtle bg-surface text-sm text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
@@ -256,7 +258,10 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         <CategorySheet
           value={category}
           onSelect={setCategory}
-          onClose={() => setShowCategorySheet(false)}
+          onClose={() => {
+            setShowCategorySheet(false)
+            requestAnimationFrame(() => categoryTriggerRef.current?.focus())
+          }}
         />
       )}
     </div>

@@ -240,8 +240,10 @@ export default function BucketedTaskList({
     return true
   })
 
-  // Routines: person filter applies; category filter never applies (routines have no category)
+  // Routines: person filter applies. Routines are conceptually uncategorized, so they're
+  // hidden when the user filters to specific categories — unless Uncategorized is selected.
   const filteredRoutines = recurringTasks.filter(r => {
+    if (selectedCategories.length > 0 && !selectedCategories.includes(UNCATEGORIZED)) return false
     if (!isAdmin) return r.assigneeId === sessionPersonId || r.assigneeId === null
     if (selectedPersonIds.length > 0) return r.assigneeId === null || selectedPersonIds.includes(r.assigneeId)
     return true
@@ -457,6 +459,11 @@ export default function BucketedTaskList({
         </div>
       )}
 
+      {/* Separator — only when both filter rows render */}
+      {isAdmin && people.length > 0 && !isKid && (
+        <hr className="border-border-subtle mb-3" aria-hidden="true" />
+      )}
+
       {/* Category filter chips — all non-kid users */}
       {!isKid && (
         <div className="flex gap-2 mb-4 flex-wrap">
@@ -470,7 +477,7 @@ export default function BucketedTaskList({
                 aria-label={`${isActive ? "Remove" : "Add"} ${cat.label} filter`}
                 className={`text-xs px-3 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 border ${
                   isActive
-                    ? "bg-[#6B7A5A] text-[#F4EFE6] border-[#6B7A5A] font-medium"
+                    ? "bg-accent text-white border-accent font-medium"
                     : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
                 }`}
               >
@@ -485,7 +492,7 @@ export default function BucketedTaskList({
             aria-label={`${selectedCategories.includes(UNCATEGORIZED) ? "Remove" : "Add"} Uncategorized filter`}
             className={`text-xs px-3 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center border ${
               selectedCategories.includes(UNCATEGORIZED)
-                ? "bg-[#6B7A5A] text-[#F4EFE6] border-[#6B7A5A] font-medium"
+                ? "bg-accent text-white border-accent font-medium"
                 : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
             }`}
           >
