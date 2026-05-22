@@ -58,6 +58,21 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  try {
+    return await runNotify()
+  } catch {
+    // Single retry after a short pause — handles Neon cold-start connection timeouts.
+    await new Promise(r => setTimeout(r, 2000))
+    try {
+      return await runNotify()
+    } catch (err) {
+      console.error("cron/notify failed after retry:", err)
+      return NextResponse.json({ error: "Internal error" }, { status: 500 })
+    }
+  }
+}
+
+async function runNotify(): Promise<NextResponse> {
   const now = new Date()
   const windowStart = new Date(now.getTime() - 60 * 60 * 1000)
 

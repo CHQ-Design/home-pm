@@ -12,6 +12,7 @@ import Link from "next/link"
 import PeopleManager from "@/app/people-manager"
 import UserManager from "./user-manager"
 import SoundSettingToggle from "./sound-setting-toggle"
+import PushManager from "@/app/push-manager"
 import PageMast from "@/app/page-mast"
 
 export default async function SettingsPage() {
@@ -42,6 +43,16 @@ export default async function SettingsPage() {
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast title="Settings" />
       <SoundSettingToggle initialEnabled={household?.soundEnabled ?? true} />
+      <div className="mb-8 pb-6 border-b border-border">
+        <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Notifications</h2>
+        <div className="flex items-center justify-between">
+          <span>
+            <span className="text-sm text-foreground block">Push notifications</span>
+            <span className="text-xs text-text-secondary block mt-0.5">Get reminders on this device when tasks are due.</span>
+          </span>
+          <PushManager />
+        </div>
+      </div>
 <UserManager users={users} currentEmail={currentEmail} />
       <PeopleManager people={people} />
       <div className="mt-10 pt-6 border-t border-border flex items-center gap-4">
