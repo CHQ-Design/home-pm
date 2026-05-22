@@ -55,13 +55,25 @@ No schema change. No new persisted state.
 
 ## Empty-state copy (exact strings)
 
+Per-bucket:
+
 - Today with no items: `Nothing critical today.`
 - Today with no items and person filter active: `Nothing critical today for [Name].`
 - This week with no items: section is not rendered.
 - Later with no items: section is not rendered.
-- All three buckets empty: `No tasks.` (or `No tasks for [Name].` with person filter active).
 
-No icons, animations, or emoji on empty states.
+All-empty states (no open items and no completed items):
+
+- Adult member view: a centered `✦` glyph, then `You're all clear. Nice work.`
+- Admin view: a centered `✦` glyph, then `Nothing here yet.` and below that `Add the first thing below.`
+- Kid view: a centered `🌟`, then `Nothing to do!`
+
+Board-clear state (no open items but completed items exist, i.e. everything got done today):
+
+- Adult / admin view: centered `✦` glyph (scales up briefly), one of three rotating lines — `The board's clear.` / `Everything's handled.` / `All done! N things done. The day is yours.` — accompanied by a brief warm wash and drifting `✦` marks. Quiet celebration, not confetti. On-brand per the updated Otium voice doc; do not flag as a particle-effect violation.
+- Kid view: centered `🎉` with a particle burst, `You did it, [Name]!`, then `All done for today.`
+
+The Otium voice doc explicitly permits quiet celebration animations and kid-mode emoji; the strings above are canonical.
 
 ## Visual treatment
 
@@ -108,6 +120,7 @@ No icons, animations, or emoji on empty states.
 ### Person filter
 - Filter applies before bucketing.
 - Bucket counts, hide-when-empty rules, and Later's `(n)` badge all reflect the post-filter set.
+- Routines with no assignee (`assigneeId = null`) are shown under every person filter — they are treated as household-level items and always visible.
 
 ### Performance
 - Personal-scale data. No list virtualization. No new caching layer.
@@ -161,11 +174,13 @@ No icons, animations, or emoji on empty states.
 - Today with no items renders the literal copy `Nothing critical today.` (or `Nothing critical today for [Name].` with person filter).
 - This week with no items is not rendered.
 - Later with no items is not rendered.
-- All three buckets empty renders the literal copy `No tasks.` (or `No tasks for [Name].` with filter).
+- All three buckets empty AND no completed items: renders the all-empty copy per role (member / admin / kid) as defined in "Empty-state copy" above.
+- All three buckets empty AND completed items exist: renders the board-clear state with the rotating line and quiet celebration animation as defined in "Empty-state copy" above. Kid view renders the kid all-done celebration.
 
 ### Person filter
 - Filter applies before bucketing.
 - Bucket counts and hide-when-empty rules reflect the filtered set.
+- Routines with no assignee are visible under every person filter (household-level items).
 
 ### Completed section
 - Tasks marked complete move into a single combined Completed section below the three buckets.

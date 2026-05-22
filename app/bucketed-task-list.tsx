@@ -518,16 +518,18 @@ export default function BucketedTaskList({
         <>
           <hr className="border-border-subtle my-6" aria-hidden="true" />
           <section aria-labelledby="bucket-later">
-            <button
-              id="bucket-later"
-              onClick={() => setShowLater(v => !v)}
-              aria-expanded={showLater}
-              aria-controls="later-list"
-              className="min-h-[44px] inline-flex items-center gap-1.5 font-serif text-base text-text-muted hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
-            >
-              {showLater ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
-              Later ({buckets.later.length})
-            </button>
+            <h2>
+              <button
+                id="bucket-later"
+                onClick={() => setShowLater(v => !v)}
+                aria-expanded={showLater}
+                aria-controls="later-list"
+                className="min-h-[44px] inline-flex items-center gap-1.5 font-serif text-base text-text-muted hover:text-foreground rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                {showLater ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
+                Later ({buckets.later.length})
+              </button>
+            </h2>
             {showLater && (
               <ul id="later-list" className="space-y-1 mt-2">
                 {buckets.later.map(renderItem)}
@@ -540,6 +542,7 @@ export default function BucketedTaskList({
       {/* ── Completed section ─────────────────────────────────────────────────── */}
       {completedTasks.length > 0 && (
         <div className="mt-8 border-t border-border-card pt-5">
+          <h2>
           <button
             onClick={() => {
               if (!showCompleted && !hasExpandedCompleted.current) {
@@ -558,12 +561,13 @@ export default function BucketedTaskList({
             className="min-h-[44px] inline-flex items-center text-sm text-text-secondary hover:text-foreground rounded-md px-1"
             style={completedPulse ? { animation: "warm-pulse 600ms ease-out" } : undefined}
           >
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1" aria-hidden="true">
               {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
               {completedTasks.length}{" "}
               {completedTasks.length === 1 ? "thing" : "things"} done. Nice work.
             </span>
           </button>
+          </h2>
           {showCompleted && (
             <ul className="mt-2 space-y-1">
               {completedTasks.map(task => (
