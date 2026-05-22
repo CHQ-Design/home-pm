@@ -226,7 +226,7 @@ export default function TaskEditModal({
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="text-sm px-4 py-1.5 bg-red-600 text-white font-medium rounded-md hover:bg-red-700"
+                  className="text-sm px-4 py-1.5 bg-danger text-white font-medium rounded-md hover:bg-danger-hover"
                 >
                   Delete
                 </button>
@@ -236,7 +236,7 @@ export default function TaskEditModal({
             <>
               <button
                 onClick={() => setConfirmDelete(true)}
-                className="text-sm text-[#A05040] hover:text-[#7A2E1A] min-h-[44px] inline-flex items-center"
+                className="text-sm text-danger hover:text-danger-hover min-h-[44px] inline-flex items-center"
               >
                 Delete task
               </button>

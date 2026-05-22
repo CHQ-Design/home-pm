@@ -35,6 +35,16 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const [time, setTime] = useState("")
   const [priority, setPriority] = useState("medium")
   const [assigneeId, setAssigneeId] = useState("")
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("addTaskDefaults")
+      if (!saved) return
+      const { priority: p, assigneeId: a } = JSON.parse(saved)
+      if (p) setPriority(p)
+      if (a) setAssigneeId(a)
+    } catch { /* ignore malformed */ }
+  }, [])
   const selectedAssigneeIsKid = isAdmin && assigneeId !== "" && (people.find(p => String(p.id) === assigneeId)?.isKid ?? false)
   const [selectedProjectId, setSelectedProjectId] = useState("")
   const [notes, setNotes] = useState("")
@@ -114,13 +124,14 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       setSubmitting(false)
       return
     }
+    try {
+      localStorage.setItem("addTaskDefaults", JSON.stringify({ priority, assigneeId }))
+    } catch { /* storage unavailable */ }
     formRef.current?.reset()
     setTitleValue("")
     setNotes("")
     setDueDate("")
     setTime("")
-    setPriority("medium")
-    setAssigneeId("")
     setSelectedProjectId("")
     setReminderMinutesBefore("")
     setSubmitting(false)

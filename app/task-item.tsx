@@ -92,7 +92,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
         }`}
         style={{
           borderLeftColor: personColor?.border ?? "transparent",
-          ...(isKid && task.completed ? { backgroundColor: personColor?.bg ?? "#EEF2E8" } : {}),
+          ...(isKid && task.completed ? { backgroundColor: personColor?.bg ?? "var(--color-kid-done)" } : {}),
         }}
       >
         {/* Title row */}
@@ -144,7 +144,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                     key={angle}
                     className={`absolute rounded-full ${isKid ? "h-2 w-2" : "h-1.5 w-1.5"}`}
                     style={{
-                      backgroundColor: personColor?.border ?? "#6B7A5A",
+                      backgroundColor: personColor?.border ?? "var(--color-accent)",
                       ["--angle" as string]: `${angle}deg`,
                       animation: `${isKid ? "particle-burst-kid 950ms" : "particle-burst 550ms"} cubic-bezier(0.22,1,0.36,1) forwards`,
                     }}
@@ -153,7 +153,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                 <span
                   className={`absolute ${isKid ? "text-3xl" : "text-base"} font-bold select-none`}
                   style={{
-                    color: personColor?.border ?? "#6B7A5A",
+                    color: personColor?.border ?? "var(--color-accent)",
                     animation: "star-pop 700ms ease-out forwards",
                   }}
                 >
@@ -218,7 +218,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
               onClick={e => { e.stopPropagation(); setIsExpanded(v => !v) }}
               aria-label={isExpanded ? "Collapse note" : "Expand note"}
               aria-expanded={isExpanded}
-              className={`flex items-center justify-center min-h-[44px] min-w-[44px] shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8874E] focus-visible:ring-offset-1 rounded ${
+              className={`flex items-center justify-center min-h-[44px] min-w-[44px] shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm focus-visible:ring-offset-1 rounded ${
                 isExpanded ? "text-accent" : "text-text-faint group-hover:text-text-hover"
               }`}
             >
@@ -258,12 +258,12 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   className="text-xs pl-1 pr-2 py-0.5 rounded-full border flex items-center gap-1"
                   style={personColor
                     ? { backgroundColor: personColor.bg, color: personColor.text, borderColor: personColor.border }
-                    : { backgroundColor: "#EDE6D8", color: "#8C7D6A", borderColor: "#C8BFAD" }
+                    : { backgroundColor: "var(--color-surface)", color: "var(--color-text-faint)", borderColor: "var(--color-border-chip)" }
                   }
                 >
                   <span
                     className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold leading-none shrink-0"
-                    style={{ backgroundColor: personColor?.border ?? "#C8BFAD", color: "white" }}
+                    style={{ backgroundColor: personColor?.border ?? "var(--color-border-chip)", color: "white" }}
                   >
                     {task.assignee!.name[0]}
                   </span>

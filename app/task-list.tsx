@@ -201,7 +201,7 @@ export default function TaskList({
             className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 ${
               filterPersonId === null
                 ? "bg-accent text-white font-medium"
-                : "bg-surface text-text-hover border border-border-chip hover:bg-[#E4DBD0] hover:text-foreground"
+                : "bg-surface text-text-hover border border-border-chip hover:bg-surface-hover hover:text-foreground"
             }`}
           >
             Everyone
@@ -281,7 +281,7 @@ export default function TaskList({
       {isKid && isBoardClear && (
         <KidAllDone
           name={activePerson?.name ?? "you"}
-          personColor={activeColors?.border ?? "#6B7A5A"}
+          personColor={activeColors?.border ?? "var(--color-accent)"}
           soundEnabled={soundEnabled}
         />
       )}
