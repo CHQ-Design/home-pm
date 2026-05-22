@@ -232,6 +232,9 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
                 ref={panelTitleRef}
                 name="title"
                 aria-label="Task title"
+                placeholder="Add a thing…"
+                aria-invalid={titleError ? true : undefined}
+                aria-describedby={submitError ? "add-task-error" : undefined}
                 value={titleValue}
                 onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
                 className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
@@ -255,7 +258,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         )}
 
         {submitError && (
-          <p className="text-sm text-red-600 px-1 pt-2">{submitError}</p>
+          <p id="add-task-error" role="alert" className="text-sm text-red-600 px-1 pt-2">{submitError}</p>
         )}
 
         <div className="flex gap-2 items-center py-3">
@@ -264,6 +267,9 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               <input
                 name="title"
                 aria-label="Task title"
+                placeholder="Add a thing…"
+                aria-invalid={titleError ? true : undefined}
+                aria-describedby={submitError ? "add-task-error" : undefined}
                 value={titleValue}
                 onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
                 className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
@@ -316,6 +322,9 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           <input
             name="title"
             aria-label="Task title"
+            placeholder="Add a thing…"
+            aria-invalid={titleError ? true : undefined}
+            aria-describedby={submitError ? "add-task-error" : undefined}
             value={titleValue}
             onChange={e => { setTitleValue(e.target.value); if (titleError) setTitleError(false) }}
             className={`${inputClass} bg-transparent transition-colors${titleError ? " !border-red-400" : ""}`}
@@ -346,7 +355,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
       </div>
 
       {submitError && (
-        <p className="text-sm text-red-600 px-1">{submitError}</p>
+        <p id="add-task-error" role="alert" className="text-sm text-red-600 px-1">{submitError}</p>
       )}
 
       <button
