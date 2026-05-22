@@ -23,26 +23,47 @@ cron-job.org is configured to hit `/api/cron/notify` hourly with `Authorization:
 - Add `reminderMinutesBefore Int?` — same semantics as above
 - Add `notifiedAt DateTime?` — for recurring tasks, reset this to null when the routine is marked complete and `nextDue` advances, so the next occurrence gets notified fresh
 
+### User
+
+- Add `timezone String @default("America/Los_Angeles")` — IANA timezone string. Default applies to existing users via the seed; new users get the default at creation time. A settings field will let users override it later (out of scope for this brief).
+
 Run `npx prisma db push` after schema changes (no migration needed for this project's workflow).
 
 ---
 
 ## Cron logic changes (`/api/cron/notify/route.ts`)
 
-The current logic notifies about everything due today. Replace it with time-window logic:
+The current logic treats "HH:MM" as UTC, which is wrong for users in PT/ET. Replace the time computation with a timezone-aware version that resolves the assignee's timezone before subtracting the lead time.
 
-1. Calculate the window: `[now - 1 hour, now]` (matches the hourly cron cadence)
-2. For each task with `reminderMinutesBefore` set, compute `notifyAt = dueDate+time - reminderMinutesBefore`
-3. Notify if `notifyAt` falls within the window AND `notifiedAt` is null
-4. After sending, set `notifiedAt = now` on the record
+### Steps
 
-For recurring routines, `nextDue` already stores the next occurrence date. Combine with `time` field (stored as `"HH:MM"`) to get the exact notify datetime.
+1. Calculate the window: `[now - 1 hour, now]` (matches the hourly cron cadence).
+2. For each task or routine with `reminderMinutesBefore` set, look up the assignee's `User.timezone` (by joining `assignee.email` → `User.email`). Default to `"America/Los_Angeles"` if not found.
+3. Compute `notifyAt` by interpreting `dueDate + time` in the user's timezone, converting to UTC, then subtracting `reminderMinutesBefore` minutes.
+4. Notify if `notifyAt` falls within the window AND `notifiedAt` is null.
+5. **Mark `notifiedAt = now` only after a successful push send.** Log non-410/404 errors so transient failures are observable. (Previous "mark before send" approach silently dropped med reminders on any push failure.)
+
+### Timezone conversion
+
+Use a small helper. Either `date-fns-tz` (already a small dep, propose before adding) or hand-rolled with `Intl.DateTimeFormat` parts. Example signature:
+
+```ts
+function computeNotifyAt(dueDate: Date, time: string | null, minutesBefore: number, tz: string): Date {
+  // Interpret dueDate's calendar date + time as a wall-clock time in `tz`,
+  // convert to UTC, subtract minutesBefore.
+}
+```
+
+If `date-fns-tz` is approved, the body is roughly `zonedTimeToUtc(\`${yyyy-mm-dd} ${HH:MM}\`, tz)` minus `minutesBefore`.
 
 ### Edge cases to handle
 
-- Task or routine has no `time` set: treat as midnight (00:00) for that day, so "1 day before" still works but "1 hour before" would fire at 11pm the prior night — acceptable
-- Routine is completed and `nextDue` advances: clear `notifiedAt` in the completion action so the next occurrence notifies correctly
-- Subscription is stale (410/404 from push service): existing cleanup logic already handles this — no change needed
+- **No `time` set:** treat as midnight (00:00) in the user's timezone, so "1 day before" still works but "1 hour before" would fire at 11pm the prior night local time — acceptable.
+- **Routine completed, `nextDue` advances:** clear `notifiedAt` in the completion action so the next occurrence notifies correctly.
+- **`reminderMinutesBefore` edited on an existing item:** reset `notifiedAt = null` in the edit action so the new lead time gets evaluated against the upcoming due date.
+- **Push subscription stale (410/404):** existing cleanup logic already handles this — no change needed.
+- **Push failure other than 410/404:** do not mark `notifiedAt`. Log the error. The next cron run will retry. (Accept that a permanently-broken sub will retry every hour until 410/404 surfaces or it's cleaned up manually.)
+- **Unassigned items:** the cron skips items with no assignee email (no push target). The UI should also disallow setting a reminder on unassigned items — see UI section.
 
 ---
 
@@ -57,9 +78,11 @@ Suggested options:
 - 1 hour before
 - 1 day before
 
-Only show this field if the item has a due date/time set. A reminder without a time to anchor to is meaningless.
+Only show this field if the item has **both** a due date/time AND an assignee. A reminder needs a time to anchor to and a person to notify.
 
 Store the selected value as minutes (0, 30, 60, 1440) or null.
+
+When the user changes `reminderMinutesBefore` on an existing item, the edit action must also set `notifiedAt = null` so the new lead time fires.
 
 ---
 
@@ -77,7 +100,9 @@ to the update payload so the next occurrence starts fresh.
 
 ## Out of scope
 
+- Per-user timezone *editing UI* (the field exists and defaults to LA; settings UI is a separate task)
+- First-sign-in timezone auto-detection via `Intl.DateTimeFormat().resolvedOptions().timeZone`
 - Per-user reminder preferences (everyone sets per-item for now)
 - Email notifications (push only)
 - Snooze or repeat notifications
-- Reminders on items without a due date
+- Reminders on items without a due date or without an assignee
