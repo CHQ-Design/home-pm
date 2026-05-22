@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { Person, Project, Prisma } from "@prisma/client"
-import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
+import { IconAlertTriangle, IconChevronDown, IconChevronRight, IconClock, IconFlame, IconLeaf, IconStar, IconSun } from "@tabler/icons-react"
 import TaskItem from "./task-item"
 import { todayUTC, todayLocal, utcDateStr } from "@/lib/dates"
 import { getPersonColor } from "@/lib/person-colors"
@@ -232,8 +232,8 @@ export default function TaskList({
                   )
                 })()}
                 {p.streakCount >= 2 && (
-                  <span className="text-[10px] ml-0.5" aria-label={`${p.streakCount} day streak`}>
-                    🔥&nbsp;{p.streakCount}
+                  <span className="text-[10px] ml-0.5 inline-flex items-center gap-0.5" aria-label={`${p.streakCount} day streak`}>
+                    <IconFlame size={10} aria-hidden="true" />{p.streakCount}
                   </span>
                 )}
               </button>
@@ -403,7 +403,7 @@ export default function TaskList({
           >
             <span className="inline-flex items-center gap-1">
               {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
-              {groups.completed.length} things handled
+              {groups.completed.length} {groups.completed.length === 1 ? "thing" : "things"} done. Nice work.
             </span>
           </button>
           {showCompleted && (

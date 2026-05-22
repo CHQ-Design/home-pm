@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { IconFlame } from "@tabler/icons-react"
 import { greeting } from "@/lib/dates"
 
 function kidGreeting(hour: number): string {
@@ -20,10 +21,10 @@ export default function WelcomeHeader({ name, color, streakCount = 0, isKid = fa
   return (
     <div className="mb-6">
       <h1 className={`font-serif font-bold ${isKid ? "text-4xl" : "text-3xl"}`} style={{ color }}>
-        {greet}, {name}!
+        {greet}, {name}{isKid ? "!" : "."}
       </h1>
       {!isKid && streakCount >= 2 && (
-        <p className="text-sm mt-1 text-accent">🔥 {streakCount}-day streak</p>
+        <p className="text-sm mt-1 text-accent inline-flex items-center gap-1"><IconFlame size={14} aria-hidden="true" /> {streakCount}-day streak</p>
       )}
     </div>
   )
