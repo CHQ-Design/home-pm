@@ -14,8 +14,8 @@ type Project = {
 
 const STATUS_STYLES: Record<string, string> = {
   active: "bg-accent/10 text-accent",
-  paused: "bg-surface text-text-secondary",
-  done:   "bg-surface text-text-muted",
+  paused: "bg-clay text-clay-text",
+  done:   "bg-rose-soft text-rose-soft-text",
 }
 
 function ProjectCard({ project }: { project: Project }) {
@@ -37,7 +37,7 @@ function ProjectCard({ project }: { project: Project }) {
             )}
           </div>
           {isComplete ? (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-warm/15 text-text-hover">
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-rose-soft text-rose-soft-text">
               Complete ✦
             </span>
           ) : (
