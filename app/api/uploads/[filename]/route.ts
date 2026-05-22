@@ -36,6 +36,7 @@ export async function GET(
       headers: {
         "Content-Type": mimeType,
         "Content-Disposition": `attachment; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(originalName)}`,
+        "Cache-Control": "private, no-store",
       },
     })
   }

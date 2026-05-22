@@ -5,6 +5,7 @@ import { getSessionUser, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { parseId } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
 import { del } from "@vercel/blob"
+import { ALLOWED_EXTENSIONS } from "@/lib/upload"
 
 type AttachmentInput = {
   filename: string
@@ -26,6 +27,7 @@ function isValidBlobUrl(raw: string): boolean {
 function sanitizeAttachments(atts: AttachmentInput[]): AttachmentInput[] {
   return atts.filter(att =>
     UUID_FILENAME_RE.test(att.filename) &&
+    ALLOWED_EXTENSIONS.has(att.filename.split(".").pop() ?? "") &&
     typeof att.originalName === "string" && att.originalName.length > 0 &&
     typeof att.mimeType === "string" &&
     typeof att.size === "number" && att.size > 0 &&

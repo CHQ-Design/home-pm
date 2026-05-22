@@ -92,7 +92,9 @@ export async function addRecurringTask(formData: FormData) {
 }
 
 export async function completeRecurringTask(id: number) {
-  const task = await prisma.recurringTask.findUnique({ where: { id } })
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Not authenticated")
+  const task = await prisma.recurringTask.findFirst({ where: { id, householdId: sessionUser.householdId } })
   if (!task) return
   await requireAssignedOrAdmin(task.assigneeId, task.householdId)
 

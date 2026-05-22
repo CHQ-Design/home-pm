@@ -20,7 +20,9 @@ self.addEventListener("notificationclick", event => {
           return client.focus()
         }
       }
-      return clients.openWindow(event.notification.data?.url ?? "/")
+      const data = event.notification.data ?? {}
+      const url = typeof data.url === "string" && data.url.startsWith("/") ? data.url : "/"
+      return clients.openWindow(url)
     })
   )
 })
