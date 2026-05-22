@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   title: "Otium — the quiet hours, attended to",
   description: "A calm way to keep your household running. Add what needs doing. Check it off. The rest is yours.",
   icons: {
-    apple: "/icons/icon-180.png",
+    apple: "/api/pwa-icon?size=180",
   },
   appleWebApp: {
     capable: true,
