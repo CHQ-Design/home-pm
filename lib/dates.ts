@@ -3,6 +3,22 @@ export function todayLocal(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
+export function todayInTz(timezone: string): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: timezone })
+}
+
+// Returns the date string (YYYY-MM-DD) for the Sunday that ends the current
+// calendar week in the given timezone (ISO week: Mon–Sun).
+export function endOfWeekStr(timezone: string): string {
+  const todayStr = todayInTz(timezone)
+  const [y, m, d] = todayStr.split("-").map(Number)
+  const date = new Date(Date.UTC(y, m - 1, d))
+  const dow = date.getUTCDay() // 0 = Sun, 1 = Mon, …, 6 = Sat
+  const daysUntilSunday = dow === 0 ? 0 : 7 - dow
+  date.setUTCDate(date.getUTCDate() + daysUntilSunday)
+  return date.toISOString().slice(0, 10)
+}
+
 export function todayUTC(): string {
   return new Date().toISOString().slice(0, 10)
 }

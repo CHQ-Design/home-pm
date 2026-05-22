@@ -15,7 +15,7 @@ import type { ActionSnapshot } from "./recurring/actions"
 import { bucketForTask, bucketForRoutine } from "@/lib/bucket"
 import { getPersonColor } from "@/lib/person-colors"
 import { playCompletionTone } from "@/lib/sounds"
-import { todayUTC, todayLocal, utcDateStr, formatTime, formatToastDate } from "@/lib/dates"
+import { todayUTC, todayInTz, endOfWeekStr, utcDateStr, formatTime, formatToastDate } from "@/lib/dates"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
@@ -40,13 +40,42 @@ function describeCadence(value: number, unit: string): string {
   return `Every ${value} ${unit}s`
 }
 
-function itemSortKey(item: WrappedItem): number {
-  if (item.kind === "task") {
-    const t = item.task
-    if (!t.dueDate) return 9e15 + (PRIORITY_ORDER[t.priority] ?? 2) * 1e6
-    return new Date(t.dueDate).getTime() + (PRIORITY_ORDER[t.priority] ?? 2) * 60_000
-  }
-  return new Date(item.routine.nextDue).getTime() + 2 * 60_000 // routines after tasks on same date
+function itemDueDateStr(item: WrappedItem): string | null {
+  if (item.kind === "task") return item.task.dueDate ? utcDateStr(item.task.dueDate) : null
+  return utcDateStr(item.routine.nextDue)
+}
+
+function itemTime(item: WrappedItem): string | null {
+  return item.kind === "task" ? (item.task.time ?? null) : (item.routine.time ?? null)
+}
+
+function itemPriorityOrder(item: WrappedItem): number {
+  return item.kind === "task" ? (PRIORITY_ORDER[item.task.priority] ?? 2) : 2
+}
+
+function itemCreatedAt(item: WrappedItem): number {
+  return item.kind === "task"
+    ? new Date(item.task.createdAt).getTime()
+    : new Date(item.routine.createdAt).getTime()
+}
+
+// 6-step sort: dated before undated; date asc; timed before untimed on same date;
+// priority desc (high first); createdAt asc as tiebreaker.
+function itemCompare(a: WrappedItem, b: WrappedItem): number {
+  const aDate = itemDueDateStr(a)
+  const bDate = itemDueDateStr(b)
+  if (aDate === null && bDate !== null) return 1
+  if (aDate !== null && bDate === null) return -1
+  if (aDate !== null && bDate !== null && aDate !== bDate) return aDate < bDate ? -1 : 1
+  const aTime = itemTime(a)
+  const bTime = itemTime(b)
+  if (aTime && !bTime) return -1
+  if (!aTime && bTime) return 1
+  if (aTime && bTime && aTime !== bTime) return aTime < bTime ? -1 : 1
+  const ap = itemPriorityOrder(a)
+  const bp = itemPriorityOrder(b)
+  if (ap !== bp) return ap - bp
+  return itemCreatedAt(a) - itemCreatedAt(b)
 }
 
 function toastMessage(verb: RoutineVerb, nextDue: string): string {
@@ -99,6 +128,7 @@ export default function BucketedTaskList({
   sessionPersonId,
   isKid,
   soundEnabled = true,
+  timezone = "America/Los_Angeles",
   filterPersonId: filterPersonIdProp,
   onFilterChange,
 }: {
@@ -110,11 +140,16 @@ export default function BucketedTaskList({
   sessionPersonId: number | null
   isKid: boolean
   soundEnabled?: boolean
+  timezone?: string
   filterPersonId?: number | null
   onFilterChange?: (id: number | null) => void
 }) {
   const [today, setToday] = useState(todayUTC())
-  useEffect(() => { setToday(todayLocal()) }, [])
+  const [endOfWeek, setEndOfWeek] = useState(() => endOfWeekStr(timezone))
+  useEffect(() => {
+    setToday(todayInTz(timezone))
+    setEndOfWeek(endOfWeekStr(timezone))
+  }, [timezone])
 
   const [showLater, setShowLater] = useState(false)
   const [showCompleted, setShowCompleted] = useState(false)
@@ -146,36 +181,27 @@ export default function BucketedTaskList({
     ? recurringTasks
     : recurringTasks.filter(r => r.assigneeId === filterPersonId || r.assigneeId === null)
 
-  // Routines completed today move to the Completed section; exclude from active buckets
-  const completedRoutines = filteredRoutines.filter(
-    r => r.lastCompleted && utcDateStr(r.lastCompleted) === today
-  )
-  const activeRoutines = filteredRoutines.filter(
-    r => !(r.lastCompleted && utcDateStr(r.lastCompleted) === today)
-  )
-
   // ── Bucketing ────────────────────────────────────────────────────────────────
 
   const openTasks = filteredTasks.filter(t => !t.completed)
   const completedTasks = filteredTasks.filter(t => t.completed)
 
   const buckets = useMemo(() => {
-    const today_ = today
     const b: Record<"today" | "thisWeek" | "later", WrappedItem[]> = {
       today: [], thisWeek: [], later: [],
     }
     for (const task of openTasks) {
-      b[bucketForTask(task.dueDate, task.priority, today_)].push({ kind: "task", task })
+      b[bucketForTask(task.dueDate, task.priority, today, endOfWeek)].push({ kind: "task", task })
     }
-    for (const r of activeRoutines) {
-      b[bucketForRoutine(r.nextDue, today_)].push({ kind: "routine", routine: r })
+    for (const r of filteredRoutines) {
+      b[bucketForRoutine(r.nextDue, today, endOfWeek)].push({ kind: "routine", routine: r })
     }
-    b.today.sort((a, b) => itemSortKey(a) - itemSortKey(b))
-    b.thisWeek.sort((a, b) => itemSortKey(a) - itemSortKey(b))
-    b.later.sort((a, b) => itemSortKey(a) - itemSortKey(b))
+    b.today.sort(itemCompare)
+    b.thisWeek.sort(itemCompare)
+    b.later.sort(itemCompare)
     return b
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, activeRoutines, today])
+  }, [tasks, filteredRoutines, today, endOfWeek])
 
   const openItemCount = buckets.today.length + buckets.thisWeek.length + buckets.later.length
   const isBoardClear = openItemCount === 0 && completedTasks.length > 0
@@ -404,7 +430,7 @@ export default function BucketedTaskList({
       )}
 
       {/* All-empty state (no tasks or routines at all) */}
-      {!isKid && openItemCount === 0 && completedTasks.length === 0 && completedRoutines.length === 0 && (
+      {!isKid && openItemCount === 0 && completedTasks.length === 0 && (
         !isAdmin ? (
           <div className="py-10 text-center">
             <span className="block font-serif text-4xl text-text-faint mb-3" aria-hidden="true">✦</span>
@@ -512,7 +538,7 @@ export default function BucketedTaskList({
       )}
 
       {/* ── Completed section ─────────────────────────────────────────────────── */}
-      {(completedTasks.length > 0 || completedRoutines.length > 0) && (
+      {completedTasks.length > 0 && (
         <div className="mt-8 border-t border-border-card pt-5">
           <button
             onClick={() => {
@@ -527,28 +553,21 @@ export default function BucketedTaskList({
             aria-label={
               showCompleted
                 ? `Hide completed items`
-                : `Show ${completedTasks.length + completedRoutines.length} completed items`
+                : `Show ${completedTasks.length} completed items`
             }
             className="min-h-[44px] inline-flex items-center text-sm text-text-secondary hover:text-foreground rounded-md px-1"
             style={completedPulse ? { animation: "warm-pulse 600ms ease-out" } : undefined}
           >
             <span className="inline-flex items-center gap-1">
               {showCompleted ? <IconChevronDown size={14} aria-hidden="true" /> : <IconChevronRight size={14} aria-hidden="true" />}
-              {completedTasks.length + completedRoutines.length}{" "}
-              {completedTasks.length + completedRoutines.length === 1 ? "thing" : "things"} done. Nice work.
+              {completedTasks.length}{" "}
+              {completedTasks.length === 1 ? "thing" : "things"} done. Nice work.
             </span>
           </button>
           {showCompleted && (
             <ul className="mt-2 space-y-1">
               {completedTasks.map(task => (
                 <TaskItem key={`t-${task.id}`} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} filterPersonId={filterPersonId} />
-              ))}
-              {completedRoutines.map(r => (
-                <li key={`r-${r.id}`} className="flex items-center gap-2 py-1.5 px-0 opacity-60">
-                  <IconRepeat size={12} className="text-text-faint shrink-0" aria-hidden="true" />
-                  <span className="text-sm text-text-muted line-through">{r.title}</span>
-                  <span className="text-xs text-text-faint">{describeCadence(r.intervalValue, r.intervalUnit)}</span>
-                </li>
               ))}
             </ul>
           )}

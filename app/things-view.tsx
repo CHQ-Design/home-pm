@@ -13,10 +13,11 @@ type Props = {
   sessionPersonId: number | null
   isKid: boolean
   soundEnabled: boolean
+  timezone: string
 }
 
 export default function ThingsView({
-  tasks, recurringTasks, people, projects, isAdmin, sessionPersonId, isKid, soundEnabled,
+  tasks, recurringTasks, people, projects, isAdmin, sessionPersonId, isKid, soundEnabled, timezone,
 }: Props) {
   return (
     <BucketedTaskList
@@ -28,6 +29,7 @@ export default function ThingsView({
       sessionPersonId={sessionPersonId}
       isKid={isKid}
       soundEnabled={soundEnabled}
+      timezone={timezone}
     />
   )
 }

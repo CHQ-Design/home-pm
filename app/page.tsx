@@ -50,7 +50,7 @@ export default async function Home() {
         ) : (
           <PageMast title="Things" />
         )}
-        <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} />
+        <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} timezone={sessionUser.timezone} />
       </main>
       {showAddForm && (
         <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] sm:bottom-0 left-0 right-0 z-30 bg-surface-warm border-t border-border shadow-input-tray">
