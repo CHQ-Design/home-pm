@@ -119,7 +119,7 @@ export default function HouseholdCard({
               className={`flex-1 min-w-0 ${inputClass}`}
             />
             <div className="relative shrink-0 w-28">
-              <select name="role" defaultValue="member" className={selectClass}>
+              <select name="role" defaultValue="member" aria-label="Member role" className={selectClass}>
                 <option value="member">Member</option>
                 <option value="admin">Admin</option>
               </select>

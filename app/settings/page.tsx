@@ -42,8 +42,7 @@ export default async function SettingsPage() {
     <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast title="Settings" />
       <SoundSettingToggle initialEnabled={household?.soundEnabled ?? true} />
-      {/* TODO: add timezone selector per user — User.timezone exists, needs UI + action (github.com/CHQ-Design/home-pm/issues/1) */}
-      <UserManager users={users} currentEmail={currentEmail} />
+<UserManager users={users} currentEmail={currentEmail} />
       <PeopleManager people={people} />
       <div className="mt-10 pt-6 border-t border-border flex items-center gap-4">
         <Link href="/about" className="text-sm text-text-secondary hover:text-foreground">

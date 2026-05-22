@@ -45,6 +45,7 @@
   --color-rose-soft-text:  #6B3A52;
   --color-clay:            #EDE0D0;
   --color-clay-text:       #6B4C2A;
+  --color-overlay-scrim:   rgba(44, 35, 22, 0.45);
 }
 
 html {

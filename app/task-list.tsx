@@ -80,6 +80,8 @@ function Section({
   )
 }
 
+// Fixed celebration palette — intentionally not tied to theme tokens so the burst
+// always reads as warm/festive regardless of surface color underneath.
 const DRIFT_COLORS = ["#C8A882", "#91B89A", "#C8899A", "#8891B8", "#B0A87A", "#C8922A", "#D4C9B5"]
 
 const KID_BURST_ANGLES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]

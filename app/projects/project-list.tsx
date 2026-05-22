@@ -55,8 +55,8 @@ function ProjectCard({ project }: { project: Project }) {
             </div>
             <div className="h-1.5 rounded-full bg-border-subtle overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${(done / total) * 100}%`, backgroundColor: isComplete ? "var(--color-warm)" : "var(--color-accent)" }}
+                className={`h-full rounded-full transition-all ${isComplete ? "bg-warm" : "bg-accent"}`}
+                style={{ width: `${(done / total) * 100}%` }}
               />
             </div>
           </div>

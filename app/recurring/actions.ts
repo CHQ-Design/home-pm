@@ -101,8 +101,8 @@ export async function completeRecurringTask(id: number) {
   const now = new Date()
   const nextDue = computeNextDue(task.nextDue, task.intervalValue, task.intervalUnit as Unit)
 
-  await prisma.recurringTask.update({
-    where: { id },
+  await prisma.recurringTask.updateMany({
+    where: { id, householdId: task.householdId },
     data: { lastCompleted: now, nextDue, notifiedAt: null },
   })
   revalidatePath("/", "layout")

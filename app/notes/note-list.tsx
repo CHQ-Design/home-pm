@@ -66,7 +66,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
             className={`text-xs px-3 py-1.5 rounded-full transition-colors border font-medium ${
               activeTag === null
                 ? "bg-accent text-white border-accent"
-                : "bg-surface text-text-hover border-border-chip hover:bg-[#E4DBD0]"
+                : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover"
             }`}
           >
             All
@@ -79,7 +79,7 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
               className={`text-xs px-3 py-1.5 rounded-full transition-colors border font-medium ${
                 activeTag === tag
                   ? "bg-accent text-white border-accent"
-                  : "bg-surface text-text-hover border-border-chip hover:bg-[#E4DBD0]"
+                  : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover"
               }`}
             >
               {tag}

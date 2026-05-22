@@ -103,7 +103,7 @@ export default function TaskEditModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overflow-x-hidden p-4 sm:items-center"
-      style={{ backgroundColor: "rgba(44,35,22,0.45)" }}
+      style={{ backgroundColor: "var(--color-overlay-scrim)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div

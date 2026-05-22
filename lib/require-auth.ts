@@ -6,10 +6,12 @@ async function getDbUser() {
   const session = await getServerSession(authOptions)
   const email = session?.user?.email?.toLowerCase()
   if (!email) return null
-  return prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { email },
     select: { role: true, householdId: true },
   })
+  if (!user) return null
+  return { ...user, email }
 }
 
 export async function getSessionUser(): Promise<{ role: Role; householdId: number } | null> {
@@ -36,13 +38,10 @@ export async function getSessionHouseholdId(): Promise<number | null> {
 }
 
 export async function getSessionPersonId(): Promise<number | null> {
-  const session = await getServerSession(authOptions)
-  const email = session?.user?.email?.toLowerCase()
-  if (!email) return null
-  const user = await prisma.user.findUnique({ where: { email }, select: { householdId: true } })
+  const user = await getDbUser()
   if (!user) return null
   const person = await prisma.person.findFirst({
-    where: { email, householdId: user.householdId },
+    where: { email: user.email, householdId: user.householdId },
     select: { id: true },
   })
   return person?.id ?? null
