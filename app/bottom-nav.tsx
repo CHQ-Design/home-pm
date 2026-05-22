@@ -29,12 +29,13 @@ export default function BottomNav() {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
-              active ? "bg-accent/10 text-accent-hover font-semibold" : "font-medium text-text-secondary hover:text-foreground"
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[56px] text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B07A3C] focus-visible:ring-inset ${
+              active ? "text-foreground font-semibold" : "font-medium text-text-hover hover:text-foreground"
             }`}
           >
             <Icon size={22} aria-hidden="true" />
             <span>{label}</span>
+            <span aria-hidden="true" className={`w-1 h-1 rounded-full ${active ? "bg-accent" : "invisible"}`} />
           </Link>
         ))}
       </div>

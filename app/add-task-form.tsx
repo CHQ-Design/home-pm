@@ -237,7 +237,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
 
   if (sticky) {
     return (
-      <form ref={formRef} onSubmit={handleSubmit}>
+      <form ref={formRef} onSubmit={handleSubmit} className="add-task-surface">
         {projectId && <input type="hidden" name="projectId" value={projectId} />}
 
         {showMore && createPortal(
@@ -308,13 +308,14 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
             </div>
           )}
           {showMore && <div className="flex-1" />}
+          {!showMore && <div aria-hidden="true" className="w-px self-stretch my-2 bg-border-subtle shrink-0" />}
           <button
             type="button"
             onClick={showMore ? closePanel : toggleShowMore}
             aria-expanded={showMore}
             aria-controls="add-task-more-options"
-            aria-label={showMore ? "Close options" : "More options"}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-text-secondary hover:text-foreground shrink-0"
+            aria-label={showMore ? "Close task options" : "More task options"}
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-text-secondary hover:text-foreground hover:bg-surface-hover rounded-lg shrink-0"
           >
             {showMore
               ? <IconChevronDown size={16} aria-hidden="true" />
@@ -333,7 +334,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="mb-8 space-y-2">
+    <form ref={formRef} onSubmit={handleSubmit} className="mb-8 space-y-2 add-task-surface">
       {projectId && <input type="hidden" name="projectId" value={projectId} />}
       <div className="flex gap-2 relative">
         <div className="relative flex-1 min-w-0">

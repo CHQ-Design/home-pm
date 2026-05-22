@@ -129,6 +129,22 @@ body {
   font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 0;
 }
 
+.add-task-surface input:not([type="hidden"]),
+.add-task-surface textarea,
+.add-task-surface select,
+.add-task-surface button[role="combobox"] {
+  background-color: var(--background);
+  border-color: var(--color-border-subtle);
+}
+.add-task-surface input:not([type="hidden"]):focus,
+.add-task-surface textarea:focus,
+.add-task-surface select:focus,
+.add-task-surface button[role="combobox"]:focus {
+  border-color: #B07A3C;
+  box-shadow: 0 0 0 2px rgba(176, 122, 60, 0.2);
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
