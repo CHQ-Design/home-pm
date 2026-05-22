@@ -92,6 +92,7 @@ function KidAllDone({ name, personColor, soundEnabled }: { name: string; personC
   }, [soundEnabled])
   return (
     <div className="py-10 text-center relative overflow-hidden">
+      <span className="sr-only" aria-live="polite">All done!</span>
       <div className="relative inline-block mb-4">
         <span className="text-6xl" aria-hidden="true">🎉</span>
         {KID_BURST_ANGLES.map(angle => (
@@ -252,7 +253,7 @@ export default function TaskList({
           </p>
           {doneToday > 0 && (
             <p className="font-serif text-sm mt-0.5 text-accent-hover">
-              {doneToday} {doneToday === 1 ? "thing" : "things"} handled today.
+              {doneToday} {doneToday === 1 ? "thing" : "things"} done today. Nice work, {activePerson.name}.
             </p>
           )}
         </div>
@@ -289,8 +290,7 @@ export default function TaskList({
         !isAdmin ? (
           <div className="py-10 text-center">
             <span className="block font-serif text-4xl text-text-faint mb-3" aria-hidden="true">✦</span>
-            <p className="font-serif text-lg text-text-muted">You're all clear.</p>
-            <p className="text-sm text-text-secondary mt-1">Nothing on your list right now.</p>
+            <p className="font-serif text-lg text-text-muted">You're all clear. Nice work.</p>
           </div>
         ) : filterPersonId !== null ? (
           <div className="py-8 text-center">
@@ -347,7 +347,11 @@ export default function TaskList({
             ✦
           </span>
           <p className={`font-serif text-text-muted transition-all duration-500 ${showCelebration ? "text-3xl" : "text-xl"}`} suppressHydrationWarning>
-            {(["The board's clear.", "Everything's handled.", "Nothing left on the board."])[new Date().getDay() % 3]}
+            {([
+              "The board's clear.",
+              "Everything's handled.",
+              `All done! ${groups.completed.length} ${groups.completed.length === 1 ? "thing" : "things"} handled. The day is yours.`,
+            ])[new Date().getDay() % 3]}
           </p>
         </div>
       )}

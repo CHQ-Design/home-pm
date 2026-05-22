@@ -319,7 +319,7 @@ export default function RecurringTaskItem({
             disabled={pending || success}
             className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 ml-3"
           >
-            {pending ? "…" : success ? "✓" : "Done"}
+            {pending ? "…" : success ? (daysDiff(task.nextDue, today) < 0 ? "Done. That one's been waiting." : "Done.") : "Done"}
           </button>
         )}
       </div>
