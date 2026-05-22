@@ -115,7 +115,7 @@ export default function CustomSelect({ value, onChange, options, name, placehold
       <button
         ref={triggerRef}
         type="button"
-        data-trigger
+        data-control="trigger"
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}

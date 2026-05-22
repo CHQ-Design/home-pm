@@ -142,6 +142,7 @@ export default function DatePicker({ value, onChange }: Props) {
       */}
       <button
         type="button"
+        data-control="trigger"
         onClick={openCalendar}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCalendar() } }}
         className="w-full text-sm text-left bg-surface-warm border border-border-card rounded-md px-3 py-2 text-foreground outline-none focus-visible:border-accent cursor-pointer"
