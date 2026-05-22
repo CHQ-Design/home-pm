@@ -7,7 +7,6 @@ import { completeRecurringTask, snoozeRoutine, skipRoutine, moveRoutineToTodayAc
 import type { ActionSnapshot } from "./actions"
 import type { RoutineVerb } from "../routine-action-sheet"
 import RoutineActionSheet from "../routine-action-sheet"
-import UndoToast from "../undo-toast"
 import { todayUTC, todayLocal, daysDiff, formatTime, formatDate, formatToastDate } from "@/lib/dates"
 import { inputClass } from "@/lib/styles"
 import DatePicker from "../date-picker"
@@ -72,6 +71,7 @@ export default function RecurringTaskItem({
   sessionPersonId,
   onEditStart,
   onEditEnd,
+  onShowToast,
 }: {
   task: RecurringTask
   people: Person[]
@@ -80,6 +80,7 @@ export default function RecurringTaskItem({
   sessionPersonId: number | null
   onEditStart?: () => void
   onEditEnd?: () => void
+  onShowToast: (message: string, undoFn: () => Promise<void>) => void
 }) {
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
@@ -94,7 +95,6 @@ export default function RecurringTaskItem({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
   const [flash, setFlash] = useState<RoutineVerb | null>(null)
-  const [toast, setToast] = useState<{ message: string; snapshot: ActionSnapshot } | null>(null)
   const dotsRef = useRef<HTMLButtonElement>(null)
 
   const [form, setForm] = useState({
@@ -131,14 +131,7 @@ export default function RecurringTaskItem({
     setFlash(verb)
     setTimeout(() => setFlash(null), 200)
 
-    setToast({ message: toastMessage(verb, result.nextDue), snapshot: result.snapshot })
-  }
-
-  async function handleUndo() {
-    if (!toast) return
-    const { snapshot } = toast
-    setToast(null)
-    await undoRoutineAction(task.id, snapshot)
+    onShowToast(toastMessage(verb, result.nextDue), () => undoRoutineAction(task.id, result.snapshot))
   }
 
   async function handleSave() {
@@ -385,13 +378,6 @@ export default function RecurringTaskItem({
         />
       )}
 
-      {toast && (
-        <UndoToast
-          message={toast.message}
-          onUndo={handleUndo}
-          onDismiss={() => setToast(null)}
-        />
-      )}
     </>
   )
 }

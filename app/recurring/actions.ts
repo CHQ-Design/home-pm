@@ -4,89 +4,13 @@ import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { parseReminder, parseId, parseTime, parseDate, TIME_RE } from "@/lib/parse"
 import { revalidatePath } from "next/cache"
-
-const VALID_UNITS = ["day", "week", "month", "year", "weekday"] as const
-type Unit = typeof VALID_UNITS[number]
+import { VALID_UNITS, type Unit, computeNextDue, computeEffectiveStreak } from "@/lib/recurrence"
 
 export type ActionSnapshot = {
   prevNextDue: string
   prevStreak: number
   prevLastActionAt: string | null
   prevLastCompleted: string | null
-}
-
-function computeNextDue(from: Date, value: number, unit: Unit): Date {
-  const d = new Date(from)
-  switch (unit) {
-    case "day":  d.setDate(d.getDate() + value); break
-    case "week": d.setDate(d.getDate() + value * 7); break
-    case "month": {
-      const day = d.getDate()
-      d.setDate(1)
-      d.setMonth(d.getMonth() + value)
-      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
-      break
-    }
-    case "year": {
-      const day = d.getDate()
-      d.setDate(1)
-      d.setFullYear(d.getFullYear() + value)
-      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
-      break
-    }
-    case "weekday":
-      for (let i = 0; i < value; i++) {
-        d.setDate(d.getDate() + 1)
-        if (d.getDay() === 6) d.setDate(d.getDate() + 2) // Sat → Mon
-        if (d.getDay() === 0) d.setDate(d.getDate() + 1) // Sun → Mon
-      }
-      break
-  }
-  return d
-}
-
-function computePrevDue(from: Date, value: number, unit: Unit): Date {
-  const d = new Date(from)
-  switch (unit) {
-    case "day":  d.setDate(d.getDate() - value); break
-    case "week": d.setDate(d.getDate() - value * 7); break
-    case "month": {
-      const day = d.getDate()
-      d.setDate(1)
-      d.setMonth(d.getMonth() - value)
-      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
-      break
-    }
-    case "year": {
-      const day = d.getDate()
-      d.setDate(1)
-      d.setFullYear(d.getFullYear() - value)
-      d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
-      break
-    }
-    case "weekday":
-      for (let i = 0; i < value; i++) {
-        d.setDate(d.getDate() - 1)
-        while (d.getDay() === 6 || d.getDay() === 0) d.setDate(d.getDate() - 1)
-      }
-      break
-  }
-  return d
-}
-
-// Lazy streak reset: if the current cycle elapsed with no user action, streak is effectively 0.
-function computeEffectiveStreak(task: {
-  streak: number
-  nextDue: Date
-  lastActionAt: Date | null
-  intervalValue: number
-  intervalUnit: string
-}): number {
-  if (task.streak <= 0) return 0
-  if (task.nextDue > new Date()) return task.streak
-  const prevCycleStart = computePrevDue(task.nextDue, task.intervalValue, task.intervalUnit as Unit)
-  if (task.lastActionAt === null || task.lastActionAt < prevCycleStart) return 0
-  return task.streak
 }
 
 export async function addRecurringTask(formData: FormData) {

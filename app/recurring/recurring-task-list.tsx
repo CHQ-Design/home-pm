@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import type { Prisma, Person, Project } from "@prisma/client"
 import RecurringTaskItem from "./recurring-task-item"
+import UndoToast from "../undo-toast"
 import { todayUTC, todayLocal, utcDateStr } from "@/lib/dates"
 
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true; project: true } }>
@@ -23,6 +24,7 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
   const [today, setToday] = useState(todayUTC)
   useEffect(() => { setToday(todayLocal()) }, [])
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [toast, setToast] = useState<{ message: string; undoFn: () => Promise<void> } | null>(null)
 
   const in7Days = addDays(today, 7)
 
@@ -32,6 +34,17 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
 
   if (tasks.length === 0) {
     return <p className="text-sm text-text-muted">No routines yet. Add one above.</p>
+  }
+
+  function handleShowToast(message: string, undoFn: () => Promise<void>) {
+    setToast({ message, undoFn })
+  }
+
+  async function handleUndo() {
+    if (!toast) return
+    const { undoFn } = toast
+    setToast(null)
+    await undoFn()
   }
 
   function item(t: RecurringTask) {
@@ -46,6 +59,7 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
           sessionPersonId={sessionPersonId}
           onEditStart={() => setEditingId(t.id)}
           onEditEnd={() => setEditingId(null)}
+          onShowToast={handleShowToast}
         />
       </div>
     )
@@ -72,6 +86,14 @@ export default function RecurringTaskList({ tasks, people, projects, isAdmin, se
           <h2 className="text-xs font-medium text-text-secondary mb-2">Upcoming</h2>
           <div className="space-y-2">{upcoming.map(item)}</div>
         </section>
+      )}
+
+      {toast && (
+        <UndoToast
+          message={toast.message}
+          onUndo={handleUndo}
+          onDismiss={() => setToast(null)}
+        />
       )}
     </>
   )
