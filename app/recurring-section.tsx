@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import type { Prisma } from "@prisma/client"
-import { IconRepeat } from "@tabler/icons-react"
+import { IconCheck, IconRepeat } from "@tabler/icons-react"
 import { completeRecurringTask } from "./recurring/actions"
 import { todayUTC, todayLocal, daysDiff, formatTime } from "@/lib/dates"
 
@@ -27,24 +27,34 @@ function dueDateClass(nextDue: Date | string, today: string): string {
 function DoneButton({ taskId, taskTitle }: { taskId: number; taskTitle: string }) {
   const [pending, setPending] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [announcement, setAnnouncement] = useState("")
 
   async function handleClick() {
     setPending(true)
     await completeRecurringTask(taskId)
     setPending(false)
     setSuccess(true)
+    setAnnouncement(`Done — ${taskTitle}`)
     setTimeout(() => setSuccess(false), 800)
+    setTimeout(() => setAnnouncement(""), 1500)
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={pending || success}
-      aria-label={`Mark ${taskTitle} as done`}
-      className="min-h-[44px] px-4 text-sm flex items-center bg-accent text-white font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 shrink-0"
-    >
-      {pending ? "…" : success ? "✓" : "Done"}
-    </button>
+    <>
+      <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
+      <button
+        onClick={handleClick}
+        disabled={pending || success}
+        aria-label={`Mark ${taskTitle} as done`}
+        className="min-h-[44px] px-3 text-sm inline-flex items-center gap-1.5 text-accent-hover hover:text-foreground hover:bg-surface-warm rounded-md disabled:opacity-50 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+      >
+        {pending ? "…" : success ? (
+          <><IconCheck size={14} aria-hidden="true" />Done</>
+        ) : (
+          <><IconCheck size={14} aria-hidden="true" />Mark done</>
+        )}
+      </button>
+    </>
   )
 }
 
@@ -75,7 +85,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
           </Link>
         )}
       </div>
-      <ul className="space-y-1.5">
+      <ul className="rounded-xl border border-border-subtle divide-y divide-border-subtle overflow-hidden">
         {visibleTasks.map(task => {
           const metaParts = [
             task.time && !isKid ? formatTime(task.time) : null,
@@ -85,7 +95,7 @@ export default function RecurringSection({ tasks, isAdmin, sessionPersonId, isKi
           return (
             <li
               key={task.id}
-              className="flex items-center gap-3 py-2 px-3 bg-surface-warm rounded-lg border border-border-subtle"
+              className="flex items-center gap-3 py-2.5 px-3"
             >
               <div className="flex-1 min-w-0">
                 <span className={`${isKid ? "text-xl" : "text-sm"} text-foreground`}>{task.title}</span>
