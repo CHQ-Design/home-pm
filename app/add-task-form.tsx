@@ -245,7 +245,6 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
                 ref={panelTitleRef}
                 name="title"
                 aria-label="Task title"
-                aria-placeholder="Add a thing…"
                 aria-invalid={titleError ? true : undefined}
                 aria-describedby={submitError ? "add-task-error" : undefined}
                 value={titleValue}
@@ -280,7 +279,6 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
               <input
                 name="title"
                 aria-label="Task title"
-                aria-placeholder="Add a thing…"
                 aria-invalid={titleError ? true : undefined}
                 aria-describedby={submitError ? "add-task-error" : undefined}
                 value={titleValue}
@@ -335,7 +333,6 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           <input
             name="title"
             aria-label="Task title"
-            placeholder="Add a thing…"
             aria-invalid={titleError ? true : undefined}
             aria-describedby={submitError ? "add-task-error" : undefined}
             value={titleValue}
