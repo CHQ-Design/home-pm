@@ -4,6 +4,13 @@ import { prisma } from "@/lib/prisma"
 import { requireAssignedOrAdmin, getSessionUser, getSessionPersonId, verifyBelongsToHousehold } from "@/lib/require-auth"
 import { revalidatePath } from "next/cache"
 import { parseReminder, parseId, parseTime, parseDate, TIME_RE, EMAIL_RE } from "@/lib/parse"
+import { TaskCategory } from "@prisma/client"
+
+const VALID_CATEGORIES = new Set(Object.values(TaskCategory))
+function parseCategory(raw: unknown): TaskCategory | null {
+  if (typeof raw !== "string" || !VALID_CATEGORIES.has(raw as TaskCategory)) return null
+  return raw as TaskCategory
+}
 
 function localYmd(date: Date, tz: string): string {
   return new Intl.DateTimeFormat("sv", {
@@ -54,6 +61,7 @@ export async function addTask(formData: FormData) {
       dueDate,
       time: parseTime(formData.get("time") as string | null),
       priority,
+      category: parseCategory(formData.get("category")),
       assigneeId,
       projectId,
       reminderMinutesBefore,
@@ -123,6 +131,7 @@ export async function updateTask(
     dueDate?: Date | null
     time?: string | null
     priority?: Priority
+    category?: TaskCategory | null
     assigneeId?: number | null
     projectId?: number | null
     reminderMinutesBefore?: number | null
@@ -135,8 +144,8 @@ export async function updateTask(
   // Build update from only whitelisted fields — never spread client data into Prisma
   const update: {
     title?: string; notes?: string | null; dueDate?: Date | null; time?: string | null
-    priority?: string; assigneeId?: number | null; projectId?: number | null
-    reminderMinutesBefore?: number | null; notifiedAt?: Date | null
+    priority?: string; category?: TaskCategory | null; assigneeId?: number | null
+    projectId?: number | null; reminderMinutesBefore?: number | null; notifiedAt?: Date | null
   } = {}
   if (data.title !== undefined) {
     const t = data.title.trim()
@@ -148,6 +157,7 @@ export async function updateTask(
   if (data.dueDate !== undefined) update.dueDate = data.dueDate
   if (data.time !== undefined) update.time = (data.time && TIME_RE.test(data.time)) ? data.time : null
   if (data.priority !== undefined) update.priority = parsePriority(data.priority)
+  if (data.category !== undefined) update.category = data.category !== null ? parseCategory(data.category) : null
   if (data.reminderMinutesBefore !== undefined) {
     const r = data.reminderMinutesBefore
     update.reminderMinutesBefore = (r !== null && Number.isInteger(r) && r >= 0) ? r : null

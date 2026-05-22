@@ -7,9 +7,11 @@ import type { Person, Project, Prisma } from "@prisma/client"
 import { IconBell, IconFeather, IconFlame, IconNote, IconPencilMinus } from "@tabler/icons-react"
 import { toggleTask, updateTask } from "./actions"
 import TaskEditModal from "./task-edit-modal"
+import CategoryTag from "./category-tag"
 import { todayLocal, utcDateStr, formatTime, formatShortDate } from "@/lib/dates"
 import { getPersonColor } from "@/lib/person-colors"
 import { playCompletionTone } from "@/lib/sounds"
+import type { CategoryValue } from "@/lib/categories"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type Priority = "high" | "medium" | "low"
@@ -270,7 +272,8 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           const showPriority = isAdmin && task.priority !== "medium"
           const showProject = isAdmin && task.project && task.project.id !== currentProjectId
           const showBell = isAdmin && task.reminderMinutesBefore != null
-          if (isInlineEditing || (!showAssigneeChip && !task.dueDate && !showPriority && !showProject && !showBell)) return null
+          const showCategory = !!task.category && !isKid
+          if (isInlineEditing || (!showAssigneeChip && !task.dueDate && !showPriority && !showProject && !showBell && !showCategory)) return null
           return (
             <div className="flex flex-wrap gap-1.5 pl-11 pb-2">
               {showProject && (
@@ -322,6 +325,9 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                   <IconBell size={12} aria-hidden="true" />
                   <span className="sr-only">Reminder set</span>
                 </span>
+              )}
+              {showCategory && (
+                <CategoryTag value={task.category as CategoryValue} />
               )}
             </div>
           )

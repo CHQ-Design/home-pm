@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic"
 import type { Metadata } from "next"
 export const metadata: Metadata = { title: "Things — Otium" }
 
+import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser, getSessionPersonId } from "@/lib/require-auth"
 import AddTaskForm from "./add-task-form"
@@ -50,7 +51,9 @@ export default async function Home() {
         ) : (
           <PageMast title="Things" />
         )}
-        <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} timezone={sessionUser.timezone} />
+        <Suspense>
+          <ThingsView tasks={tasks} recurringTasks={recurringTasks} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} timezone={sessionUser.timezone} />
+        </Suspense>
       </main>
       {showAddForm && (
         <div className="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] sm:bottom-0 left-0 right-0 z-30 bg-surface-warm border-t border-border shadow-input-tray">

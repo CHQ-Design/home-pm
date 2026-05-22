@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import type { Person, Project, Prisma } from "@prisma/client"
 import { IconChevronDown, IconChevronRight, IconDots, IconFlame, IconRepeat } from "@tabler/icons-react"
 import TaskItem from "./task-item"
@@ -16,6 +17,9 @@ import { bucketForTask, bucketForRoutine } from "@/lib/bucket"
 import { getPersonColor } from "@/lib/person-colors"
 import { playCompletionTone } from "@/lib/sounds"
 import { todayUTC, todayInTz, endOfWeekStr, utcDateStr, formatTime, formatToastDate } from "@/lib/dates"
+import { CATEGORIES, CATEGORY_VALUES, UNCATEGORIZED } from "@/lib/categories"
+import type { CategoryValue } from "@/lib/categories"
+import CategoryTag from "./category-tag"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
@@ -129,8 +133,6 @@ export default function BucketedTaskList({
   isKid,
   soundEnabled = true,
   timezone = "America/Los_Angeles",
-  filterPersonId: filterPersonIdProp,
-  onFilterChange,
 }: {
   tasks: Task[]
   recurringTasks: RecurringTask[]
@@ -141,8 +143,6 @@ export default function BucketedTaskList({
   isKid: boolean
   soundEnabled?: boolean
   timezone?: string
-  filterPersonId?: number | null
-  onFilterChange?: (id: number | null) => void
 }) {
   const [today, setToday] = useState(todayUTC())
   const [endOfWeek, setEndOfWeek] = useState(() => endOfWeekStr(timezone))
@@ -159,9 +159,58 @@ export default function BucketedTaskList({
   const [boardClearAnnouncement, setBoardClearAnnouncement] = useState("")
   const boardClearCelebrated = useRef(false)
 
-  const [localFilterPersonId, setLocalFilterPersonId] = useState<number | null>(isAdmin ? null : sessionPersonId)
-  const filterPersonId = filterPersonIdProp ?? localFilterPersonId
-  const setFilterPersonId = onFilterChange ?? setLocalFilterPersonId
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // URL-param–backed multi-select filters (admin only for persons; category for everyone)
+  const selectedPersonIds = useMemo(
+    () => searchParams.getAll("person").map(Number).filter(n => n > 0),
+    [searchParams]
+  )
+  const selectedCategories = useMemo(
+    () => searchParams.getAll("cat").filter(c => CATEGORY_VALUES.includes(c as CategoryValue) || c === UNCATEGORIZED),
+    [searchParams]
+  )
+
+  function togglePersonFilter(id: number) {
+    const params = new URLSearchParams(searchParams.toString())
+    const next = selectedPersonIds.includes(id)
+      ? selectedPersonIds.filter(x => x !== id)
+      : [...selectedPersonIds, id]
+    params.delete("person")
+    next.forEach(x => params.append("person", String(x)))
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
+
+  function clearPersonFilter() {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("person")
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
+
+  function toggleCategoryFilter(cat: CategoryValue | typeof UNCATEGORIZED) {
+    const params = new URLSearchParams(searchParams.toString())
+    const next = selectedCategories.includes(cat)
+      ? selectedCategories.filter(x => x !== cat)
+      : [...selectedCategories, cat]
+    params.delete("cat")
+    next.forEach(x => params.append("cat", x))
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
+
+  function clearAllFilters() {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("person")
+    params.delete("cat")
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
+
+  const hasActiveFilters = selectedPersonIds.length > 0 || selectedCategories.length > 0
 
   // Routine action state (single open sheet + single toast for all routines)
   const [openSheetRoutine, setOpenSheetRoutine] = useState<RecurringTask | null>(null)
@@ -172,14 +221,31 @@ export default function BucketedTaskList({
 
   // ── Filtering ────────────────────────────────────────────────────────────────
 
-  const filteredTasks = filterPersonId === null
-    ? tasks
-    : tasks.filter(t => t.assigneeId === filterPersonId)
+  const filteredTasks = tasks.filter(task => {
+    // Person filter (admin multi-select; members always see only own tasks)
+    if (!isAdmin) {
+      if (task.assigneeId !== sessionPersonId) return false
+    } else if (selectedPersonIds.length > 0) {
+      if (!selectedPersonIds.includes(task.assigneeId ?? 0)) return false
+    }
+    // Category filter — AND with person filter
+    if (selectedCategories.length > 0) {
+      const taskCat = task.category as CategoryValue | null
+      if (!taskCat) {
+        if (!selectedCategories.includes(UNCATEGORIZED)) return false
+      } else {
+        if (!selectedCategories.includes(taskCat)) return false
+      }
+    }
+    return true
+  })
 
-  // Routines with no assignee are shown to everyone when a person filter is active
-  const filteredRoutines = filterPersonId === null
-    ? recurringTasks
-    : recurringTasks.filter(r => r.assigneeId === filterPersonId || r.assigneeId === null)
+  // Routines: person filter applies; category filter never applies (routines have no category)
+  const filteredRoutines = recurringTasks.filter(r => {
+    if (!isAdmin) return r.assigneeId === sessionPersonId || r.assigneeId === null
+    if (selectedPersonIds.length > 0) return r.assigneeId === null || selectedPersonIds.includes(r.assigneeId)
+    return true
+  })
 
   // ── Bucketing ────────────────────────────────────────────────────────────────
 
@@ -228,8 +294,11 @@ export default function BucketedTaskList({
     return map
   }, [tasks, people, today])
 
-  const activePerson = filterPersonId !== null ? people.find(p => p.id === filterPersonId) : null
-  const activeColors = filterPersonId !== null ? getPersonColor(people, filterPersonId) : null
+  // activePerson meaningful only when exactly one person is selected
+  const activePerson = selectedPersonIds.length === 1
+    ? people.find(p => p.id === selectedPersonIds[0]) ?? null
+    : null
+  const activeColors = activePerson ? getPersonColor(people, activePerson.id) : null
   const doneToday = completedTasks.filter(t =>
     t.completedAt && new Date(t.completedAt).toLocaleDateString("en-CA") === today
   ).length
@@ -287,7 +356,7 @@ export default function BucketedTaskList({
           sessionPersonId={sessionPersonId}
           isKid={isKid}
           soundEnabled={soundEnabled}
-          filterPersonId={filterPersonId}
+          filterPersonId={selectedPersonIds.length === 1 ? selectedPersonIds[0] : null}
         />
       )
     }
@@ -337,15 +406,15 @@ export default function BucketedTaskList({
     <div>
       <span className="sr-only" aria-live="polite" aria-atomic="true">{boardClearAnnouncement}</span>
 
-      {/* Person filter pills — admin only */}
+      {/* Person filter pills — admin only, multi-select */}
       {isAdmin && people.length > 0 && (
-        <div className="flex gap-2 mb-4 flex-wrap">
+        <div className="flex gap-2 mb-3 flex-wrap">
           <button
-            onClick={() => setFilterPersonId(null)}
-            aria-pressed={filterPersonId === null}
+            onClick={clearPersonFilter}
+            aria-pressed={selectedPersonIds.length === 0}
             aria-label="Show everyone's things"
             className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 ${
-              filterPersonId === null
+              selectedPersonIds.length === 0
                 ? "bg-accent text-white font-medium"
                 : "bg-surface text-text-hover border border-border-chip hover:bg-surface-hover hover:text-foreground"
             }`}
@@ -353,15 +422,15 @@ export default function BucketedTaskList({
             Everyone
           </button>
           {people.map(p => {
-            const isActive = filterPersonId === p.id
+            const isActive = selectedPersonIds.includes(p.id)
             const colors = getPersonColor(people, p.id)
             const stats = personStats.get(p.id)
             return (
               <button
                 key={p.id}
-                onClick={() => setFilterPersonId(p.id)}
+                onClick={() => togglePersonFilter(p.id)}
                 aria-pressed={isActive}
-                aria-label={`Show ${p.name}'s things${p.streakCount >= 2 ? ` — ${p.streakCount} day streak` : ""}`}
+                aria-label={`${isActive ? "Remove" : "Add"} ${p.name} filter${p.streakCount >= 2 ? ` — ${p.streakCount} day streak` : ""}`}
                 className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
                 style={isActive
                   ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
@@ -385,6 +454,43 @@ export default function BucketedTaskList({
               </button>
             )
           })}
+        </div>
+      )}
+
+      {/* Category filter chips — all non-kid users */}
+      {!isKid && (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {CATEGORIES.map(cat => {
+            const isActive = selectedCategories.includes(cat.value)
+            return (
+              <button
+                key={cat.value}
+                onClick={() => toggleCategoryFilter(cat.value)}
+                aria-pressed={isActive}
+                aria-label={`${isActive ? "Remove" : "Add"} ${cat.label} filter`}
+                className={`text-xs px-3 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 border ${
+                  isActive
+                    ? "bg-[#6B7A5A] text-[#F4EFE6] border-[#6B7A5A] font-medium"
+                    : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
+                }`}
+              >
+                <cat.Icon size={12} aria-hidden="true" />
+                {cat.label}
+              </button>
+            )
+          })}
+          <button
+            onClick={() => toggleCategoryFilter(UNCATEGORIZED)}
+            aria-pressed={selectedCategories.includes(UNCATEGORIZED)}
+            aria-label={`${selectedCategories.includes(UNCATEGORIZED) ? "Remove" : "Add"} Uncategorized filter`}
+            className={`text-xs px-3 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center border ${
+              selectedCategories.includes(UNCATEGORIZED)
+                ? "bg-[#6B7A5A] text-[#F4EFE6] border-[#6B7A5A] font-medium"
+                : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
+            }`}
+          >
+            Uncategorized
+          </button>
         </div>
       )}
 
@@ -429,8 +535,21 @@ export default function BucketedTaskList({
         />
       )}
 
+      {/* Filter empty state — filters active but no tasks match */}
+      {!isKid && hasActiveFilters && openItemCount === 0 && (
+        <div className="py-10 text-center">
+          <p className="text-sm text-text-muted">No tasks match these filters.</p>
+          <button
+            onClick={clearAllFilters}
+            className="mt-2 text-sm text-accent hover:text-accent-hover underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 rounded"
+          >
+            Clear filters
+          </button>
+        </div>
+      )}
+
       {/* All-empty state (no tasks or routines at all) */}
-      {!isKid && openItemCount === 0 && completedTasks.length === 0 && (
+      {!isKid && !hasActiveFilters && openItemCount === 0 && completedTasks.length === 0 && (
         !isAdmin ? (
           <div className="py-10 text-center">
             <span className="block font-serif text-4xl text-text-faint mb-3" aria-hidden="true">✦</span>
@@ -571,7 +690,7 @@ export default function BucketedTaskList({
           {showCompleted && (
             <ul className="mt-2 space-y-1">
               {completedTasks.map(task => (
-                <TaskItem key={`t-${task.id}`} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} filterPersonId={filterPersonId} />
+                <TaskItem key={`t-${task.id}`} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} soundEnabled={soundEnabled} filterPersonId={selectedPersonIds.length === 1 ? selectedPersonIds[0] : null} />
               ))}
             </ul>
           )}

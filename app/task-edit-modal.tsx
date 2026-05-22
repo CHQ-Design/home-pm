@@ -6,7 +6,11 @@ import { updateTask, deleteTask } from "./actions"
 import DatePicker from "./date-picker"
 import TimePicker from "./time-picker"
 import CustomSelect from "./custom-select"
+import CategorySheet from "./category-sheet"
+import CategoryTag from "./category-tag"
 import { inputClass } from "@/lib/styles"
+import type { CategoryValue } from "@/lib/categories"
+import { IconChevronRight } from "@tabler/icons-react"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 
@@ -33,6 +37,8 @@ export default function TaskEditModal({
     projectId: task.projectId ? String(task.projectId) : "",
     reminderMinutesBefore: task.reminderMinutesBefore != null ? String(task.reminderMinutesBefore) : "",
   })
+  const [category, setCategory] = useState<CategoryValue | null>((task.category as CategoryValue | null) ?? null)
+  const [showCategorySheet, setShowCategorySheet] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -84,6 +90,7 @@ export default function TaskEditModal({
         dueDate: form.dueDate ? new Date(form.dueDate) : null,
         time: form.time || null,
         priority: form.priority as "high" | "medium" | "low",
+        category,
         assigneeId: form.assigneeId ? Number(form.assigneeId) : null,
         projectId: form.projectId ? Number(form.projectId) : null,
         reminderMinutesBefore: form.reminderMinutesBefore !== "" ? Number(form.reminderMinutesBefore) : null,
@@ -106,6 +113,13 @@ export default function TaskEditModal({
       style={{ backgroundColor: "var(--color-overlay-scrim)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
+      {showCategorySheet && (
+        <CategorySheet
+          value={category}
+          onSelect={setCategory}
+          onClose={() => setShowCategorySheet(false)}
+        />
+      )}
       <div
         ref={modalRef}
         role="dialog"
@@ -188,6 +202,20 @@ export default function TaskEditModal({
               />
             </div>
           )}
+
+          <div>
+            <label className={labelClass}>Category</label>
+            <button
+              type="button"
+              onClick={() => setShowCategorySheet(true)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border-subtle bg-surface text-sm text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+            >
+              {category
+                ? <CategoryTag value={category} size="md" />
+                : <span className="text-text-muted">None</span>}
+              <IconChevronRight size={14} className="text-text-faint shrink-0" aria-hidden="true" />
+            </button>
+          </div>
 
           {form.dueDate && form.assigneeId && (
             <div className="col-span-2 sm:col-span-3">

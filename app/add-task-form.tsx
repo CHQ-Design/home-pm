@@ -9,6 +9,10 @@ import { inputClass } from "@/lib/styles"
 import DatePicker from "./date-picker"
 import TimePicker from "./time-picker"
 import CustomSelect from "./custom-select"
+import CategorySheet from "./category-sheet"
+import CategoryTag from "./category-tag"
+import { getCategoryMeta } from "@/lib/categories"
+import type { CategoryValue } from "@/lib/categories"
 
 type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdmin: boolean; sticky?: boolean; householdId?: number; sessionPersonId?: number | null }
 
@@ -54,6 +58,8 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
   const [selectedProjectId, setSelectedProjectId] = useState("")
   const [notes, setNotes] = useState("")
   const [reminderMinutesBefore, setReminderMinutesBefore] = useState("")
+  const [category, setCategory] = useState<CategoryValue | null>(null)
+  const [showCategorySheet, setShowCategorySheet] = useState(false)
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [placeholderVisible, setPlaceholderVisible] = useState(true)
   const [focused, setFocused] = useState(false)
@@ -141,6 +147,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
     setTime("")
     setSelectedProjectId("")
     setReminderMinutesBefore("")
+    setCategory(null)
     setSubmitting(false)
     if (sticky) closePanel()
   }
@@ -223,6 +230,19 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
           </div>
         )}
       </div>
+      {/* Category */}
+      <input type="hidden" name="category" value={category ?? ""} />
+      <button
+        type="button"
+        onClick={() => setShowCategorySheet(true)}
+        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border-subtle bg-surface text-sm text-left hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+      >
+        {category
+          ? <CategoryTag value={category} size="md" />
+          : <span className="text-text-muted">Category</span>}
+        <IconChevronRight size={14} className="text-text-faint shrink-0" aria-hidden="true" />
+      </button>
+
       {!sticky && (
         <button
           type="submit"
@@ -231,6 +251,13 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         >
           {submitting ? "Adding…" : "Add"}
         </button>
+      )}
+      {showCategorySheet && (
+        <CategorySheet
+          value={category}
+          onSelect={setCategory}
+          onClose={() => setShowCategorySheet(false)}
+        />
       )}
     </div>
   )
