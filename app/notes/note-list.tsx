@@ -43,7 +43,8 @@ export default function NoteList({ notes, projects }: { notes: Note[]; projects:
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search notes…"
-          className="w-full bg-surface-warm border border-border-card rounded-md px-3 py-2 text-sm text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
+          aria-label="Search notes"
+          className="w-full bg-surface-warm border border-border-card rounded-md px-3 py-2 text-base text-foreground placeholder-text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
         />
         {search && (
           <button

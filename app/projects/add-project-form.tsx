@@ -7,6 +7,7 @@ import { inputClass } from "@/lib/styles"
 export default function AddProjectForm() {
   const [showDesc, setShowDesc] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -15,7 +16,13 @@ export default function AddProjectForm() {
     const name = (formData.get("name") as string).trim()
     if (!name) return
     setSubmitting(true)
-    await addProject(formData)
+    setSubmitError(null)
+    const result = await addProject(formData)
+    if (result && "error" in result) {
+      setSubmitError(result.error)
+      setSubmitting(false)
+      return
+    }
     formRef.current?.reset()
     setShowDesc(false)
     setSubmitting(false)
@@ -38,6 +45,8 @@ export default function AddProjectForm() {
           {submitting ? "Adding…" : "Add"}
         </button>
       </div>
+
+      {submitError && <p className="text-sm text-danger">{submitError}</p>}
 
       <button
         type="button"

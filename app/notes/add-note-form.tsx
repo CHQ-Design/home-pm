@@ -22,6 +22,7 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
   const [projectId, setProjectId] = useState("")
   const [uploading, setUploading] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<UploadedFile[]>([])
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -45,8 +46,13 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setSubmitError(null)
     const formData = new FormData(e.currentTarget)
-    await addNote(formData, pendingFiles)
+    const result = await addNote(formData, pendingFiles)
+    if (result && "error" in result) {
+      setSubmitError(result.error)
+      return
+    }
     formRef.current?.reset()
     setPendingFiles([])
     setShowBody(false)
@@ -110,6 +116,8 @@ export default function AddNoteForm({ projects }: { projects: Project[] }) {
           ))}
         </ul>
       )}
+
+      {submitError && <p className="text-sm text-danger">{submitError}</p>}
 
       <div className="flex items-center justify-between">
         <div className="flex gap-3">

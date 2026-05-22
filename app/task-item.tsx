@@ -49,6 +49,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
   const [showParticles, setShowParticles] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
   const [announcement, setAnnouncement] = useState("")
+  const [actionError, setActionError] = useState("")
   const prevCompleted = useRef(task.completed)
   const openTriggerRef = useRef<HTMLButtonElement | null>(null)
   const editTriggerRef = useRef<HTMLButtonElement | null>(null)
@@ -73,10 +74,17 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
   }
 
   async function saveInline() {
-    setIsInlineEditing(false)
     const trimmed = inlineTitle.trim()
-    if (trimmed && trimmed !== task.title) {
+    if (!trimmed || trimmed === task.title) {
+      setIsInlineEditing(false)
+      return
+    }
+    try {
       await updateTask(task.id, { title: trimmed })
+      setIsInlineEditing(false)
+    } catch {
+      setActionError("Couldn't save — try again")
+      setTimeout(() => setActionError(""), 3000)
     }
   }
 
@@ -104,7 +112,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             <input
               type="checkbox"
               checked={task.completed}
-              onChange={() => {
+              onChange={async () => {
                 if (!canToggle) return
                 if (!task.completed) {
                   const sorted = [...people].sort((a, b) => a.id - b.id)
@@ -113,7 +121,12 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
                     : null
                   if (soundEnabled) playCompletionTone(personIndex)
                 }
-                toggleTask(task.id)
+                try {
+                  await toggleTask(task.id)
+                } catch {
+                  setActionError("Couldn't save — try again")
+                  setTimeout(() => setActionError(""), 3000)
+                }
               }}
               disabled={!canToggle}
               aria-label={`Mark ${task.title} as ${task.completed ? "incomplete" : "complete"}`}
@@ -342,6 +355,10 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
           </div>
         )}
       </div>
+
+      {actionError && (
+        <p className="text-xs text-danger px-3 pb-2">{actionError}</p>
+      )}
 
       {isModalOpen && createPortal(
         <TaskEditModal

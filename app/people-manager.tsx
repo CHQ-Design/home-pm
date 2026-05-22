@@ -20,6 +20,7 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
   const [reassignToId, setReassignToId] = useState<string>("")
   const [editingEmailId, setEditingEmailId] = useState<number | null>(null)
   const [emailDraft, setEmailDraft] = useState("")
+  const [actionError, setActionError] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
   const deletingPerson = people.find(p => p.id === deletingId)
@@ -31,15 +32,25 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
     const formData = new FormData(e.currentTarget)
     const name = (formData.get("name") as string).trim()
     if (!name) return
-    await addPerson(formData)
-    formRef.current?.reset()
+    try {
+      await addPerson(formData)
+      formRef.current?.reset()
+      setActionError(null)
+    } catch {
+      setActionError("Couldn't add person — try again")
+    }
   }
 
   async function confirmDelete() {
     if (!deletingId) return
-    await deletePerson(deletingId, reassignToId ? Number(reassignToId) : undefined)
-    setDeletingId(null)
-    setReassignToId("")
+    try {
+      await deletePerson(deletingId, reassignToId ? Number(reassignToId) : undefined)
+      setDeletingId(null)
+      setReassignToId("")
+      setActionError(null)
+    } catch {
+      setActionError("Couldn't delete — try again")
+    }
   }
 
   function startDelete(person: PersonWithCount) {
@@ -59,8 +70,13 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
 
   async function saveEmail() {
     if (!editingEmailId) return
-    await updatePerson(editingEmailId, { email: emailDraft.trim().toLowerCase() || null })
-    setEditingEmailId(null)
+    try {
+      await updatePerson(editingEmailId, { email: emailDraft.trim().toLowerCase() || null })
+      setEditingEmailId(null)
+      setActionError(null)
+    } catch {
+      setActionError("Couldn't save — try again")
+    }
   }
 
   return (
@@ -135,7 +151,14 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
                           <input
                             type="checkbox"
                             checked={person.isKid}
-                            onChange={() => updatePerson(person.id, { isKid: !person.isKid })}
+                            onChange={async () => {
+                            try {
+                              await updatePerson(person.id, { isKid: !person.isKid })
+                              setActionError(null)
+                            } catch {
+                              setActionError("Couldn't save — try again")
+                            }
+                          }}
                             className="accent-accent"
                           />
                           kid mode
@@ -176,6 +199,8 @@ export default function PeopleManager({ people }: { people: PersonWithCount[] })
               </li>
             ))}
           </ul>
+
+          {actionError && <p className="text-sm text-danger">{actionError}</p>}
 
           <form ref={formRef} onSubmit={handleAddPerson} className="flex gap-2 pt-1">
             <input

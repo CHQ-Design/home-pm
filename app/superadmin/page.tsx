@@ -58,7 +58,7 @@ export default async function SuperAdminPage() {
   })
 
   return (
-    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-20 sm:pb-8">
+    <main className="w-full max-w-2xl mx-auto px-4 pt-8 pb-28 sm:pb-8">
       <PageMast title="Super Admin" subtitle="Manage all households on this instance." />
 
       <div className="space-y-3 mb-8">
