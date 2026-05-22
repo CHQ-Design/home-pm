@@ -14,7 +14,7 @@ export default function PageMast({ kicker, title, subtitle, accentColor, childre
       <div>
         {kicker && <p className="text-xs uppercase tracking-widest text-text-faint mb-1">{kicker}</p>}
         <h1
-          className={`font-serif font-bold ${accentColor ? "text-3xl" : "text-2xl"}`}
+          className={`font-serif-display font-bold ${accentColor ? "text-3xl" : "text-2xl"}`}
           style={accentColor ? { color: accentColor } : undefined}
         >
           {title}
