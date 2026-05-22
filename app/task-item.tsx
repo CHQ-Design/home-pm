@@ -34,11 +34,13 @@ function relativeDateLabel(date: Date): string {
   return `In ${diff} days`
 }
 
-export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId, isKid = false, currentProjectId, soundEnabled = true }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean; currentProjectId?: number; soundEnabled?: boolean }) {
+export default function TaskItem({ task, people, projects, isAdmin, sessionPersonId, isKid = false, currentProjectId, soundEnabled = true, filterPersonId = null }: { task: Task; people: Person[]; projects: Project[]; isAdmin: boolean; sessionPersonId: number | null; isKid?: boolean; currentProjectId?: number; soundEnabled?: boolean; filterPersonId?: number | null }) {
   const canToggle = isAdmin || task.assigneeId === sessionPersonId
   const personColor = task.assigneeId != null
     ? getPersonColor(people, task.assigneeId)
     : null
+  const showLeadingMonogram =
+    isAdmin && filterPersonId == null && task.assigneeId != null && !!task.assignee
   const hasNote = !!(task.notes?.trim())
   const [isExpanded, setIsExpanded] = useState(false)
   const [isInlineEditing, setIsInlineEditing] = useState(false)
@@ -163,6 +165,16 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
             )}
           </label>
 
+          {showLeadingMonogram && personColor && (
+            <span
+              aria-hidden="true"
+              className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold leading-none"
+              style={{ backgroundColor: personColor.border, color: "white" }}
+            >
+              {task.assignee!.name[0]}
+            </span>
+          )}
+
           {isInlineEditing ? (
             <input
               id={`task-panel-${task.id}`}
@@ -241,7 +253,7 @@ export default function TaskItem({ task, people, projects, isAdmin, sessionPerso
 
         {/* Metadata row — shown below title, indented to align with title text */}
         {(() => {
-          const showAssigneeChip = task.assignee && (isAdmin || task.assigneeId !== sessionPersonId)
+          const showAssigneeChip = task.assignee && (isAdmin || task.assigneeId !== sessionPersonId) && !showLeadingMonogram
           const showPriority = isAdmin && task.priority !== "medium"
           const showProject = isAdmin && task.project && task.project.id !== currentProjectId
           const showBell = isAdmin && task.reminderMinutesBefore != null

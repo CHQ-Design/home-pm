@@ -46,7 +46,7 @@ function groupTasks(tasks: Task[], today: string) {
 }
 
 function Section({
-  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId, listClass, soundEnabled,
+  title, tasks, titleClass, titleStyle, people, projects, icon, isAdmin, sessionPersonId, isKid, currentProjectId, listClass, soundEnabled, filterPersonId,
 }: {
   title: string
   tasks: Task[]
@@ -61,6 +61,7 @@ function Section({
   currentProjectId?: number
   listClass?: string
   soundEnabled: boolean
+  filterPersonId: number | null
 }) {
   if (tasks.length === 0) return null
   const headingId = `heading-${title.toLowerCase().replace(/\s+/g, "-")}`
@@ -72,7 +73,7 @@ function Section({
       </h2>
       <ul className={`space-y-1 ${listClass ?? ""}`}>
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} />
+          <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} filterPersonId={filterPersonId} />
         ))}
       </ul>
     </section>
@@ -365,7 +366,7 @@ export default function TaskList({
           ? <IconStar size={18} aria-hidden="true" />
           : <IconAlertTriangle size={18} aria-hidden="true" />
         }
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} filterPersonId={filterPersonId}
       />
       <Section
         title="Today"
@@ -373,7 +374,7 @@ export default function TaskList({
         titleClass={activePerson ? "" : "text-accent"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconSun size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} filterPersonId={filterPersonId}
       />
       <Section
         title="Coming up"
@@ -381,7 +382,7 @@ export default function TaskList({
         titleClass={activePerson ? "" : "text-text-secondary"}
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconClock size={18} aria-hidden="true" />}
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} filterPersonId={filterPersonId}
       />
       <Section
         title="No rush"
@@ -390,7 +391,7 @@ export default function TaskList({
         titleStyle={activeColors ? { color: activeColors.text } : undefined}
         icon={<IconLeaf size={18} aria-hidden="true" />}
         listClass="opacity-70"
-        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled}
+        people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} filterPersonId={filterPersonId}
       />
 
       {groups.completed.length > 0 && (
@@ -417,7 +418,7 @@ export default function TaskList({
           {showCompleted && (
             <ul className="mt-2 space-y-1">
               {groups.completed.map(task => (
-                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} />
+                <TaskItem key={task.id} task={task} people={people} projects={projects} isAdmin={isAdmin} sessionPersonId={sessionPersonId} isKid={isKid} currentProjectId={currentProjectId} soundEnabled={soundEnabled} filterPersonId={filterPersonId} />
               ))}
             </ul>
           )}
