@@ -178,7 +178,7 @@ export default function BucketedTaskList({
     [searchParams]
   )
   const selectedCategories = useMemo(
-    () => searchParams.getAll("cat").filter(c => CATEGORY_VALUES.includes(c as CategoryValue) || c === UNCATEGORIZED) as (CategoryValue | typeof UNCATEGORIZED)[],
+    () => searchParams.getAll("cat").filter((c): c is CategoryValue | typeof UNCATEGORIZED => CATEGORY_VALUES.includes(c as CategoryValue) || c === UNCATEGORIZED),
     [searchParams]
   )
 
@@ -220,6 +220,7 @@ export default function BucketedTaskList({
   }
 
   const hasActiveFilters = selectedPersonIds.length > 0 || selectedCategories.length > 0
+  const filterSheetCount = selectedCategories.length + (custodyModeEnabled && custodyMode !== null ? 1 : 0)
 
   // Routine action state (single open sheet + single toast for all routines)
   const [openSheetRoutine, setOpenSheetRoutine] = useState<RecurringTask | null>(null)
@@ -441,9 +442,7 @@ export default function BucketedTaskList({
               >
                 Everyone
               </button>
-              {people
-                .filter(p => (personStats.get(p.id)?.open ?? 0) > 0 || selectedPersonIds.includes(p.id))
-                .map(p => {
+              {people.map(p => {
                   const isActive = selectedPersonIds.includes(p.id)
                   const colors = getPersonColor(people, p.id)
                   const stats = personStats.get(p.id)
@@ -480,13 +479,13 @@ export default function BucketedTaskList({
           )}
           <button
             onClick={() => setFilterSheetOpen(true)}
-            aria-label={`Open filters${selectedCategories.length > 0 ? `, ${selectedCategories.length} active` : ""}`}
+            aria-label={`Open filters${filterSheetCount > 0 ? `, ${filterSheetCount} active` : ""}`}
             className="ml-auto text-xs px-3 rounded-full transition-colors touch-manipulation border font-medium inline-flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
           >
             Filter
-            {selectedCategories.length > 0 && (
+            {filterSheetCount > 0 && (
               <span className="flex items-center justify-center w-4 h-4 rounded-full bg-accent text-white text-[10px] font-bold leading-none">
-                {selectedCategories.length}
+                {filterSheetCount}
               </span>
             )}
           </button>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { IconCheck } from "@tabler/icons-react"
 import { CATEGORIES, UNCATEGORIZED } from "@/lib/categories"
@@ -25,14 +25,18 @@ export default function FilterSheet({
 }) {
   const sheetRef = useRef<HTMLDivElement>(null)
   const firstItemRef = useRef<HTMLButtonElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     firstItemRef.current?.focus()
   }, [])
 
+  const stableOnClose = useCallback(() => onCloseRef.current(), [])
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") { onClose(); return }
+      if (e.key === "Escape") { stableOnClose(); return }
       if (e.key !== "Tab" || !sheetRef.current) return
       const focusable = Array.from(
         sheetRef.current.querySelectorAll<HTMLElement>("button:not([disabled])")
@@ -48,11 +52,11 @@ export default function FilterSheet({
     }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
-  }, [onClose])
+  }, [stableOnClose])
 
   const content = (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40" aria-hidden="true" onClick={onClose} />
+      <div className="fixed inset-0 z-40 bg-black/40" aria-hidden="true" onClick={stableOnClose} />
       <div
         ref={sheetRef}
         role="dialog"
@@ -107,7 +111,7 @@ export default function FilterSheet({
 
         <div className="px-5 pt-2 pb-3 border-t border-border-subtle">
           <button
-            onClick={onClose}
+            onClick={stableOnClose}
             className="w-full text-sm text-text-secondary hover:text-foreground py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 rounded"
           >
             Done
