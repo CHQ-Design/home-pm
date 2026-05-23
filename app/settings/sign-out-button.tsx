@@ -20,7 +20,7 @@ export default function SignOutButton() {
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="text-sm text-warm-text hover:text-foreground font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 rounded"
         >
-          Sign out
+          Yes, sign out
         </button>
       </div>
     )
