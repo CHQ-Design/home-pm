@@ -19,9 +19,8 @@ type Props = { people: Person[]; projects?: Project[]; projectId?: number; isAdm
 const PLACEHOLDERS = [
   "Add a thing…",
   "What needs doing around here?",
-  "Something for Hudson to do?",
-  "Quinn's turn to help?",
   "What would make tomorrow easier?",
+  "Anything on your mind?",
 ]
 
 export default function AddTaskForm({ people, projects, projectId, isAdmin, sticky = false, householdId, sessionPersonId }: Props) {
@@ -79,7 +78,7 @@ export default function AddTaskForm({ people, projects, projectId, isAdmin, stic
         setPlaceholderIndex(i => (i + 1) % PLACEHOLDERS.length)
         setPlaceholderVisible(true)
       }, 350)
-    }, 3000)
+    }, 7000)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
       if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current)

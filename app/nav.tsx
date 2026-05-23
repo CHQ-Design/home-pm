@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { IconSettings } from "@tabler/icons-react"
 
 export default function Nav() {
@@ -34,20 +34,6 @@ export default function Nav() {
             >
               <IconSettings size={16} aria-hidden="true" />
             </Link>
-          )}
-          {session && (
-            <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center justify-center min-h-[44px] px-2 text-text-faint hover:text-text-hover"
-              aria-label="Sign out"
-              title="Sign out"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-            </button>
           )}
         </div>
       </div>

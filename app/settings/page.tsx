@@ -15,6 +15,7 @@ import SoundSettingToggle from "./sound-setting-toggle"
 import CustodySettingToggle from "./custody-setting-toggle"
 import PushManager from "@/app/push-manager"
 import PageMast from "@/app/page-mast"
+import SignOutButton from "./sign-out-button"
 
 export default async function SettingsPage() {
   const sessionUser = await getSessionUser()
@@ -66,6 +67,9 @@ export default async function SettingsPage() {
             Super Admin
           </Link>
         )}
+        <div className="ml-auto">
+          <SignOutButton />
+        </div>
       </div>
     </main>
   )

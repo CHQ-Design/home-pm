@@ -20,8 +20,8 @@ import { todayUTC, todayInTz, endOfWeekStr, utcDateStr, formatTime, formatToastD
 import { CATEGORIES, CATEGORY_VALUES, UNCATEGORIZED } from "@/lib/categories"
 import type { CategoryValue } from "@/lib/categories"
 import CategoryTag from "./category-tag"
-import CustodyModeChip from "./custody-mode-chip"
 import type { CustodyMode } from "./custody-mode-chip"
+import FilterSheet from "./filter-sheet"
 
 type Task = Prisma.TaskGetPayload<{ include: { assignee: true; project: true } }>
 type RecurringTask = Prisma.RecurringTaskGetPayload<{ include: { assignee: true } }>
@@ -166,6 +166,7 @@ export default function BucketedTaskList({
   const boardClearCelebrated = useRef(false)
 
   const [custodyMode, setCustodyMode] = useState<CustodyMode | null>(initialCustodyMode)
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -177,7 +178,7 @@ export default function BucketedTaskList({
     [searchParams]
   )
   const selectedCategories = useMemo(
-    () => searchParams.getAll("cat").filter(c => CATEGORY_VALUES.includes(c as CategoryValue) || c === UNCATEGORIZED),
+    () => searchParams.getAll("cat").filter(c => CATEGORY_VALUES.includes(c as CategoryValue) || c === UNCATEGORIZED) as (CategoryValue | typeof UNCATEGORIZED)[],
     [searchParams]
   )
 
@@ -423,102 +424,71 @@ export default function BucketedTaskList({
     <div>
       <span className="sr-only" aria-live="polite" aria-atomic="true">{boardClearAnnouncement}</span>
 
-      {/* Custody mode chip — when feature enabled, non-kid users only */}
-      {custodyModeEnabled && !isKid && (
-        <div className="flex mb-2">
-          <CustodyModeChip initialMode={custodyMode} onModeChange={setCustodyMode} />
-        </div>
-      )}
-
-      {/* Person filter pills — admin only, multi-select */}
-      {isAdmin && people.length > 0 && (
-        <div className="flex gap-2 mb-3 flex-wrap">
-          <button
-            onClick={clearPersonFilter}
-            aria-pressed={selectedPersonIds.length === 0}
-            aria-label="Show everyone's things"
-            className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 ${
-              selectedPersonIds.length === 0
-                ? "bg-accent text-white font-medium"
-                : "bg-surface text-text-hover border border-border-chip hover:bg-surface-hover hover:text-foreground"
-            }`}
-          >
-            Everyone
-          </button>
-          {people.map(p => {
-            const isActive = selectedPersonIds.includes(p.id)
-            const colors = getPersonColor(people, p.id)
-            const stats = personStats.get(p.id)
-            return (
-              <button
-                key={p.id}
-                onClick={() => togglePersonFilter(p.id)}
-                aria-pressed={isActive}
-                aria-label={`${isActive ? "Remove" : "Add"} ${p.name} filter${p.streakCount >= 2 ? ` — ${p.streakCount} day streak` : ""}`}
-                className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
-                style={isActive
-                  ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
-                  : { backgroundColor: "var(--color-surface)", color: "var(--color-text-hover)", borderColor: "var(--color-border-chip)" }}
-              >
-                <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold leading-none shrink-0"
-                  style={{ backgroundColor: colors.border, color: "white" }}
-                >
-                  {p.name[0]}
-                </span>
-                {p.name}
-                {stats?.overdue ? (
-                  <span className="text-[10px] text-warm-text">{stats.overdue} late</span>
-                ) : null}
-                {p.streakCount >= 2 && (
-                  <span className="text-[10px] ml-0.5 inline-flex items-center gap-0.5" aria-label={`${p.streakCount} day streak`}>
-                    <IconFlame size={10} aria-hidden="true" />{p.streakCount}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Separator — only when both filter rows render */}
-      {isAdmin && people.length > 0 && !isKid && (
-        <hr className="border-border-subtle mb-3" aria-hidden="true" />
-      )}
-
-      {/* Category filter chips — all non-kid users */}
+      {/* Person chips + Filter button row — non-kid users only */}
       {!isKid && (
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {CATEGORIES.map(cat => {
-            const isActive = selectedCategories.includes(cat.value)
-            return (
+        <div className="flex gap-2 mb-3 flex-wrap items-center">
+          {isAdmin && people.length > 0 && (
+            <>
               <button
-                key={cat.value}
-                onClick={() => toggleCategoryFilter(cat.value)}
-                aria-pressed={isActive}
-                aria-label={`${isActive ? "Remove" : "Add"} ${cat.label} filter`}
-                className={`text-xs px-3 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 border ${
-                  isActive
-                    ? "bg-accent text-white border-accent font-medium"
-                    : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
+                onClick={clearPersonFilter}
+                aria-pressed={selectedPersonIds.length === 0}
+                aria-label="Show everyone's things"
+                className={`text-xs px-4 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center gap-1.5 ${
+                  selectedPersonIds.length === 0
+                    ? "bg-accent text-white font-medium"
+                    : "bg-surface text-text-hover border border-border-chip hover:bg-surface-hover hover:text-foreground"
                 }`}
               >
-                <cat.Icon size={12} aria-hidden="true" />
-                {cat.label}
+                Everyone
               </button>
-            )
-          })}
+              {people
+                .filter(p => (personStats.get(p.id)?.open ?? 0) > 0 || selectedPersonIds.includes(p.id))
+                .map(p => {
+                  const isActive = selectedPersonIds.includes(p.id)
+                  const colors = getPersonColor(people, p.id)
+                  const stats = personStats.get(p.id)
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => togglePersonFilter(p.id)}
+                      aria-pressed={isActive}
+                      aria-label={`${isActive ? "Remove" : "Add"} ${p.name} filter${p.streakCount >= 2 ? ` — ${p.streakCount} day streak` : ""}`}
+                      className="text-xs pl-1.5 pr-3 rounded-full transition-colors touch-manipulation border font-medium flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                      style={isActive
+                        ? { backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }
+                        : { backgroundColor: "var(--color-surface)", color: "var(--color-text-hover)", borderColor: "var(--color-border-chip)" }}
+                    >
+                      <span
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold leading-none shrink-0"
+                        style={{ backgroundColor: colors.border, color: "white" }}
+                      >
+                        {p.name[0]}
+                      </span>
+                      {p.name}
+                      {stats?.overdue ? (
+                        <span className="text-[10px] text-warm-text">{stats.overdue} late</span>
+                      ) : null}
+                      {p.streakCount >= 2 && (
+                        <span className="text-[10px] ml-0.5 inline-flex items-center gap-0.5" aria-label={`${p.streakCount} day streak`}>
+                          <IconFlame size={10} aria-hidden="true" />{p.streakCount}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+            </>
+          )}
           <button
-            onClick={() => toggleCategoryFilter(UNCATEGORIZED)}
-            aria-pressed={selectedCategories.includes(UNCATEGORIZED)}
-            aria-label={`${selectedCategories.includes(UNCATEGORIZED) ? "Remove" : "Add"} Uncategorized filter`}
-            className={`text-xs px-3 rounded-full transition-colors touch-manipulation min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 inline-flex items-center border ${
-              selectedCategories.includes(UNCATEGORIZED)
-                ? "bg-accent text-white border-accent font-medium"
-                : "bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
-            }`}
+            onClick={() => setFilterSheetOpen(true)}
+            aria-label={`Open filters${selectedCategories.length > 0 ? `, ${selectedCategories.length} active` : ""}`}
+            className="ml-auto text-xs px-3 rounded-full transition-colors touch-manipulation border font-medium inline-flex items-center gap-1.5 min-h-[44px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 bg-surface text-text-hover border-border-chip hover:bg-surface-hover hover:text-foreground"
           >
-            Uncategorized
+            Filter
+            {selectedCategories.length > 0 && (
+              <span className="flex items-center justify-center w-4 h-4 rounded-full bg-accent text-white text-[10px] font-bold leading-none">
+                {selectedCategories.length}
+              </span>
+            )}
           </button>
         </div>
       )}
@@ -752,6 +722,18 @@ export default function BucketedTaskList({
           message={toast.message}
           onUndo={handleUndo}
           onDismiss={() => setToast(null)}
+        />
+      )}
+
+      {/* Filter sheet */}
+      {filterSheetOpen && (
+        <FilterSheet
+          selectedCategories={selectedCategories}
+          onToggleCategory={toggleCategoryFilter}
+          custodyModeEnabled={custodyModeEnabled}
+          custodyMode={custodyMode}
+          onModeChange={setCustodyMode}
+          onClose={() => setFilterSheetOpen(false)}
         />
       )}
     </div>
