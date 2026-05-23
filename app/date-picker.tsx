@@ -51,7 +51,7 @@ const calendarClassNames = {
     "w-9 h-9 rounded-md text-sm text-foreground hover:bg-surface hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
   selected:
     "[&>button]:bg-accent [&>button]:text-white [&>button]:hover:bg-accent-hover [&>button]:font-medium",
-  today: "[&>button]:text-accent [&>button]:font-medium",
+  today: "[&>button]:text-accent [&>button]:font-medium [&>button]:ring-1 [&>button]:ring-accent [&>button]:ring-inset",
   outside: "[&>button]:text-text-faint",
   disabled: "[&>button]:text-text-faint [&>button]:cursor-not-allowed",
   hidden: "invisible",
