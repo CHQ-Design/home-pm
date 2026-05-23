@@ -51,7 +51,7 @@ export async function GET() {
 
   let assigneeFilter: { assigneeId?: number } = {}
   if (!isAdmin) {
-    const person = await prisma.person.findFirst({ where: { email }, select: { id: true } })
+    const person = await prisma.person.findFirst({ where: { email, householdId }, select: { id: true } })
     if (!person) return new NextResponse("Forbidden", { status: 403 })
     assigneeFilter = { assigneeId: person.id }
   }
